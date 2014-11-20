@@ -6,7 +6,8 @@
     "exposed-modules": [],
     "elm-version": "0.13",
     "dependencies": {
-        "echaozh/elm-drag": "0.1"
+        "echaozh/elm-drag": "0.1",
+        "evancz/elm-html": "0.3"
     },
     "repository": "https://github.com/joefiorini/diagrammly.git"
 }
