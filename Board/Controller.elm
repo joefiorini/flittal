@@ -21,8 +21,6 @@ data Action = NoOp |
   OtherKeyboard Int |
   BoxAction Box.Action |
   Drop DragEvent
-  -- DragStart DragEvent |
-  -- DragEnd DragEvent
 
 renderBoard : DropPort -> Signal Html
 renderBoard p = lift render <| state p
