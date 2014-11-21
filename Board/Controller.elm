@@ -1,4 +1,4 @@
-module Board.Controller (renderBoard, Action(..)) where
+module Board.Controller (renderBoard) where
 
 import Keyboard
 import Debug

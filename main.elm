@@ -1,5 +1,4 @@
 module Main where
--- import Box.Controller (render as renderBoxes)
 import Html (Html, toElement)
 import Board.Controller (renderBoard)
 import DomUtils (DragEvent, DropPort)
