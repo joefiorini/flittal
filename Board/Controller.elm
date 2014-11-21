@@ -13,7 +13,7 @@ import Html (Html)
 import DomUtils (DragEvent, DropPort)
 
 import String (split, toInt)
-
+import Either (..)
 
 data Action = NoOp |
   Add |
@@ -36,16 +36,12 @@ keyboardActions = foldp (\k a -> if k == 65 then Add else NoOp) NoOp Keyboard.la
 actions : Input.Input Action
 actions = Input.input NoOp
 
-addBoxAction = foldp (\k a ->
-  if (Debug.log "k" k) == 65 then
-    case Debug.log "a" a of
-      NewBox i -> Debug.log "NewBox" <| NewBox (i + 1)
-      OtherKeyboard i -> NewBox (i + 1)
-  else
-    case a of
-      NewBox i -> OtherKeyboard i
-      OtherKeyboard i -> OtherKeyboard i)
-  (OtherKeyboard 0) Keyboard.lastPressed
+eitherToAction = (either (\id -> NewBox id) (\id -> NoOp))
+extractEither = (either (\id -> id) (\id -> id))
+
+addBoxAction = eitherToAction <~ (foldp (\k i -> if | k == 65 -> Left ((extractEither i) + 1)
+                                                    | True -> Right (extractEither i))
+                                        (Left 0) Keyboard.lastPressed)
 
 state : DropPort -> Signal Board
 state dropPort = foldp step startingState (merges [
