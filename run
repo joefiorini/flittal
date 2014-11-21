@@ -1,4 +1,4 @@
 #!/bin/bash
 
-wait_on *.elm
-elm -m --only-js board-html.elm
+wait_on {*.elm,**/*.elm}
+elm -m --only-js main.elm
