@@ -1,0 +1,4 @@
+#!/bin/bash
+
+wait_on *.elm
+elm -m --only-js board-html.elm
