@@ -18,7 +18,6 @@ import Either (..)
 data Action = NoOp |
   Add |
   NewBox Int |
-  OtherKeyboard Int |
   BoxAction Box.Action |
   Drop DragEvent
 
@@ -50,14 +49,13 @@ state dropPort = foldp step startingState (merges [
 
 step : Action -> Board -> Board
 step action state =
-  case Debug.log "action" action of
+  case action of
     NewBox i ->
       let newBox = makeBox i in
         Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
     BoxAction (Box.Move event) ->
       let box = selectedBox event.id state.boxes in
         Debug.log "moved box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Move event) box }
-    OtherKeyboard i -> state
     NoOp -> state
 
 
