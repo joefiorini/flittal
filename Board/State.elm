@@ -8,13 +8,11 @@ import Debug
 startingState : Board
 startingState =
   { boxes = []
-  , lastUpdatedBox = Nothing
   }
 
 
 type Board =
   { boxes: [Box]
-  , lastUpdatedBox: Maybe Box
   }
 
 selectedBox : String -> [Box] -> Box
