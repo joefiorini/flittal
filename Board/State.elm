@@ -29,6 +29,7 @@ makeBox identifier =
   { position = (0,0)
   , size = (100, 50)
   , label = "New Box"
+  , originalLabel = ""
   , key = identifier
   , isEditing = False
   , isSelected = False

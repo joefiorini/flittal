@@ -6,6 +6,7 @@ import DomUtils (DragEvent)
 
 data Action = Move DragEvent
             | Editing Bool
+            | CancelEditing
             | Selected
             | NoOp
             | Update String

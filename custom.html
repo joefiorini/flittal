@@ -24,6 +24,16 @@
         drop: result
       });
 
+      board.ports.focus.subscribe(function(selector) {
+          setTimeout(function() {
+              var nodes = document.querySelectorAll(selector);
+              if (nodes.length === 1 && document.activeElement !== nodes[0]) {
+                  nodes[0].focus()
+                  nodes[0].setSelectionRange(0, nodes[0].value.length)
+              }
+          }, 50);
+      });
+
       function sendPort(port, result) {
         console.log('sending ', port, result);
         board.ports[port].send(result);

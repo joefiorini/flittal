@@ -1,4 +1,4 @@
-module Board.Controller (renderBoard) where
+module Board.Controller (renderBoard, checkFocus) where
 
 import Keyboard
 import Debug
@@ -29,6 +29,16 @@ render board = draw actions.handle (map (Box.renderBox actions.handle) board.box
 
 actions : Input.Input Action
 actions = Input.input NoOp
+
+checkFocus =
+    let needsFocus act =
+            case Debug.log "checking focus for" act of
+              EditingBox key bool -> bool
+              _ -> False
+
+        toSelector (EditingBox id _) = ("#box-" ++ show id ++ "-label")
+    in
+        toSelector <~ keepIf needsFocus (EditingBox 0 True) actions.signal
 
 eitherToAction = (either (\id -> NewBox id) (\id -> NoOp))
 extractEither = (either (\id -> id) (\id -> id))
@@ -64,9 +74,17 @@ step action state =
          | True ->
           let newBox = makeBox i in
             Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
+    CancelEditingBox key ->
+      let box = boxForKey key state.boxes
+          updateBox = Box.step Box.Action.CancelEditing in
+        Debug.log "Canceling edit" { state | boxes <- replaceBox state.boxes <| updateBox box }
+    CancelEditingBoxes ->
+      let updateBox = Box.step Box.Action.CancelEditing in
+        { state | boxes <- map updateBox state.boxes }
     DeselectBoxes ->
-      { state | boxes <- map (\box -> { box | isSelected <- False }) state.boxes
-              , selectedBoxes <- [] }
+      let state_ = step CancelEditingBoxes state in
+        { state_ | boxes <- map (\box -> { box | isSelected <- False }) state_.boxes
+                , selectedBoxes <- [] }
     SelectBoxMulti id ->
       let box = boxForKey id state.boxes in
         Debug.log "adding box to selection" updateStateSelections box state
