@@ -10,17 +10,25 @@ import Graphics.Input (Handle)
 
 import Board.Action (Action(..))
 
-import DomUtils (getTargetId, extractBoxId)
+import DomUtils (getTargetId, extractBoxId, getMouseSelectionEvent)
+
+type SelectionEvent =
+  { id: String
+  , metaKey: Bool
+  }
 
 buildEditingAction : String -> Action
 buildEditingAction id = let boxIdM = extractBoxId id in
                    case boxIdM of
-                     Just key -> EditingBox key True
+                     Just key ->
+                       EditingBox key True
                      Nothing -> NoOp
 
-buildSelectAction id = let boxIdM = extractBoxId id in
+buildSelectAction event = let boxIdM = extractBoxId event.id in
                     case boxIdM of
-                      Just key -> SelectBox key
+                      Just key ->
+                        if | event.metaKey -> SelectBoxMulti key
+                           | otherwise -> SelectBox key
                       Nothing -> DeselectBoxes
 
 draw : Handle Action -> [Html] -> Html
@@ -33,6 +41,6 @@ draw handle widgets = Debug.log "draw" <| div [ style
       ]
       , id "container"
       , on "dblclick" getTargetId handle buildEditingAction
-      , on "click" getTargetId handle buildSelectAction
+      , on "click" getMouseSelectionEvent handle buildSelectAction
     ] widgets
 

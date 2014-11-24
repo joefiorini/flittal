@@ -12,6 +12,18 @@ Elm.Native.Custom.Html.make = function(elm) {
           Maybe.Nothing;
   }
 
+  function getMouseSelectionEvent(event) {
+    var id = 'id' in event.target ?  event.target.id : '';
+
+    return Maybe.Just({
+      id: id,
+      metaKey: event.metaKey,
+      altKey: event.altKey,
+      ctrlKey: event.ctrlKey,
+      shiftKey: event.shiftKey
+    });
+  }
+
   function preventDefault(event) {
     event.preventDefault();
     return Maybe.Just(Utils._Tuple0);
@@ -25,6 +37,7 @@ Elm.Native.Custom.Html.make = function(elm) {
   return Elm.Native.Custom.Html.values = {
     getTargetId: getTargetId,
     preventDefault: preventDefault,
-    stopPropagation: stopPropagation
+    stopPropagation: stopPropagation,
+    getMouseSelectionEvent: getMouseSelectionEvent
   };
 };

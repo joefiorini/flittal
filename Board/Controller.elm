@@ -52,6 +52,10 @@ state dropPort = foldp step startingState (merges [
 
 isEditing = any (.isEditing)
 
+updateStateSelections box state =
+  { state | boxes <- replaceBox state.boxes <| Box.step Box.Action.Selected box
+           , selectedBoxes <- filter (.isSelected) state.boxes }
+
 step : Action -> Board -> Board
 step action state =
   case action of
@@ -63,21 +67,22 @@ step action state =
     DeselectBoxes ->
       { state | boxes <- map (\box -> { box | isSelected <- False }) state.boxes
               , selectedBoxes <- [] }
+    SelectBoxMulti id ->
+      let box = boxForKey id state.boxes in
+        Debug.log "adding box to selection" updateStateSelections box state
     SelectBox id ->
-      let box = selectedBox id state.boxes
+      let box = boxForKey id state.boxes
           state_ = step DeselectBoxes state in
         if | box.isSelected -> state
            | otherwise ->
-        Debug.log "selecting box"
-          { state_ | boxes <- replaceBox state_.boxes <| Box.step Box.Action.Selected box
-                   , selectedBoxes <- filter (.isSelected) state_.boxes }
+        Debug.log "selecting box" updateStateSelections box state_
     EditingBox id toggle ->
-      let box = selectedBox id state.boxes in
+      let box = boxForKey id state.boxes in
         Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }
     UpdateBox box label ->
       { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
     MoveBox key event ->
-      let box = selectedBox key state.boxes in
+      let box = boxForKey key state.boxes in
         Debug.log "moved box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Move event) box }
     NoOp -> state
 

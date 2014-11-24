@@ -16,8 +16,8 @@ type Board =
   , selectedBoxes: [Box]
   }
 
-selectedBox : Int -> [Box] -> Box
-selectedBox key boxes = head (filter (\b -> b.key == key) boxes)
+boxForKey : Int -> [Box] -> Box
+boxForKey key boxes = head (filter (\b -> b.key == key) boxes)
 
 replaceBox : [Box] -> Box -> [Box]
 replaceBox boxes withBox = map (\box ->

@@ -12,5 +12,6 @@ data Action = NoOp |
   DeselectBoxes |
   EditingBox Int Bool |
   SelectBox Int |
+  SelectBoxMulti Int |
   Drop DragEvent
 

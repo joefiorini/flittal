@@ -22,7 +22,7 @@ draw handle box = div [style
     [ prop "position" "absolute"
     , prop "width" (fst <| toPxPoint box.size)
     , prop "height" (snd <| toPxPoint box.size)
-    , if box.isSelected then prop "border" "solid thin green" else prop "border" "solid thin black"
+    , if box.isSelected then prop "border" "dashed thin green" else prop "border" "solid thin black"
     , prop "left" (fst <| toPxPoint box.position)
     , prop "top" (snd <| toPxPoint box.position)
     ]
