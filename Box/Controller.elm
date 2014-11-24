@@ -32,8 +32,7 @@ step action box = case action of
     { box | label <- box.originalLabel
           , isEditing <- False }
   Editing toggle ->
-    if | box.isEditing -> { box | isEditing <- False }
-       | otherwise -> { box | isEditing <- True, originalLabel <- box.label }
+       { box | isEditing <- toggle, originalLabel <- box.label }
   Update newLabel ->
     { box | label <- newLabel }
   NoOp -> box

@@ -38,13 +38,14 @@ draw handle box = div [style
     , id <| "box-" ++ (show box.key)
     , on "input" (Debug.log "value" getValue) handle (Board.UpdateBox box)
     , onKeyDown handle box.key
-    , on "click" stopPropagation handle (\_ -> Board.NoOp)
   ]
   [ if box.isEditing then labelField box.key box.label else text box.label ]
 
 labelField : BoxKey -> String -> Html
-labelField key label = input [
+labelField key label = let nullHandler = (Input.input ()).handle in
+  input [
     id <| "box-" ++ show key ++ "-label"
   , attr "type" "text"
   , attr "value" label
+  , on "click" stopPropagation nullHandler (always ())
   ] []
