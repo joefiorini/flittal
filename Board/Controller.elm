@@ -7,28 +7,24 @@ import Graphics.Input as Input
 import Board.View (draw)
 import Board.State (..)
 
+import Board.Action (..)
 import Box.Controller as Box
 
-import Html (Html)
 import DomUtils (DragEvent, DropPort)
+
+import Html (Html)
 
 import String (split, toInt)
 import Either (..)
 
-data Action = NoOp |
-  Add |
-  NewBox Int |
-  BoxAction Box.Action |
-  Drop DragEvent
+import Native.Custom.Html
 
 renderBoard : DropPort -> Signal Html
 renderBoard p = lift render <| state p
 
 render : Board -> Html
-render board = draw (map Box.renderBox board.boxes)
-
-keyboardActions : Signal Action
-keyboardActions = foldp (\k a -> if k == 65 then Add else NoOp) NoOp Keyboard.lastPressed
+render board = let editBoxAction id = EditBox id in
+                draw actions.handle (map Box.renderBox board.boxes)
 
 actions : Input.Input Action
 actions = Input.input NoOp
@@ -53,9 +49,11 @@ step action state =
     NewBox i ->
       let newBox = makeBox i in
         Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
+    EditBox id ->
+      let box = selectedBox id state.boxes in
+        Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Edit) box }
     BoxAction (Box.Move event) ->
       let box = selectedBox event.id state.boxes in
         Debug.log "moved box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Move event) box }
     NoOp -> state
-
 

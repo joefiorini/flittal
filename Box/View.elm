@@ -1,8 +1,13 @@
 module Box.View (draw) where
 
 import Html (..)
-import Html.Tags (div)
+import Html.Tags (div, input)
 import Html.Attributes (id)
+import Html.Events (onkeypress)
+
+import Graphics.Input as Input
+
+import Debug
 
 import Box.State (..)
 
@@ -21,4 +26,10 @@ draw box = div [style
     , attr "draggable" "true"
     , id <| "box-" ++ (show box.key)
   ]
-  [ text box.label ]
+  [ if box.isEditing then labelField box.label else text box.label ]
+
+labelField : String -> Html
+labelField label = input [
+    attr "type" "text"
+  , attr "value" label
+  ] []

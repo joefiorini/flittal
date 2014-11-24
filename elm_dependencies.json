@@ -5,6 +5,9 @@
     "license": "BSD3",
     "exposed-modules": [],
     "elm-version": "0.13",
+    "native-modules": [
+      "Native.Custom.Html"
+    ],
     "dependencies": {
         "echaozh/elm-drag": "0.1",
         "evancz/elm-html": "0.3"

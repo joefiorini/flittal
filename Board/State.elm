@@ -32,4 +32,5 @@ makeBox identifier =
   , size = (100, 50)
   , label = "New Box"
   , key = identifier
+  , isEditing = False
   }

@@ -8,11 +8,11 @@ import Box.View (draw)
 import Html (Html)
 
 data Action = Move DragEvent
+            | Edit
             | NoOp
 
 renderBox : Box -> Html
 renderBox box = draw box
-
 
 moveBox : DragEvent -> Box -> Box
 moveBox { id, startX, startY, endX, endY } box =
@@ -26,4 +26,6 @@ step : Action -> Box -> Box
 step action box = case action of
   Move event ->
     moveBox event box
+  Edit ->
+    { box | isEditing <- True }
   NoOp -> box
