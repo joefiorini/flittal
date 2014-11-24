@@ -7,13 +7,16 @@ import String (split, toInt)
 
 type DragEvent =
   { id: String
+  , isStart: Bool
+  , isEnd: Bool
+  , isDrop: Bool
   , startX: Int
   , endX: Int
   , startY: Int
   , endY: Int
   }
 
-type DropPort = Signal DragEvent
+type DnDPort = Signal DragEvent
 
 getTargetId : Get String
 getTargetId = Native.Custom.Html.getTargetId

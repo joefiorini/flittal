@@ -10,7 +10,7 @@ import Board.State (..)
 import Board.Action (..)
 import Box.Controller as Box
 
-import DomUtils (DragEvent, DropPort, extractBoxId)
+import DomUtils (DragEvent, DnDPort, extractBoxId)
 
 import Html (Html)
 
@@ -21,8 +21,8 @@ import Native.Custom.Html
 
 import Box.Action
 
-renderBoard : DropPort -> Signal Html
-renderBoard p = lift render <| state p
+renderBoard : DnDPort -> DnDPort -> Signal Html
+renderBoard dropP dragstartP = lift render <| state dropP dragstartP
 
 render : Board -> Html
 render board = draw actions.handle (map (Box.renderBox actions.handle) board.boxes)
@@ -50,14 +50,17 @@ addBoxAction = eitherToAction <~ (foldp (\k i -> if | k == 65 -> Left ((extractE
 moveBoxAction : DragEvent -> Action
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
     case boxKeyM of
-      Just key -> MoveBox key event
+      Just key ->
+       if | event.isStart -> SelectBox key
+          | otherwise -> MoveBox key event
       Nothing -> NoOp
 
-state : DropPort -> Signal Board
-state dropPort = foldp step startingState (merges [
+state : DnDPort -> DnDPort -> Signal Board
+state dropP dragstartP = foldp step startingState (merges [
                                            addBoxAction
                                          , actions.signal
-                                         , lift moveBoxAction dropPort
+                                         , moveBoxAction <~ dropP
+                                         , moveBoxAction <~ dragstartP
                                          ])
 
 isEditing = any (.isEditing)
@@ -66,6 +69,7 @@ updateStateSelections box state =
   { state | boxes <- replaceBox state.boxes <| Box.step Box.Action.Selected box
            , selectedBoxes <- filter (.isSelected) state.boxes }
 
+contains obj = any (\b -> b == obj)
 step : Action -> Board -> Board
 step action state =
   case action of
@@ -100,7 +104,8 @@ step action state =
     UpdateBox box label ->
       { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
     MoveBox key event ->
-      let box = boxForKey key state.boxes in
-        Debug.log "moved box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Move event) box }
+      let selectedBoxes = filter (.isSelected) state.boxes
+          updateBox box = (if contains box selectedBoxes then Box.step (Box.Action.Move event) box else box) in
+        Debug.log "moved box" { state | boxes <- map updateBox state.boxes }
     NoOp -> state
 

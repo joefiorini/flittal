@@ -12,6 +12,9 @@
     <script>
       var result = {
         id: "",
+        isStart: false,
+        isDrop: false,
+        isEnd: false,
         startX: 0,
         startY: 0,
         endX: 0,
@@ -36,6 +39,21 @@
 
       function sendPort(port, result) {
         console.log('sending ', port, result);
+
+        result.isStart = result.isEnd = result.isDrop = false;
+
+        switch(port) {
+          case "dragstart":
+            result.isStart = true;
+            break;
+          case "dragend":
+            result.isEnd = true;
+            break;
+          case "drop":
+            result.isDrop = true;
+            break;
+        }
+
         board.ports[port].send(result);
       }
 

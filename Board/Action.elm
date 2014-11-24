@@ -2,7 +2,7 @@ module Board.Action where
 
 import Box.Action
 import Box.State (Box, BoxKey)
-import DomUtils (DragEvent, DropPort)
+import DomUtils (DragEvent)
 
 data Action = NoOp |
   RequestedAdd |

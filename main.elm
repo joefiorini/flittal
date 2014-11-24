@@ -2,7 +2,7 @@ module Main where
 import Html (Html, toElement)
 import Board.Controller (renderBoard, checkFocus)
 import Board.Action (Action(..))
-import DomUtils (DragEvent, DropPort)
+import DomUtils (DragEvent)
 import Window
 
 port drop : Signal DragEvent
@@ -14,5 +14,5 @@ port focus = checkFocus
 
 
 main : Signal Element
-main = (toElement 900 600) <~ (renderBoard drop)
+main = (toElement 900 600) <~ (renderBoard drop dragstart)
 

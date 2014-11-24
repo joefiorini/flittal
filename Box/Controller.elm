@@ -15,7 +15,7 @@ renderBox : Input.Handle Board.Action -> Box -> Html
 renderBox handle box = draw handle box
 
 moveBox : DragEvent -> Box -> Box
-moveBox { id, startX, startY, endX, endY } box =
+moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
   let offsetX = (fst box.position) - startX
       offsetY = (snd box.position) - startY
       newX = endX + offsetX
