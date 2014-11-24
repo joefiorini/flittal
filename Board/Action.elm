@@ -1,13 +1,14 @@
 module Board.Action where
 
-import Box.Controller as Box
+import Box.Action
+import Box.State (Box)
 import DomUtils (DragEvent, DropPort)
 
 data Action = NoOp |
   RequestedAdd |
+  UpdateBox Box String |
   NewBox Int |
-  BoxAction Box.Action |
-  EditBox String |
+  MoveBox Int DragEvent |
+  EditingBox Int Bool |
   Drop DragEvent
-
 

@@ -2,7 +2,6 @@ module Board.State where
 
 import Box.State (Box, BoxKey)
 
-import String (split, toInt)
 import Debug
 
 startingState : Board
@@ -15,11 +14,8 @@ type Board =
   { boxes: [Box]
   }
 
-selectedBox : String -> [Box] -> Box
-selectedBox id boxes = let keyM = toInt << last <| (split "-" id) in
-  case keyM of
-    Just key -> head (filter (\b -> b.key == key) boxes)
-    Nothing -> Debug.crash "expected box key to be a number"
+selectedBox : Int -> [Box] -> Box
+selectedBox key boxes = head (filter (\b -> b.key == key) boxes)
 
 replaceBox : [Box] -> Box -> [Box]
 replaceBox boxes withBox = map (\box ->

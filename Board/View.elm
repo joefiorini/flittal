@@ -10,10 +10,13 @@ import Graphics.Input (Handle)
 
 import Board.Action (Action(..))
 
-import DomUtils (getTargetId)
+import DomUtils (getTargetId, extractBoxId)
 
 buildAction : String -> Action
-buildAction id = EditBox id
+buildAction id = let boxIdM = extractBoxId id in
+                   case boxIdM of
+                     Just key -> EditingBox key True
+                     Nothing -> NoOp
 
 draw : Handle Action -> [Html] -> Html
 draw handle widgets = Debug.log "draw" <| div [ style

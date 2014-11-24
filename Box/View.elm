@@ -10,12 +10,15 @@ import Graphics.Input as Input
 import Debug
 
 import Box.State (..)
+import Board.Action as Board
 
 toPxPoint : Point -> (String, String)
 toPxPoint point = (show (fst point) ++ "px", show (snd point) ++ "px")
 
-draw : Box -> Html
-draw box = div [style
+onEnter handle value = on "keydown" (when (\k -> k.keyCode == 13) getKeyboardEvent) handle (always value)
+
+draw : Input.Handle Board.Action -> Box -> Html
+draw handle box = div [style
     [ prop "position" "absolute"
     , prop "width" (fst <| toPxPoint box.size)
     , prop "height" (snd <| toPxPoint box.size)
@@ -25,6 +28,8 @@ draw box = div [style
     ]
     , attr "draggable" "true"
     , id <| "box-" ++ (show box.key)
+    , on "input" (Debug.log "value" getValue) handle (Board.UpdateBox box)
+    , onEnter handle (Board.EditingBox box.key False)
   ]
   [ if box.isEditing then labelField box.label else text box.label ]
 

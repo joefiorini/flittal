@@ -1,18 +1,18 @@
-module Box.Controller (moveBox, step, Action(..), renderBox) where
+module Box.Controller (moveBox, step, renderBox) where
 
 import DomUtils (DragEvent)
 
 import Box.State (..)
 import Box.View (draw)
+import Box.Action (..)
+import Board.Action as Board
 
 import Html (Html)
 
-data Action = Move DragEvent
-            | Edit
-            | NoOp
+import Graphics.Input as Input
 
-renderBox : Box -> Html
-renderBox box = draw box
+renderBox : Input.Handle Board.Action -> Box -> Html
+renderBox handle box = draw handle box
 
 moveBox : DragEvent -> Box -> Box
 moveBox { id, startX, startY, endX, endY } box =
@@ -26,6 +26,8 @@ step : Action -> Box -> Box
 step action box = case action of
   Move event ->
     moveBox event box
-  Edit ->
-    { box | isEditing <- True }
+  Editing toggle ->
+    { box | isEditing <- toggle }
+  Update newLabel ->
+    { box | label <- newLabel }
   NoOp -> box
