@@ -19,6 +19,7 @@ type Box =
   , size: Point
   , isEditing: Bool
   , isSelected: Bool
+  , isDragging: Bool
   }
 
 type BoxKey = Int

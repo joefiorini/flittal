@@ -41,6 +41,6 @@ draw handle widgets = Debug.log "draw" <| div [ style
       ]
       , id "container"
       , on "dblclick" getTargetId handle buildEditingAction
-      , on "click" getMouseSelectionEvent handle buildSelectAction
+      , on "mousedown" getMouseSelectionEvent handle buildSelectAction
     ] widgets
 

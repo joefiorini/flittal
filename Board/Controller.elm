@@ -51,7 +51,7 @@ moveBoxAction : DragEvent -> Action
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
     case boxKeyM of
       Just key ->
-       if | event.isStart -> SelectBox key
+       if | event.isStart -> DraggingBox key
           | otherwise -> MoveBox key event
       Nothing -> NoOp
 
@@ -66,46 +66,62 @@ state dropP dragstartP = foldp step startingState (merges [
 isEditing = any (.isEditing)
 
 updateStateSelections box state =
-  { state | boxes <- replaceBox state.boxes <| Box.step Box.Action.Selected box
-           , selectedBoxes <- filter (.isSelected) state.boxes }
+  let updateBox = Box.step Box.Action.Selected in
+  { state | boxes <- map updateBox state.boxes }
 
 contains obj = any (\b -> b == obj)
+
 step : Action -> Board -> Board
 step action state =
-  case action of
-    NewBox i ->
-      if | isEditing state.boxes -> state
-         | True ->
-          let newBox = makeBox i in
-            Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
-    CancelEditingBox key ->
-      let box = boxForKey key state.boxes
-          updateBox = Box.step Box.Action.CancelEditing in
-        Debug.log "Canceling edit" { state | boxes <- replaceBox state.boxes <| updateBox box }
-    CancelEditingBoxes ->
-      let updateBox = Box.step Box.Action.CancelEditing in
-        { state | boxes <- map updateBox state.boxes }
-    DeselectBoxes ->
-      let state_ = step CancelEditingBoxes state in
-        { state_ | boxes <- map (\box -> { box | isSelected <- False }) state_.boxes
-                , selectedBoxes <- [] }
-    SelectBoxMulti id ->
-      let box = boxForKey id state.boxes in
-        Debug.log "adding box to selection" updateStateSelections box state
-    SelectBox id ->
-      let box = boxForKey id state.boxes
-          state_ = step DeselectBoxes state in
-        if | box.isSelected -> state
-           | otherwise ->
-        Debug.log "selecting box" updateStateSelections box state_
-    EditingBox id toggle ->
-      let box = boxForKey id state.boxes in
-        Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }
-    UpdateBox box label ->
-      { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
-    MoveBox key event ->
-      let selectedBoxes = filter (.isSelected) state.boxes
-          updateBox box = (if contains box selectedBoxes then Box.step (Box.Action.Move event) box else box) in
-        Debug.log "moved box" { state | boxes <- map updateBox state.boxes }
-    NoOp -> state
+  let updateBoxInState action box iterator = (if iterator.key == box.key then Box.step action iterator else iterator)
+      updateSelectedBoxes action iterator = (if iterator.isSelected then Box.step action iterator else iterator)
+      performActionOnAllBoxes action = (Box.step action)
+      selectedBoxes = filter (.isSelected)
+      deselectBoxes = map (\box -> { box | isSelected <- False }) in
+    case action of
+      NewBox i ->
+        if | isEditing state.boxes -> state
+           | True ->
+            let newBox = makeBox i in
+              Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
+      CancelEditingBox key ->
+        let box = boxForKey key state.boxes
+            cancelEditing = map (updateBoxInState Box.Action.CancelEditing box)
+            updateBoxes = cancelEditing >> deselectBoxes in
+          Debug.log "Canceling edit" { state | boxes <- updateBoxes state.boxes }
+      DeselectBoxes ->
+        let cancelEditing = map (Box.step Box.Action.CancelEditing)
+            updateBoxes = cancelEditing >> deselectBoxes in
+          { state | boxes <- updateBoxes state.boxes }
+      SelectBoxMulti id ->
+        let box = boxForKey id state.boxes
+            updateBoxes = map (updateBoxInState Box.Action.Selected box) in
+          Debug.log "adding box to selection" { state | boxes <- updateBoxes state.boxes }
+
+      DraggingBox id ->
+        let box = boxForKey id state.boxes
+            selectedBox = map (updateBoxInState (Box.Action.SetSelected True) box)
+            draggingBox = map (updateSelectedBoxes Box.Action.Dragging)
+            updateBoxes = selectedBox >> draggingBox in
+            Debug.log "started dragging" { state | boxes <- updateBoxes state.boxes }
+
+      SelectBox id ->
+        let box = boxForKey id state.boxes
+            selectedBox = map (updateBoxInState Box.Action.Selected box)
+            updateBoxes = deselectBoxes >> selectedBox in
+          if | box.isSelected -> state
+             | otherwise ->
+          Debug.log "selecting box" { state | boxes <- updateBoxes state.boxes }
+      EditingBox id toggle ->
+        let box = boxForKey id state.boxes in
+          Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }
+      UpdateBox box label ->
+        { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
+      MoveBox key event ->
+        let draggingBox = map (updateSelectedBoxes Box.Action.Dragging)
+            moveAllSelectedBoxes boxes = map (updateSelectedBoxes (Box.Action.Move event)) boxes
+            updateBoxes = moveAllSelectedBoxes >> draggingBox
+        in
+          Debug.log "moved box" { state | boxes <- updateBoxes state.boxes }
+      NoOp -> state
 

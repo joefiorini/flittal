@@ -15,6 +15,7 @@
         isStart: false,
         isDrop: false,
         isEnd: false,
+        isMulti: false,
         startX: 0,
         startY: 0,
         endX: 0,
@@ -65,14 +66,26 @@
           result.startX = event.clientX;
           result.startY = event.clientY;
 
+          if(e.metaKey) {
+            result.isMulti = true;
+          } else {
+            result.isMulti = false;
+          }
+
+          e.dataTransfer.dropEffect = 'move';
+
+          console.log('dragstart', e, e.dataTransfer);
+
           sendPort('dragstart', result);
         });
 
         container.addEventListener('dragover', function(e) {
+          console.log('dragover', e, e.dataTransfer);
           e.preventDefault();
         });
 
         container.addEventListener('dragend', function(e) {
+          console.log('dragend', e, e.dataTransfer);
           sendPort('dragend', result);
         });
 

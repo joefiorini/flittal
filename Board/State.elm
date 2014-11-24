@@ -33,4 +33,5 @@ makeBox identifier =
   , key = identifier
   , isEditing = False
   , isSelected = False
+  , isDragging = False
   }

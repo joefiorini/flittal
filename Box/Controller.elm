@@ -11,6 +11,8 @@ import Html (Html)
 
 import Graphics.Input as Input
 
+import Debug
+
 renderBox : Input.Handle Board.Action -> Box -> Html
 renderBox handle box = draw handle box
 
@@ -25,7 +27,9 @@ moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
 step : Action -> Box -> Box
 step action box = case action of
   Move event ->
-    moveBox event box
+    Debug.log "Moved a box" <| moveBox event box
+  SetSelected toggle ->
+    { box | isSelected <- toggle }
   Selected ->
     { box | isSelected <- if box.isSelected then False else True }
   CancelEditing ->
@@ -35,4 +39,6 @@ step action box = case action of
        { box | isEditing <- toggle, originalLabel <- box.label }
   Update newLabel ->
     { box | label <- newLabel }
+  Dragging ->
+    { box | isDragging <- if box.isDragging then False else True }
   NoOp -> box

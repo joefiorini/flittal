@@ -10,6 +10,7 @@ type DragEvent =
   , isStart: Bool
   , isEnd: Bool
   , isDrop: Bool
+  , isMulti: Bool
   , startX: Int
   , endX: Int
   , startY: Int

@@ -8,6 +8,8 @@ data Action = Move DragEvent
             | Editing Bool
             | CancelEditing
             | Selected
+            | SetSelected Bool
+            | Dragging
             | NoOp
             | Update String
 

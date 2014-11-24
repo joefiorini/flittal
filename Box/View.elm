@@ -29,14 +29,17 @@ draw handle box = div [style
     [ prop "position" "absolute"
     , prop "width" (fst <| toPxPoint box.size)
     , prop "height" (snd <| toPxPoint box.size)
-    , if box.isSelected then prop "border" "dashed thin green" else prop "border" "solid thin black"
+    , if box.isSelected && not box.isDragging then prop "border" "dashed thin green" else prop "border" "solid thin black"
     , prop "left" (fst <| toPxPoint box.position)
     , prop "top" (snd <| toPxPoint box.position)
+    , prop "text-align" "center"
+    , prop "line-height" (show (toFloat <| snd box.size)  ++ "px")
     ]
     , autofocus True
     , toggle "draggable" True
     , id <| "box-" ++ (show box.key)
     , on "input" (Debug.log "value" getValue) handle (Board.UpdateBox box)
+    , class "box"
     , onKeyDown handle box.key
   ]
   [ if box.isEditing then labelField box.key box.label else text box.label ]

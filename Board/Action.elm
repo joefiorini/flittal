@@ -10,10 +10,10 @@ data Action = NoOp |
   NewBox BoxKey |
   MoveBox BoxKey DragEvent |
   DeselectBoxes |
-  CancelEditingBoxes |
   EditingBox BoxKey Bool |
   SelectBox BoxKey |
   SelectBoxMulti BoxKey |
   CancelEditingBox BoxKey |
+  DraggingBox BoxKey |
   Drop DragEvent
 
