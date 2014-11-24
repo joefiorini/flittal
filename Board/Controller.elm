@@ -60,6 +60,17 @@ step action state =
          | True ->
           let newBox = makeBox i in
             Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
+    DeselectBoxes ->
+      { state | boxes <- map (\box -> { box | isSelected <- False }) state.boxes
+              , selectedBoxes <- [] }
+    SelectBox id ->
+      let box = selectedBox id state.boxes
+          state_ = step DeselectBoxes state in
+        if | box.isSelected -> state
+           | otherwise ->
+        Debug.log "selecting box"
+          { state_ | boxes <- replaceBox state_.boxes <| Box.step Box.Action.Selected box
+                   , selectedBoxes <- filter (.isSelected) state_.boxes }
     EditingBox id toggle ->
       let box = selectedBox id state.boxes in
         Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }

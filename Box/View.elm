@@ -2,7 +2,7 @@ module Box.View (draw) where
 
 import Html (..)
 import Html.Tags (div, input)
-import Html.Attributes (id)
+import Html.Attributes (id, class)
 import Html.Events (onkeypress)
 
 import Graphics.Input as Input
@@ -22,11 +22,11 @@ draw handle box = div [style
     [ prop "position" "absolute"
     , prop "width" (fst <| toPxPoint box.size)
     , prop "height" (snd <| toPxPoint box.size)
-    , prop "border" "solid thin black"
+    , if box.isSelected then prop "border" "solid thin green" else prop "border" "solid thin black"
     , prop "left" (fst <| toPxPoint box.position)
     , prop "top" (snd <| toPxPoint box.position)
     ]
-    , attr "draggable" "true"
+    , toggle "draggable" True
     , id <| "box-" ++ (show box.key)
     , on "input" (Debug.log "value" getValue) handle (Board.UpdateBox box)
     , onEnter handle (Board.EditingBox box.key False)

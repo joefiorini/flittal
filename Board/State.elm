@@ -7,11 +7,13 @@ import Debug
 startingState : Board
 startingState =
   { boxes = []
+  , selectedBoxes = []
   }
 
 
 type Board =
   { boxes: [Box]
+  , selectedBoxes: [Box]
   }
 
 selectedBox : Int -> [Box] -> Box
@@ -29,4 +31,5 @@ makeBox identifier =
   , label = "New Box"
   , key = identifier
   , isEditing = False
+  , isSelected = False
   }

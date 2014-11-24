@@ -26,6 +26,8 @@ step : Action -> Box -> Box
 step action box = case action of
   Move event ->
     moveBox event box
+  Selected ->
+    { box | isSelected <- if box.isSelected then False else True }
   Editing toggle ->
     { box | isEditing <- toggle }
   Update newLabel ->

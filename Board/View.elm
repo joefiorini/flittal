@@ -12,11 +12,16 @@ import Board.Action (Action(..))
 
 import DomUtils (getTargetId, extractBoxId)
 
-buildAction : String -> Action
-buildAction id = let boxIdM = extractBoxId id in
+buildEditingAction : String -> Action
+buildEditingAction id = let boxIdM = extractBoxId id in
                    case boxIdM of
                      Just key -> EditingBox key True
                      Nothing -> NoOp
+
+buildSelectAction id = let boxIdM = extractBoxId id in
+                    case boxIdM of
+                      Just key -> SelectBox key
+                      Nothing -> DeselectBoxes
 
 draw : Handle Action -> [Html] -> Html
 draw handle widgets = Debug.log "draw" <| div [ style
@@ -27,6 +32,7 @@ draw handle widgets = Debug.log "draw" <| div [ style
       , prop "overflow" "hidden"
       ]
       , id "container"
-      , on "dblclick" getTargetId handle buildAction
+      , on "dblclick" getTargetId handle buildEditingAction
+      , on "click" getTargetId handle buildSelectAction
     ] widgets
 

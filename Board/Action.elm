@@ -9,6 +9,8 @@ data Action = NoOp |
   UpdateBox Box String |
   NewBox Int |
   MoveBox Int DragEvent |
+  DeselectBoxes |
   EditingBox Int Bool |
+  SelectBox Int |
   Drop DragEvent
 
