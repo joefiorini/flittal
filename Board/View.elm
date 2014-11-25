@@ -40,7 +40,7 @@ draw board handle widgets = Debug.log "draw" <| div [ style
       , prop "border" "solid thin blue"
       , prop "overflow" "hidden"
       , case board.mode of
-          Select -> prop "background-color" "#ccc"
+          Connect -> prop "background-color" "#ccc"
           Normal -> prop "background-color" "white"
       ]
       , id "container"

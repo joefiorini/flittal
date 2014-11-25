@@ -1,4 +1,4 @@
-module Box.Controller (moveBox, step, renderBox) where
+module Box.Controller (moveBox, step, renderBox, State) where
 
 import DomUtils (DragEvent)
 
@@ -12,6 +12,8 @@ import Html (Html)
 import Graphics.Input as Input
 
 import Debug
+
+type State = Box
 
 renderBox : Input.Handle Board.Action -> Box -> Html
 renderBox handle box = draw handle box

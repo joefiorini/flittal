@@ -10,6 +10,8 @@ import Board.State (..)
 import Board.Action (..)
 import Box.Controller as Box
 
+import Connection.Controller as Connection
+
 import DomUtils (DragEvent, DnDPort, extractBoxId)
 
 import Html (Html)
@@ -24,8 +26,16 @@ import Box.Action
 renderBoard : DnDPort -> DnDPort -> Signal Html
 renderBoard dropP dragstartP = lift render <| state dropP dragstartP
 
+renderConnections : [Connection.State] -> [Html]
+renderConnections = map Connection.renderConnection
+
+widgets : Board -> [Html]
+widgets board = concatMap identity [ (map (Box.renderBox actions.handle) board.boxes)
+                , (renderConnections board.connections)
+                ]
+
 render : Board -> Html
-render board = draw board actions.handle (map (Box.renderBox actions.handle) board.boxes)
+render board = draw board actions.handle <| widgets board
 
 actions : Input.Input Action
 actions = Input.input NoOp
@@ -44,15 +54,8 @@ keyboardRequestAction = lift keyboardRequest Keyboard.lastPressed
 
 keyboardRequest keyCode = case keyCode of
   65 -> NewBox
-  32 -> ToggleMode Select
+  32 -> ToggleMode Connect
   _ -> ToggleMode Normal
-
-modeForKey : Int -> BoardMode -> BoardMode
-modeForKey keyCode _ = case keyCode of
-                      32 -> Select
-                      _ -> Normal
-
-boardModeAction = ToggleMode <~ foldp (modeForKey) Normal Keyboard.lastPressed
 
 moveBoxAction : DragEvent -> Action
 moveBoxAction event = let boxKeyM = extractBoxId event.id in

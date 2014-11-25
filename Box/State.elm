@@ -1,4 +1,6 @@
-module Box.State (Box, BoxKey, Point) where
+module Box.State (Box, BoxKey) where
+
+import Geometry.Types (Geometric)
 
 -- type Position b = { b | position: Point }
 -- type Size b = { b | size: Point }
@@ -9,17 +11,14 @@ module Box.State (Box, BoxKey, Point) where
 --                       , isSelected: Bool
 --                       , originalLabel: String }
 
-type Point = (Int, Int)
+type BoxKey = Int
 
-type Box =
+type Box = Geometric
   { key: BoxKey
   , label: String
   , originalLabel: String
-  , position: Point
-  , size: Point
   , isEditing: Bool
   , isSelected: Bool
   , isDragging: Bool
   }
 
-type BoxKey = Int
