@@ -25,7 +25,7 @@ renderBoard : DnDPort -> DnDPort -> Signal Html
 renderBoard dropP dragstartP = lift render <| state dropP dragstartP
 
 render : Board -> Html
-render board = draw actions.handle (map (Box.renderBox actions.handle) board.boxes)
+render board = draw board actions.handle (map (Box.renderBox actions.handle) board.boxes)
 
 actions : Input.Input Action
 actions = Input.input NoOp
@@ -40,12 +40,19 @@ checkFocus =
     in
         toSelector <~ keepIf needsFocus (EditingBox 0 True) actions.signal
 
-eitherToAction = (either (\id -> NewBox id) (\id -> NoOp))
-extractEither = (either (\id -> id) (\id -> id))
+keyboardRequestAction = lift keyboardRequest Keyboard.lastPressed
 
-addBoxAction = eitherToAction <~ (foldp (\k i -> if | k == 65 -> Left ((extractEither i) + 1)
-                                                    | True -> Right (extractEither i))
-                                        (Left 0) Keyboard.lastPressed)
+keyboardRequest keyCode = case keyCode of
+  65 -> NewBox
+  32 -> ToggleMode Select
+  _ -> ToggleMode Normal
+
+modeForKey : Int -> BoardMode -> BoardMode
+modeForKey keyCode _ = case keyCode of
+                      32 -> Select
+                      _ -> Normal
+
+boardModeAction = ToggleMode <~ foldp (modeForKey) Normal Keyboard.lastPressed
 
 moveBoxAction : DragEvent -> Action
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
@@ -57,7 +64,7 @@ moveBoxAction event = let boxKeyM = extractBoxId event.id in
 
 state : DnDPort -> DnDPort -> Signal Board
 state dropP dragstartP = foldp step startingState (merges [
-                                           addBoxAction
+                                           keyboardRequestAction
                                          , actions.signal
                                          , moveBoxAction <~ dropP
                                          , moveBoxAction <~ dragstartP
@@ -79,11 +86,12 @@ step action state =
       selectedBoxes = filter (.isSelected)
       deselectBoxes = map (\box -> { box | isSelected <- False }) in
     case action of
-      NewBox i ->
+      NewBox ->
         if | isEditing state.boxes -> state
            | True ->
-            let newBox = makeBox i in
-              Debug.log "newBox" { state | boxes <- newBox :: state.boxes }
+            let newBox = makeBox state.nextIdentifier in
+              Debug.log "newBox" { state | boxes <- newBox :: state.boxes
+                                         , nextIdentifier <- state.nextIdentifier + 1 }
       CancelEditingBox key ->
         let box = boxForKey key state.boxes
             cancelEditing = map (updateBoxInState Box.Action.CancelEditing box)
@@ -123,5 +131,8 @@ step action state =
             updateBoxes = moveAllSelectedBoxes >> draggingBox
         in
           Debug.log "moved box" { state | boxes <- updateBoxes state.boxes }
-      NoOp -> state
+      ToggleMode newMode ->
+        if | state.mode == newMode -> Debug.log "ToggleMode normal" { state | mode <- Normal }
+           | otherwise -> Debug.log "ToggleMode" { state | mode <- newMode }
+      NoOp -> Debug.log "NoOp" state
 

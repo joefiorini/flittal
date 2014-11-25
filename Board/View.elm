@@ -9,6 +9,7 @@ import Html.Attributes (id)
 import Graphics.Input (Handle)
 
 import Board.Action (Action(..))
+import Board.State (Board, BoardMode(..))
 
 import DomUtils (getTargetId, extractBoxId, getMouseSelectionEvent)
 
@@ -31,13 +32,16 @@ buildSelectAction event = let boxIdM = extractBoxId event.id in
                            | otherwise -> SelectBox key
                       Nothing -> DeselectBoxes
 
-draw : Handle Action -> [Html] -> Html
-draw handle widgets = Debug.log "draw" <| div [ style
+draw : Board -> Handle Action -> [Html] -> Html
+draw board handle widgets = Debug.log "draw" <| div [ style
       [ prop "position" "relative"
       , prop "width" "900px"
       , prop "height" "600px"
       , prop "border" "solid thin blue"
       , prop "overflow" "hidden"
+      , case board.mode of
+          Select -> prop "background-color" "#ccc"
+          Normal -> prop "background-color" "white"
       ]
       , id "container"
       , on "dblclick" getTargetId handle buildEditingAction

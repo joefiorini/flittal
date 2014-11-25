@@ -4,16 +4,20 @@ import Box.State (Box, BoxKey)
 
 import Debug
 
-startingState : Board
-startingState =
-  { boxes = []
-  , selectedBoxes = []
-  }
-
+data BoardMode = Select |
+                  Normal
 
 type Board =
   { boxes: [Box]
-  , selectedBoxes: [Box]
+  , mode: BoardMode
+  , nextIdentifier: BoxKey
+  }
+
+startingState : Board
+startingState =
+  { boxes = []
+  , mode = Normal
+  , nextIdentifier = 1
   }
 
 boxForKey : Int -> [Box] -> Box

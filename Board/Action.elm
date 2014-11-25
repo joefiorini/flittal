@@ -1,13 +1,14 @@
 module Board.Action where
 
 import Box.Action
+import Board.State (BoardMode)
 import Box.State (Box, BoxKey)
 import DomUtils (DragEvent)
 
 data Action = NoOp |
   RequestedAdd |
   UpdateBox Box String |
-  NewBox BoxKey |
+  NewBox |
   MoveBox BoxKey DragEvent |
   DeselectBoxes |
   EditingBox BoxKey Bool |
@@ -15,5 +16,6 @@ data Action = NoOp |
   SelectBoxMulti BoxKey |
   CancelEditingBox BoxKey |
   DraggingBox BoxKey |
+  ToggleMode BoardMode |
   Drop DragEvent
 
