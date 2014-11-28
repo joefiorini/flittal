@@ -42,7 +42,7 @@ actions = Input.input NoOp
 
 checkFocus =
     let needsFocus act =
-            case Debug.log "checking focus for" act of
+            case act of
               EditingBox key bool -> bool
               _ -> False
 
@@ -54,8 +54,8 @@ keyboardRequestAction = lift keyboardRequest Keyboard.lastPressed
 
 keyboardRequest keyCode = case keyCode of
   65 -> NewBox
-  32 -> ToggleMode Connect
-  _ -> ToggleMode Normal
+  67 -> ConnectSelections
+  _ -> NoOp
 
 moveBoxAction : DragEvent -> Action
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
@@ -80,6 +80,9 @@ updateStateSelections box state =
   { state | boxes <- map updateBox state.boxes }
 
 contains obj = any (\b -> b == obj)
+
+sortLeftToRight : [Box.State] -> [Box.State]
+sortLeftToRight boxes = sortBy (snd << (.position)) <| sortBy (fst << (.position)) boxes
 
 step : Action -> Board -> Board
 step action state =
@@ -134,8 +137,17 @@ step action state =
             updateBoxes = moveAllSelectedBoxes >> draggingBox
         in
           Debug.log "moved box" { state | boxes <- updateBoxes state.boxes }
-      ToggleMode newMode ->
-        if | state.mode == newMode -> Debug.log "ToggleMode normal" { state | mode <- Normal }
-           | otherwise -> Debug.log "ToggleMode" { state | mode <- newMode }
+      ConnectSelections ->
+        let makeConnections : [Connection.State] -> [Box.State] -> (Box.State, [Connection.State])
+            makeConnections connections boxes =
+              (foldl Connection.connectBoxes (head boxes, connections) (tail boxes))
+        in
+        if | length (selectedBoxes state.boxes) < 2 -> state
+           | otherwise ->
+             Debug.log "Connecting Selections"
+             { state | connections <- snd <| makeConnections state.connections
+                                          <| sortLeftToRight
+                                          <| selectedBoxes state.boxes }
+
       NoOp -> Debug.log "NoOp" state
 

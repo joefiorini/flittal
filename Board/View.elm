@@ -33,7 +33,7 @@ buildSelectAction event = let boxIdM = extractBoxId event.id in
                       Nothing -> DeselectBoxes
 
 draw : Board -> Handle Action -> [Html] -> Html
-draw board handle widgets = Debug.log "draw" <| div [ style
+draw board handle widgets = div [ style
       [ prop "position" "relative"
       , prop "width" "900px"
       , prop "height" "600px"

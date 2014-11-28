@@ -15,6 +15,7 @@ data Action = NoOp |
   SelectBox BoxKey |
   SelectBoxMulti BoxKey |
   CancelEditingBox BoxKey |
+  ConnectSelections |
   DraggingBox BoxKey |
   ToggleMode BoardMode |
   Drop DragEvent

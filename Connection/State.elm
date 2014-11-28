@@ -7,8 +7,7 @@ data LineLayout = Vertical | Horizontal
 
 type Line =
   { position: Point
-  , width: Size
-  , height: Size
+  , size: Size
   , layout: LineLayout
   }
 

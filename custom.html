@@ -74,18 +74,14 @@
 
           e.dataTransfer.dropEffect = 'move';
 
-          console.log('dragstart', e, e.dataTransfer);
-
           sendPort('dragstart', result);
         });
 
         container.addEventListener('dragover', function(e) {
-          console.log('dragover', e, e.dataTransfer);
           e.preventDefault();
         });
 
         container.addEventListener('dragend', function(e) {
-          console.log('dragend', e, e.dataTransfer);
           sendPort('dragend', result);
         });
 

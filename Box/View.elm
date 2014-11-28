@@ -14,8 +14,7 @@ import Board.Action as Board
 
 import DomUtils (stopPropagation)
 
-toPxPoint : Point -> (String, String)
-toPxPoint point = (show (fst point) ++ "px", show (snd point) ++ "px")
+import Geometry.Types (toPxPoint)
 
 onKeyDown handle boxKey = let checkKeyCode ke = (case ke.keyCode of
                             13 -> Board.EditingBox boxKey False
@@ -29,7 +28,7 @@ draw handle box = div [style
     [ prop "position" "absolute"
     , prop "width" (fst <| toPxPoint box.size)
     , prop "height" (snd <| toPxPoint box.size)
-    , if box.isSelected && not box.isDragging then prop "border" "dashed thin green" else prop "border" "solid thin black"
+    , if box.isSelected && not box.isDragging then prop "border" "dashed 2px green" else prop "border" "solid 2px black"
     , prop "left" (fst <| toPxPoint box.position)
     , prop "top" (snd <| toPxPoint box.position)
     , prop "text-align" "center"
@@ -38,7 +37,7 @@ draw handle box = div [style
     , autofocus True
     , toggle "draggable" True
     , id <| "box-" ++ (show box.key)
-    , on "input" (Debug.log "value" getValue) handle (Board.UpdateBox box)
+    , on "input" getValue handle (Board.UpdateBox box)
     , class "box"
     , onKeyDown handle box.key
   ]
