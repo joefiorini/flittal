@@ -127,6 +127,10 @@ buildSegments ports =
       -- | otherwise ->
         [verticalSegment p1 p2]
 
+buildConnections : [Connection] -> [Box.State] -> [Connection]
+buildConnections connections boxes =
+  snd (foldl connectBoxes (head boxes, connections) (tail boxes))
+
 connectBoxes : Box.State -> (Box.State, [Connection]) -> (Box.State, [Connection])
 connectBoxes rightBox (leftBox, connections)  =
   let newConnection = { segments = buildSegments <| portLocations leftBox rightBox,

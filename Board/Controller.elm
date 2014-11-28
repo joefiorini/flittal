@@ -138,14 +138,10 @@ step action state =
         in
           Debug.log "moved box" { state | boxes <- updateBoxes state.boxes }
       ConnectSelections ->
-        let makeConnections : [Connection.State] -> [Box.State] -> (Box.State, [Connection.State])
-            makeConnections connections boxes =
-              (foldl Connection.connectBoxes (head boxes, connections) (tail boxes))
-        in
         if | length (selectedBoxes state.boxes) < 2 -> state
            | otherwise ->
              Debug.log "Connecting Selections"
-             { state | connections <- snd <| makeConnections state.connections
+             { state | connections <- Connection.buildConnections state.connections
                                           <| sortLeftToRight
                                           <| selectedBoxes state.boxes }
 
