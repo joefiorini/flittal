@@ -1,8 +1,7 @@
 module Connection.Controller where
 
 import Html (..)
-import Html.Tags (div)
-import Html.Attributes (class)
+import Html.Attributes (class, style)
 
 import Geometry.Types (Geometric, Point, toPxPoint)
 
@@ -11,29 +10,34 @@ import Box.Controller as Box
 
 import Debug
 
-type State = Connection
+import DomUtils (styleProperty)
 
-data Port = Right Point
+import List
+import List ((::))
+
+type alias State = Connection
+
+type Port = Right Point
             | Bottom Point
             | Left Point
             | Top Point
 
 renderConnection : Connection -> Html
 renderConnection connection =
-  div [class "connection"] <| map drawSegment connection.segments
+  div [class "connection"] <| List.map drawSegment connection.segments
 
 drawSegment : Line -> Html
 drawSegment line =
   div [style
-      [ prop "position" "absolute"
-      , prop "width" <| fst
+      [ styleProperty "position" "absolute"
+      , styleProperty "width" <| fst
                      <| toPxPoint line.size
-      , prop "height" <| snd
+      , styleProperty "height" <| snd
                       <| toPxPoint line.size
-      , prop "background-color" "black"
-      , prop "top" <| snd
+      , styleProperty "background-color" "black"
+      , styleProperty "top" <| snd
                    <| toPxPoint line.position
-      , prop "left" <| fst
+      , styleProperty "left" <| fst
                     <| toPxPoint line.position
       ]
   ] []
@@ -94,7 +98,7 @@ portLocations leftBox rightBox =
      | p2 `below` p1 ->
        (bottomPort leftBox, topPort rightBox)
 
-buildSegments : (Port, Port) -> [Line]
+buildSegments : (Port, Port) -> List Line
 buildSegments ports =
   let horizontalSegment (x1,y1) (x2,y2) =
         { position = (x1 + 2, y1)
@@ -127,11 +131,11 @@ buildSegments ports =
       -- | otherwise ->
         [verticalSegment p1 p2]
 
-buildConnections : [Connection] -> [Box.State] -> [Connection]
+buildConnections : List Connection -> List Box.State -> List Connection
 buildConnections connections boxes =
-  snd (foldl connectBoxes (head boxes, connections) (tail boxes))
+  snd (List.foldl connectBoxes (List.head boxes, connections) (List.tail boxes))
 
-connectBoxes : Box.State -> (Box.State, [Connection]) -> (Box.State, [Connection])
+connectBoxes : Box.State -> (Box.State, List Connection) -> (Box.State, List Connection)
 connectBoxes rightBox (leftBox, connections)  =
   let newConnection = { segments = buildSegments <| portLocations leftBox rightBox,
                         startBox = leftBox,

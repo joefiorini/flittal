@@ -1,4 +1,4 @@
 #!/bin/bash
 
 wait_on {*.elm,**/*.elm}
-elm -m --only-js main.elm
+elm-make Main.elm

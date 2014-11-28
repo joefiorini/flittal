@@ -1,16 +1,18 @@
 module Board.State where
 
+import List (head, filter, map)
+
 import Box.State (Box, BoxKey)
 import Connection.State (Connection)
 
 import Debug
 
-data BoardMode = Connect |
+type BoardMode = Connect |
                   Normal
 
-type Board =
-  { boxes: [Box]
-  , connections: [Connection]
+type alias Board =
+  { boxes: List Box
+  , connections: List Connection
   , mode: BoardMode
   , nextIdentifier: BoxKey
   }
@@ -23,10 +25,10 @@ startingState =
   , nextIdentifier = 1
   }
 
-boxForKey : BoxKey -> [Box] -> Box
+boxForKey : BoxKey -> List Box -> Box
 boxForKey key boxes = head (filter (\b -> b.key == key) boxes)
 
-replaceBox : [Box] -> Box -> [Box]
+replaceBox : List Box -> Box -> List Box
 replaceBox boxes withBox = map (\box ->
       if box.key == withBox.key then withBox else box) boxes
 

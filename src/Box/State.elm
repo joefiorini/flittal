@@ -11,9 +11,9 @@ import Geometry.Types (Geometric)
 --                       , isSelected: Bool
 --                       , originalLabel: String }
 
-type BoxKey = Int
+type alias BoxKey = Int
 
-type Box = Geometric
+type alias Box = Geometric
   { key: BoxKey
   , label: String
   , originalLabel: String

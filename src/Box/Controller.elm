@@ -9,13 +9,15 @@ import Board.Action as Board
 
 import Html (Html)
 
+import Signal (Channel)
+
 import Graphics.Input as Input
 
 import Debug
 
-type State = Box
+type alias State = Box
 
-renderBox : Input.Handle Board.Action -> Box -> Html
+renderBox : Channel Board.Action -> Box -> Html
 renderBox handle box = draw handle box
 
 moveBox : DragEvent -> Box -> Box

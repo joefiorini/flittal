@@ -3,16 +3,16 @@ module Connection.State where
 import Box.State (Box)
 import Geometry.Types (Point, Size)
 
-data LineLayout = Vertical | Horizontal
+type LineLayout = Vertical | Horizontal
 
-type Line =
+type alias Line =
   { position: Point
   , size: Size
   , layout: LineLayout
   }
 
-type Connection =
-  { segments: [Line]
+type alias Connection =
+  { segments: List Line
   , startBox: Box
   , endBox: Box
   }

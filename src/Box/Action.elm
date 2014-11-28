@@ -4,7 +4,7 @@ import Box.State (BoxKey, Box)
 
 import DomUtils (DragEvent)
 
-data Action = Move DragEvent
+type Action = Move DragEvent
             | Editing Bool
             | CancelEditing
             | Selected

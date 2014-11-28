@@ -5,7 +5,7 @@ import Board.State (BoardMode)
 import Box.State (Box, BoxKey)
 import DomUtils (DragEvent)
 
-data Action = NoOp |
+type Action = NoOp |
   RequestedAdd |
   UpdateBox Box String |
   NewBox |
