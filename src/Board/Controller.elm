@@ -83,6 +83,7 @@ updateStateSelections box state =
   { state | boxes <- List.map updateBox state.boxes }
 
 contains obj = List.any (\b -> b == obj)
+containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
 
 sortLeftToRight : List Box.State -> List Box.State
 sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << (.position)) boxes
@@ -139,7 +140,12 @@ step action state =
             moveAllSelectedBoxes boxes = List.map (updateSelectedBoxes (Box.Action.Move event)) boxes
             updateBoxes = moveAllSelectedBoxes >> draggingBox
         in
-          Debug.log "moved box" { state | boxes <- updateBoxes state.boxes }
+          Debug.log "moved box"
+            step ReconnectSelections { state | boxes <- updateBoxes state.boxes }
+      ReconnectSelections ->
+        { state | connections <- Connection.rebuildConnections
+                                  <| List.map (Connection.updateBoxes state.boxes)
+                                  state.connections }
       ConnectSelections ->
         if | List.length (selectedBoxes state.boxes) < 2 -> state
            | otherwise ->

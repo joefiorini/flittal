@@ -1,4 +1,4 @@
 #!/bin/bash
 
-wait_on {*.elm,**/*.elm}
-elm-make Main.elm
+wait_on src/**/*.elm
+elm-make src/Main.elm --output=build/main.js

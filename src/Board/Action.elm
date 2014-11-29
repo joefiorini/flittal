@@ -16,6 +16,7 @@ type Action = NoOp |
   SelectBoxMulti BoxKey |
   CancelEditingBox BoxKey |
   ConnectSelections |
+  ReconnectSelections |
   DraggingBox BoxKey |
   ToggleMode BoardMode |
   Drop DragEvent

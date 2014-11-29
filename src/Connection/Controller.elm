@@ -86,7 +86,7 @@ portLocations leftBox rightBox =
       (w1,h1) = leftBox.size
       (w2,h2) = rightBox.size in
   if | p1 `below` p2 && p1 `leftOf` p2 ->
-    (rightPort leftBox, bottomPort rightBox)
+       (rightPort leftBox, bottomPort rightBox)
      | p2 `below` p1 && p1 `leftOf` p2 ->
        (bottomPort leftBox, leftPort rightBox)
      | p2 `below` p1 && p2 `leftOf` p1 ->
@@ -94,7 +94,7 @@ portLocations leftBox rightBox =
      | p1 `leftOf` p2 ->
        (rightPort leftBox, leftPort rightBox)
      | p1 `below` p2 ->
-       (topPort rightBox, bottomPort leftBox)
+       (bottomPort rightBox, topPort leftBox)
      | p2 `below` p1 ->
        (bottomPort leftBox, topPort rightBox)
 
@@ -131,12 +131,32 @@ buildSegments ports =
       -- | otherwise ->
         [verticalSegment p1 p2]
 
+
+rebuildConnections : List Connection -> List Connection
+rebuildConnections = List.map connectBoxes
+
+
 buildConnections : List Connection -> List Box.State -> List Connection
 buildConnections connections boxes =
-  snd (List.foldl connectBoxes (List.head boxes, connections) (List.tail boxes))
+  snd (List.foldl connectBoxesFold (List.head boxes, connections) (List.tail boxes))
 
-connectBoxes : Box.State -> (Box.State, List Connection) -> (Box.State, List Connection)
-connectBoxes rightBox (leftBox, connections)  =
+
+connectBoxes : Connection -> Connection
+connectBoxes {startBox,endBox} =
+  { segments = buildSegments <| portLocations startBox endBox
+  , startBox = startBox
+  , endBox = endBox }
+
+
+updateBoxes : List Box.State -> Connection -> Connection
+updateBoxes boxes connection  =
+      let findBox box boxes = List.head <| List.filter (\b -> b.key == box.key) boxes in
+      { connection | startBox <- findBox connection.startBox boxes
+                   , endBox <- findBox connection.endBox boxes }
+
+
+connectBoxesFold : Box.State -> (Box.State, List Connection) -> (Box.State, List Connection)
+connectBoxesFold rightBox (leftBox, connections)  =
   let newConnection = { segments = buildSegments <| portLocations leftBox rightBox,
                         startBox = leftBox,
                         endBox = rightBox } in
