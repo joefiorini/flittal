@@ -16,6 +16,7 @@ type Action = NoOp |
   CancelEditingBox BoxKey |
   ConnectSelections |
   ReconnectSelections |
+  DeleteSelections |
   DraggingBox BoxKey |
   Drop DragEvent
 

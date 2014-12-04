@@ -58,6 +58,7 @@ keyboardRequestAction = Signal.map keyboardRequest Keyboard.lastPressed
 keyboardRequest keyCode = case keyCode of
   65 -> NewBox
   67 -> ConnectSelections
+  68 -> DeleteSelections
   _ -> NoOp
 
 moveBoxAction : DragEvent -> Action
@@ -155,5 +156,12 @@ step action state =
              { state | connections <- Connection.buildConnections state.connections
                                           <| Debug.log "Selected Boxes" <| selectedBoxes state.boxes }
 
+      DeleteSelections ->
+        Debug.log "Deleting Selections"
+          { state | boxes <- List.filter (\b -> b.selectedIndex == -1) state.boxes,
+                    connections <- List.filter
+                      (\c -> c.startBox.selectedIndex == -1 &&
+                        c.endBox.selectedIndex == -1)
+                      state.connections }
       NoOp -> Debug.log "NoOp" state
 
