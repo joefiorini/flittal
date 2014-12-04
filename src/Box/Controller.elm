@@ -32,10 +32,8 @@ step : Action -> Box -> Box
 step action box = case action of
   Move event ->
     Debug.log "Moved a box" <| moveBox event box
-  SetSelected toggle ->
-    { box | isSelected <- toggle }
-  Selected ->
-    { box | isSelected <- if box.isSelected then False else True }
+  SetSelected index ->
+    { box | selectedIndex <- index }
   CancelEditing ->
     { box | label <- box.originalLabel
           , isEditing <- False }

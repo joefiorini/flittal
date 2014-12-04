@@ -7,8 +7,7 @@ import DomUtils (DragEvent)
 type Action = Move DragEvent
             | Editing Bool
             | CancelEditing
-            | Selected
-            | SetSelected Bool
+            | SetSelected Int
             | Dragging
             | NoOp
             | Update String

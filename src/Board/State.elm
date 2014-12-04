@@ -7,13 +7,9 @@ import Connection.State (Connection)
 
 import Debug
 
-type BoardMode = Connect |
-                  Normal
-
 type alias Board =
   { boxes: List Box
   , connections: List Connection
-  , mode: BoardMode
   , nextIdentifier: BoxKey
   }
 
@@ -21,7 +17,6 @@ startingState : Board
 startingState =
   { boxes = []
   , connections = []
-  , mode = Normal
   , nextIdentifier = 1
   }
 
@@ -43,4 +38,6 @@ makeBox identifier =
   , isEditing = False
   , isSelected = False
   , isDragging = False
+  , selectedIndex = -1
+  , borderSize = 2
   }

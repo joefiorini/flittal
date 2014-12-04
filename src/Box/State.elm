@@ -20,5 +20,7 @@ type alias Box = Geometric
   , isEditing: Bool
   , isSelected: Bool
   , isDragging: Bool
+  , selectedIndex: Int
+  , borderSize: Int
   }
 

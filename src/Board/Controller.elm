@@ -79,8 +79,8 @@ state dropP dragstartP = Signal.foldp step startingState (Signal.mergeMany [
 isEditing = List.any (.isEditing)
 
 updateStateSelections box state =
-  let updateBox = Box.step Box.Action.Selected in
-  { state | boxes <- List.map updateBox state.boxes }
+  let updateBox lastBox _ = Box.step (Box.Action.SetSelected <| lastBox.selectedIndex + 1) box in
+  { state | boxes <- List.foldl updateBox state.boxes }
 
 contains obj = List.any (\b -> b == obj)
 containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
@@ -91,10 +91,12 @@ sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << 
 step : Action -> Board -> Board
 step action state =
   let updateBoxInState action box iterator = (if iterator.key == box.key then Box.step action iterator else iterator)
-      updateSelectedBoxes action iterator = (if iterator.isSelected then Box.step action iterator else iterator)
+      updateSelectedBoxes action iterator = (if iterator.selectedIndex > -1 then Box.step action iterator else iterator)
       performActionOnAllBoxes action = (Box.step action)
-      selectedBoxes = List.filter (.isSelected)
-      deselectBoxes = List.map (\box -> { box | isSelected <- False }) in
+      nextSelectedIndex boxes = List.foldl (\last index -> if index > last then index + 1 else last + 1) 0 <| List.map (.selectedIndex) boxes
+      selectedBoxes boxes = List.sortBy (.selectedIndex)
+                        <| List.filter (\b -> b.selectedIndex > -1) boxes
+      deselectBoxes = List.map (\box -> { box | selectedIndex <- -1 }) in
     case action of
       NewBox ->
         if | isEditing state.boxes -> state
@@ -113,19 +115,19 @@ step action state =
           { state | boxes <- updateBoxes state.boxes }
       SelectBoxMulti id ->
         let box = boxForKey id state.boxes
-            updateBoxes = List.map (updateBoxInState Box.Action.Selected box) in
+            updateBoxes boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes in
           Debug.log "adding box to selection" { state | boxes <- updateBoxes state.boxes }
 
       DraggingBox id ->
         let box = boxForKey id state.boxes
-            selectedBox = List.map (updateBoxInState (Box.Action.SetSelected True) box)
+            selectedBox boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes
             draggingBox = List.map (updateSelectedBoxes Box.Action.Dragging)
             updateBoxes = selectedBox >> draggingBox in
             Debug.log "started dragging" { state | boxes <- updateBoxes state.boxes }
 
       SelectBox id ->
         let box = boxForKey id state.boxes
-            selectedBox = List.map (updateBoxInState Box.Action.Selected box)
+            selectedBox boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes
             updateBoxes = deselectBoxes >> selectedBox in
           if | box.isSelected -> state
              | otherwise ->
@@ -151,8 +153,7 @@ step action state =
            | otherwise ->
              Debug.log "Connecting Selections"
              { state | connections <- Connection.buildConnections state.connections
-                                          <| sortLeftToRight
-                                          <| selectedBoxes state.boxes }
+                                          <| Debug.log "Selected Boxes" <| selectedBoxes state.boxes }
 
       NoOp -> Debug.log "NoOp" state
 

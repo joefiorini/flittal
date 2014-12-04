@@ -8,7 +8,7 @@ import Html.Attributes (id, style, property)
 import Signal (Channel, send)
 
 import Board.Action (Action(..))
-import Board.State (Board, BoardMode(..))
+import Board.State (Board)
 
 import Result
 
@@ -40,9 +40,6 @@ draw board handle widgets = div [ style
       , styleProperty "height" "600px"
       , styleProperty "border" "solid thin blue"
       , styleProperty "overflow" "hidden"
-      , case board.mode of
-          Connect -> styleProperty "background-color" "#ccc"
-          Normal ->  styleProperty "background-color" "white"
       ]
       , id "container"
       , on "dblclick" getTargetId (\v -> send handle <| buildEditingAction v)

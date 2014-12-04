@@ -29,7 +29,7 @@ draw handle box = div [style
     [ styleProperty "position" "absolute"
     , styleProperty "width" (fst <| toPxPoint box.size)
     , styleProperty "height" (snd <| toPxPoint box.size)
-    , if box.isSelected && not box.isDragging then styleProperty "border" "dashed 2px green" else styleProperty "border" "solid 2px black"
+    , if box.selectedIndex > -1 && not box.isDragging then styleProperty "border" "dashed 2px green" else styleProperty "border" "solid 2px black"
     , styleProperty "left" (fst <| toPxPoint box.position)
     , styleProperty "top" (snd <| toPxPoint box.position)
     , styleProperty "text-align" "center"
