@@ -2,7 +2,7 @@ module Box.View (draw) where
 
 import Html (..)
 import Html.Attributes (id, class, autofocus, style, property, boolProperty, type', value)
-import Html.Events (on, keyCode, targetValue)
+import Html.Events (on, keyCode, onKeyPress, targetValue)
 
 import Graphics.Input as Input
 
@@ -42,13 +42,14 @@ draw handle box = div [style
     , class "box"
     , onKeyDown handle box.key
   ]
-  [ if box.isEditing then labelField box.key box.label else text box.label ]
+  [ if box.isEditing then labelField handle box.key box.label else text box.label ]
 
-labelField : BoxKey -> String -> Html
-labelField key label = let nullHandler v = send (channel ()) () in
+labelField : Channel Board.Action -> BoxKey -> String -> Html
+labelField handle key label = let nullHandler v = send (channel ()) () in
   input [
     id <| "box-" ++ toString key ++ "-label"
   , type' "text"
   , value label
+  , onKeyPress (\k -> send handle <| if (Debug.log "k" k) == 13 then Board.EditingBox key False else Board.NoOp)
   , on "mousedown" stopPropagation nullHandler
   ] []

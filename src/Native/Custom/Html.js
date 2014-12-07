@@ -29,12 +29,27 @@ Elm.Native.Custom.Html.make = function(elm) {
     return Maybe.Just(Utils._Tuple0);
   }
 
+  function setFocus(selector) {
+    return function(chain) {
+      setTimeout(function() {
+        var nodes = document.querySelectorAll(selector);
+        console.log('setting focus in ', selector, nodes);
+        if (nodes.length === 1 && document.activeElement !== nodes[0]) {
+            nodes[0].focus()
+            nodes[0].setSelectionRange(0, nodes[0].value.length)
+        }
+      }, 100);
+      return chain;
+    }
+  }
+
   function stopPropagation(event) {
     event.bubbles = false;
-    return Maybe.Just(Utils._Tuple0);
+    return Maybe.Just(event);
   }
 
   return Elm.Native.Custom.Html.values = {
+    setFocus: setFocus,
     getTargetId: getTargetId,
     preventDefault: preventDefault,
     stopPropagation: stopPropagation,

@@ -59,6 +59,7 @@ keyboardRequest keyCode = case keyCode of
   65 -> NewBox
   67 -> ConnectSelections
   68 -> DeleteSelections
+  13 -> EditingSelectedBox True
   _ -> NoOp
 
 moveBoxAction : DragEvent -> Action
@@ -103,7 +104,7 @@ step action state =
         if | isEditing state.boxes -> state
            | True ->
             let newBox = makeBox state.nextIdentifier in
-              Debug.log "newBox" { state | boxes <- newBox :: state.boxes
+              Debug.log "newBox" { state | boxes <- newBox :: (deselectBoxes state.boxes)
                                          , nextIdentifier <- state.nextIdentifier + 1 }
       CancelEditingBox key ->
         let box = boxForKey key state.boxes
@@ -136,6 +137,13 @@ step action state =
       EditingBox id toggle ->
         let box = boxForKey id state.boxes in
           Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }
+      EditingSelectedBox toggle ->
+          let selectedBoxes = List.filter (\b -> b.selectedIndex /= -1) state.boxes in
+            if | List.length selectedBoxes == 1 ->
+              { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle)
+                                                        <| List.head selectedBoxes }
+               | otherwise ->
+              state
       UpdateBox box label ->
         { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
       MoveBox key event ->

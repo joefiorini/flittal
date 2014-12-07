@@ -11,6 +11,7 @@ type Action = NoOp |
   MoveBox BoxKey DragEvent |
   DeselectBoxes |
   EditingBox BoxKey Bool |
+  EditingSelectedBox Bool |
   SelectBox BoxKey |
   SelectBoxMulti BoxKey |
   CancelEditingBox BoxKey |

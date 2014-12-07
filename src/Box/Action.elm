@@ -1,5 +1,7 @@
 module Box.Action where
 
+import Signal (Channel)
+
 import Box.State (BoxKey, Box)
 
 import DomUtils (DragEvent)

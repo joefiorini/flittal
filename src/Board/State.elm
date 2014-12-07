@@ -38,6 +38,6 @@ makeBox identifier =
   , isEditing = False
   , isSelected = False
   , isDragging = False
-  , selectedIndex = -1
+  , selectedIndex = 1
   , borderSize = 2
   }

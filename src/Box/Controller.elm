@@ -1,5 +1,6 @@
 module Box.Controller (moveBox, step, renderBox, State) where
 
+import DomUtils
 import DomUtils (DragEvent)
 
 import Box.State (..)
@@ -9,6 +10,7 @@ import Board.Action as Board
 
 import Html (Html)
 
+import Signal
 import Signal (Channel)
 
 import Graphics.Input as Input
@@ -28,6 +30,9 @@ moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
       newY = endY + offsetY in
     { box | position <- (newX, newY) }
 
+labelSelector : Box -> String
+labelSelector box = "#box-" ++ toString box.key ++ "-label"
+
 step : Action -> Box -> Box
 step action box = case action of
   Move event ->
@@ -38,7 +43,8 @@ step action box = case action of
     { box | label <- box.originalLabel
           , isEditing <- False }
   Editing toggle ->
-       { box | isEditing <- toggle, originalLabel <- box.label }
+       let focusedBox = Debug.log "focusing box" <| DomUtils.setFocus (labelSelector box) box in
+         { focusedBox | isEditing <- toggle, originalLabel <- box.label }
   Update newLabel ->
     { box | label <- newLabel }
   Dragging ->
