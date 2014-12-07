@@ -4,7 +4,7 @@
     "repository": "https://github.com/joefiorini/diagrammly.git",
     "license": "Commercial",
     "source-directories": [
-        "src"
+        "frontend"
     ],
     "exposed-modules": [],
     "native-modules": true,

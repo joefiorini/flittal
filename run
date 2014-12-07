@@ -1,4 +1,4 @@
 #!/bin/bash
 
-wait_on src/**/*.elm
-elm-make src/Main.elm --output=build/main.js
+wait_on frontend/**/*.elm
+elm-make frontend/Main.elm --output=build/main.js
