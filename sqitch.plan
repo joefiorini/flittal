@@ -3,3 +3,5 @@
 %uri=https://github.com/joefiorini/diagrammer
 
 appschema 2014-12-07T22:30:31Z Joe Fiorini <joe@joefiorini.com> # Add schema for all diagrammer objects
+enable_uuid [appschema] 2014-12-08T00:11:48Z Joe Fiorini <joe@joefiorini.com> # Enables UUID extension
+users [enable_uuid] 2014-12-08T00:12:27Z Joe Fiorini <joe@joefiorini.com> # Creates table to track users
