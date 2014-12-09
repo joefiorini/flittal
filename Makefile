@@ -9,9 +9,9 @@ db_migrate:
 	sqitch verify
 
 db_clean:
-	dropdb diagrammer_devel
 	sqitch engine rm pg
 	sqitch target rm devel
+	dropdb diagrammer_devel
 
 db_setup: db
 	sqitch deploy

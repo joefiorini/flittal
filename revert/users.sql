@@ -2,6 +2,6 @@
 
 BEGIN;
 
-  DROP TABLE diagrammer.users;
+  DROP TABLE users;
 
 COMMIT;

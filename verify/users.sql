@@ -2,6 +2,6 @@
 
 BEGIN;
 
-  SELECT id, email, password, created_at FROM diagrammer.users WHERE false;
+  SELECT user_id, email, password, created_at FROM users WHERE false;
 
 ROLLBACK;
