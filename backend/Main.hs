@@ -20,7 +20,7 @@ import System.Posix.Env (getEnvDefault)
 
 import qualified Data.ByteString.Char8  as BS
 
-import Framework (mkAction, Action, Resource, ResourceStore)
+import Framework (mkListAction, mkMemberAction, Action, Resource, ResourceStore)
 
 import Framework.App -- TODO: REMOVE THIS IN FAVOR OF BETTER ENCAPSULATION
 import Resource.User
@@ -54,9 +54,12 @@ getConfig = do
 app :: TVar DB.Connection -> App
 app db = do
   connection <- liftIO $ readTVarIO db
+  let memberAction = flip mkMemberAction connection
+      listAction = flip mkListAction connection
   middleware logStdoutDev
   get "/" rootA
-  get "/users" $ mkAction user connection
+  get "/users" $ listAction user
+  get "/users/:id" $ memberAction user
 
 rootA :: Action
 rootA = json ("Hello World" :: String)

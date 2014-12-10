@@ -1,8 +1,6 @@
 {-# LANGUAGE
     DeriveDataTypeable
   , DeriveGeneric
-  , TemplateHaskell
-  , TypeFamilies
   , OverloadedStrings
   #-}
 module Type.UserInfo where
@@ -27,33 +25,14 @@ import Database.PostgreSQL.Simple.FromField (FromField(..), ResultError(Conversi
 import qualified Type.User as User
 import qualified Data.ByteString as BS
 
--- instance ToJSON UserUid
-
--- deriveAll ''UserUid "PFUserUid"
--- type instance PF UserUid = PFUserUid
--- instance FromJSON UserUid
--- instance FromField UserUid where fromField = UUID.fromField
-
-
--- deriveAll ''UTCTime "PFUTCTime"
--- type instance PF UTCTime = PFUTCTime
-
--- instance XmlPickler UTCTime where xpickle = gxpickle
-
 data UserInfo = UserInfo
-  { uid :: UUID
+  { userId :: UUID
   , email :: Text
   , createdAt :: UTCTime
   } deriving (Generic, Show, Typeable)
 
--- deriveAll ''UserInfo "PFUserInfo"
--- type instance PF UserInfo = PFUserInfo
-
 instance FromRow UserInfo where
   fromRow = UserInfo <$> field <*> field <*> field
 
-
--- instance XmlPickler UserInfo where xpickle = gxpickle
--- instance JSONSchema UserInfo where schema = gSchema
 instance ToJSON     UserInfo
 instance FromJSON   UserInfo

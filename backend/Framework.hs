@@ -3,7 +3,8 @@ module Framework
 ( Resource(..)
 , ResourceStore
 , Action
-, mkAction
+, mkListAction
+, mkMemberAction
 )
 
 where
