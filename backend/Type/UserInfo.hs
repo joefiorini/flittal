@@ -31,8 +31,18 @@ data UserInfo = UserInfo
   , createdAt :: UTCTime
   } deriving (Generic, Show, Typeable)
 
+data UserEntry = UserEntry
+  { signupEmail :: Text
+  , signupPassword :: Text
+  } deriving (Generic, Show, Typeable)
+
 instance FromRow UserInfo where
   fromRow = UserInfo <$> field <*> field <*> field
 
+instance FromRow UserEntry where
+  fromRow = UserEntry <$> field <*> field
+
 instance ToJSON     UserInfo
 instance FromJSON   UserInfo
+
+instance FromJSON   UserEntry

@@ -14,15 +14,22 @@ import Control.Concurrent.STM (newTVarIO, readTVarIO, TVar)
 import Control.Monad.Reader (ReaderT (..))
 
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
-import Web.Scotty.Trans (scottyT, get, json, middleware, notFound)
+import Web.Scotty.Trans (scottyT, get, post, json, middleware, notFound)
+import Web.Scotty.Trans (jsonData, raw, ActionT, body, stringError, raise)
+import Data.Text.Lazy (Text)
+import Type.UserInfo
 
 import System.Posix.Env (getEnvDefault)
 
 import qualified Data.ByteString.Char8  as BS
+import qualified Data.ByteString.Lazy.Char8  as LBS
+import qualified Data.Aeson as A
+import qualified Data.Maybe as Maybe
 
-import Framework (mkListAction, mkMemberAction, Action, Resource, ResourceStore)
+import Framework (Resource, ResourceStore)
 
 import Framework.App -- TODO: REMOVE THIS IN FAVOR OF BETTER ENCAPSULATION
+import Framework.Action (mkListAction, mkMemberAction, mkCreateAction, Action)
 import Resource.User
 
 main :: IO ()
@@ -56,9 +63,11 @@ app db = do
   connection <- liftIO $ readTVarIO db
   let memberAction = flip mkMemberAction connection
       listAction = flip mkListAction connection
+      createAction = flip mkCreateAction connection
   middleware logStdoutDev
   get "/" rootA
   get "/users" $ listAction user
+  post "/users" $ createAction user
   get "/users/:id" $ memberAction user
 
 rootA :: Action

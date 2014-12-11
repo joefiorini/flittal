@@ -37,11 +37,13 @@ executable diagrammer-server
     , warp == 3.*
     , transformers-base == 0.4.*
     , postgresql-simple >= 0.4.8.0 && < 0.5.0
+    , monad-logger >= 0.3.10 && < 0.4
     , bytestring >= 0.10.4 && < 0.11
     , unix >= 2.7.0.1 && < 2.8
     , uuid >= 1.3.5 && < 1.4
     , time >= 1.4.2 && < 1.5
     , uuid-aeson >= 0.1.0.0
+    , bcrypt >= 0.0.5 && <= 0.0.9
     , scotty == 0.9.*
   -- hs-source-dirs:
   default-language:    Haskell2010

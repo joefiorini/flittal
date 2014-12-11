@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings, DeriveGeneric, RankNTypes #-}
 
 module Framework.Resource
 ( Resource(..)
@@ -8,8 +8,10 @@ module Framework.Resource
 )
 where
 
-import Data.Text.Lazy (Text)
+import Data.Text (Text)
 import Data.Aeson (ToJSON(..), (.=), object)
+import Database.PostgreSQL.Simple.ToField (ToField)
+
 import qualified Database.PostgreSQL.Simple as DB
 
 getResourceList :: (DB.FromRow a) => DB.Query -> ResourceStore -> IO [a]
@@ -27,10 +29,11 @@ data Representation a = Representation
   { data_ :: a
   }
 
-data Resource a = Resource
+data Resource a b = Resource
   { title :: Text
   , list :: DB.Query
   , member :: DB.Query
+  , create :: b -> IO (DB.Query, [Text])
   }
 
 -- data Resource a = Resource
