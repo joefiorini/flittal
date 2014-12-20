@@ -8,11 +8,13 @@ import Html.Attributes (id, style, property)
 import Signal (Channel, send)
 
 import Board.Action (Action(..))
-import Board.State (Board)
+import Board.Model
 
 import Result
 
 import DomUtils (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty)
+
+type alias Board = Board.Model.Model
 
 type alias SelectionEvent =
   { id: String

@@ -10,12 +10,15 @@ import Signal (Channel, send, channel)
 
 import Debug
 
-import Box.State (..)
+import Box.Model
 import Board.Action as Board
 
 import DomUtils (stopPropagation, styleProperty)
 
 import Geometry.Types (toPxPoint)
+
+type alias Box = Box.Model.Model
+type alias BoxKey = Box.Model.BoxKey
 
 onKeyDown handle boxKey = let checkKeyCode keyCode = (case keyCode of
                             13 -> Board.EditingBox boxKey False

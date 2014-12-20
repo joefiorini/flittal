@@ -5,8 +5,9 @@ import Html.Attributes (class, style)
 
 import Geometry.Types (Geometric, Point, toPxPoint, toPx)
 
-import Connection.State (Connection, Line, LineLayout(..), ConnectionPort, PortLocation(..), PortOrder(..))
-import Box.Controller as Box
+import Box.Model
+import Connection.Model (Model, Line, LineLayout(..), ConnectionPort, PortLocation(..), PortOrder(..))
+import Box.Controller
 
 import Debug
 
@@ -15,9 +16,9 @@ import DomUtils (styleProperty)
 import List
 import List ((::))
 
-type alias State = Connection
+type alias Box = Box.Model.Model
 
-renderConnection : Connection -> Html
+renderConnection : Model -> Html
 renderConnection connection =
   div [class "connection"] <| drawEndpoint connection.endPort :: List.map drawSegment connection.segments
 
@@ -79,7 +80,7 @@ midPoint c =
   let offset n = if n % 2 == 0 then n - 1 else n in
      offset <| c // 2
 
-rightPort : Box.State -> PortLocation
+rightPort : Box -> PortLocation
 rightPort {position,size,borderSize} =
   let offset = borderSize * 2
       (x,y) = position
@@ -87,27 +88,27 @@ rightPort {position,size,borderSize} =
       Right (w + x + offset, y + midPoint h)
 
 
-leftPort : Box.State -> PortLocation
+leftPort : Box -> PortLocation
 leftPort {position,size} =
   let (x,y) = position
       (w,h) = size in
       Left (x, y + midPoint h)
 
 
-bottomPort : Box.State -> PortLocation
+bottomPort : Box -> PortLocation
 bottomPort {position,size,borderSize} =
   let offset = borderSize * 2
       (x,y) = position
       (w,h) = size in
       Bottom (x + midPoint w, y + h + offset)
 
-topPort : Box.State -> PortLocation
+topPort : Box -> PortLocation
 topPort {position,size} =
   let (x,y) = position
       (w,h) = size in
       Top (x + midPoint w, y)
 
-portLocations : Box.State -> Box.State -> ConnectionPort
+portLocations : Box -> Box -> ConnectionPort
 portLocations leftBox rightBox =
   let p1 = leftBox.position
       p2 = rightBox.position
@@ -177,23 +178,23 @@ buildSegments {start,end,order} =
       [verticalSegment p1 p2]
 
 
-rebuildConnections : List Connection -> List Connection
+rebuildConnections : List Model -> List Model
 rebuildConnections = List.map connectBoxes
 
 
-buildConnections : List Connection -> List Box.State -> List Connection
+buildConnections : List Model -> List Box -> List Model
 buildConnections connections boxes =
   snd (List.foldl connectBoxesFold (List.head boxes, connections) (List.tail boxes))
 
 
-updateBoxes : List Box.State -> Connection -> Connection
+updateBoxes : List Box -> Model -> Model
 updateBoxes boxes connection  =
       let findBox box boxes = List.head <| List.filter (\b -> b.key == box.key) boxes in
       { connection | startBox <- findBox connection.startBox boxes
                    , endBox <- findBox connection.endBox boxes }
 
 
-connectBoxes : Connection -> Connection
+connectBoxes : Model -> Model
 connectBoxes {startBox,endBox} =
   { segments = buildSegments <| portLocations startBox endBox
   , startPort = (.start) <| portLocations startBox endBox
@@ -202,7 +203,7 @@ connectBoxes {startBox,endBox} =
   , endBox = endBox }
 
 
-connectBoxesFold : Box.State -> (Box.State, List Connection) -> (Box.State, List Connection)
+connectBoxesFold : Box -> (Box, List Model) -> (Box, List Model)
 connectBoxesFold rightBox (leftBox, connections)  =
   let newConnection = { segments = buildSegments <| portLocations leftBox rightBox
                       , startPort = (.start) <| portLocations leftBox rightBox

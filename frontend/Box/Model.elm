@@ -1,4 +1,4 @@
-module Box.State (Box, BoxKey) where
+module Box.Model (Model, BoxKey) where
 
 import Geometry.Types (Geometric)
 
@@ -13,7 +13,7 @@ import Geometry.Types (Geometric)
 
 type alias BoxKey = Int
 
-type alias Box = Geometric
+type alias Model = Geometric
   { key: BoxKey
   , label: String
   , originalLabel: String

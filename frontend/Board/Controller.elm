@@ -7,12 +7,15 @@ import Signal
 import Signal (Channel, (<~))
 
 import Board.View (draw)
-import Board.State (..)
+import Board.Model
+
+import Box.Action
 
 import Board.Action (..)
 import Box.Controller as Box
 
 import Connection.Controller as Connection
+import Connection.Model
 
 import DomUtils (DragEvent, DnDPort, extractBoxId)
 
@@ -24,12 +27,12 @@ import List ((::))
 
 import Native.Custom.Html
 
-import Box.Action
+type alias Board = Board.Model.Model
 
 renderBoard : DnDPort -> DnDPort -> Signal.Signal Html
 renderBoard dropP dragstartP = Signal.map render <| state dropP dragstartP
 
-renderConnections : List Connection.State -> List Html
+renderConnections : List Connection.Model.Model -> List Html
 renderConnections = List.map Connection.renderConnection
 
 widgets : Board -> List Html
@@ -70,6 +73,12 @@ moveBoxAction event = let boxKeyM = extractBoxId event.id in
           | otherwise -> MoveBox key event
       Err s -> NoOp
 
+startingState =
+  { boxes = []
+  , connections = []
+  , nextIdentifier = 1
+  }
+
 state : DnDPort -> DnDPort -> Signal.Signal Board
 state dropP dragstartP = Signal.foldp step startingState (Signal.mergeMany [
                                            keyboardRequestAction
@@ -87,8 +96,29 @@ updateStateSelections box state =
 contains obj = List.any (\b -> b == obj)
 containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
 
-sortLeftToRight : List Box.State -> List Box.State
+sortLeftToRight : List Box.Box -> List Box.Box
 sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << (.position)) boxes
+
+boxForKey : BoxKey -> List Box -> Box
+boxForKey key boxes = List.head (List.filter (\b -> b.key == key) boxes)
+
+makeBox : Box.BoxKey -> Box.Box
+makeBox identifier =
+  { position = (0,0)
+  , size = (100, 50)
+  , label = "New Box"
+  , originalLabel = "New Box"
+  , key = identifier
+  , isEditing = False
+  , isSelected = False
+  , isDragging = False
+  , selectedIndex = 1
+  , borderSize = 2
+  }
+
+replaceBox : List Box.Box -> Box.Box -> List Box.Box
+replaceBox boxes withBox = List.map (\box ->
+      if box.key == withBox.key then withBox else box) boxes
 
 step : Action -> Board -> Board
 step action state =

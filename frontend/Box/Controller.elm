@@ -1,11 +1,11 @@
-module Box.Controller (moveBox, step, renderBox, State) where
+module Box.Controller (moveBox, step, renderBox, Box, BoxKey) where
 
 import DomUtils
 import DomUtils (DragEvent)
 
-import Box.State (..)
+import Box.Model
+import Box.Action as Action
 import Box.View (draw)
-import Box.Action (..)
 import Board.Action as Board
 
 import Html (Html)
@@ -17,7 +17,8 @@ import Graphics.Input as Input
 
 import Debug
 
-type alias State = Box
+type alias Box = Box.Model.Model
+type alias BoxKey = Box.Model.BoxKey
 
 renderBox : Channel Board.Action -> Box -> Html
 renderBox handle box = draw handle box
@@ -33,20 +34,20 @@ moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
 labelSelector : Box -> String
 labelSelector box = "#box-" ++ toString box.key ++ "-label"
 
-step : Action -> Box -> Box
+step : Action.Action -> Box -> Box
 step action box = case action of
-  Move event ->
+  Action.Move event ->
     Debug.log "Moved a box" <| moveBox event box
-  SetSelected index ->
+  Action.SetSelected index ->
     { box | selectedIndex <- index }
-  CancelEditing ->
+  Action.CancelEditing ->
     { box | label <- box.originalLabel
           , isEditing <- False }
-  Editing toggle ->
+  Action.Editing toggle ->
        let focusedBox = Debug.log "focusing box" <| DomUtils.setFocus (labelSelector box) box in
          { focusedBox | isEditing <- toggle, originalLabel <- box.label }
-  Update newLabel ->
+  Action.Update newLabel ->
     { box | label <- newLabel }
-  Dragging ->
+  Action.Dragging ->
     { box | isDragging <- if box.isDragging then False else True }
-  NoOp -> box
+  Action.NoOp -> box

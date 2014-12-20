@@ -1,6 +1,6 @@
-module Connection.State where
+module Connection.Model where
 
-import Box.State (Box)
+import Box.Model as Box
 import Geometry.Types (Point, Size)
 
 type LineLayout = Vertical | Horizontal
@@ -24,10 +24,10 @@ type alias Line =
   , layout: LineLayout
   }
 
-type alias Connection =
+type alias Model =
   { segments: List Line
   , startPort: PortLocation
   , endPort: PortLocation
-  , startBox: Box
-  , endBox: Box
+  , startBox: Box.Model
+  , endBox: Box.Model
   }

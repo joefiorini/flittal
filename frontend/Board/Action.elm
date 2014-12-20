@@ -1,8 +1,10 @@
 module Board.Action where
 
-import Box.Action
-import Box.State (Box, BoxKey)
+import Box.Model
 import DomUtils (DragEvent)
+
+type alias Box = Box.Model.Model
+type alias BoxKey = Box.Model.BoxKey
 
 type Action = NoOp |
   RequestedAdd |
