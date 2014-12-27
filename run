@@ -1,4 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-wait_on frontend/**/*.elm
-elm-make frontend/Main.elm --output=build/main.js
+ls {frontend/*.elm,frontend/**/*.elm} | entr -dr make build/Main.js

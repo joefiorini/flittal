@@ -1,8 +1,38 @@
-.PHONY: deps_osx db
+ELM_MAKE_OUTPUT = Main.js
+ELM_HTML_FILE = index.html
+SCSS = scss
+CSS_OUTPUT = Main.css
+NATIVE = Native/**/*.js
+SRC = frontend
+DIST = build
+VENDOR = vendor
+ELM_SRC = $(SRC)/**/*.elm
+SASSC_LOAD_PATH = bower_components/foundation/scss
+VENDOR_FILES = $(addprefix $(VENDOR)/,router.js route-recognizer.js rsvp.js)
+DIST_FILES = $(ELM_MAKE_OUTPUT) $(ELM_HTML_FILE) $(VENDOR_FILES) $(CSS_OUTPUT)
+
+.PHONY: deps_osx db db_migrate db_setup db_clean deploy
+
+$(DIST)/%.js: $(SRC)/%.elm $(ELM_SRC) $(NATIVE)
+	elm-make --output $@ $<
+
+%.css: $(SCSS)/%.scss
+	sassc -t compressed -I $(SASSC_LOAD_PATH) -m $< $@
+
+$(DIST)/%: %
+	mkdir -p $(DIST)
+	cp $< $@
+
+deploy: Main.elm Main.css $(addprefix $(DIST)/,$(DIST_FILES))
+	git add .
+	git commit -m "Deploy :tada:"
+	git subtree push --prefix $(DIST) deploy master
 
 deps_osx:
 	brew install sqitch
 	brew install sqitch_pg
+	brew install sassc
+	brew install entr
 
 db_migrate:
 	sqitch deploy

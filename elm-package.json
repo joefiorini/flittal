@@ -4,12 +4,13 @@
     "repository": "https://github.com/joefiorini/diagrammly.git",
     "license": "Commercial",
     "source-directories": [
-        "frontend"
+        "frontend", "elm-stuff/local-packages/router"
     ],
     "exposed-modules": [],
     "native-modules": true,
     "dependencies": {
         "elm-lang/core": "1.0.0 <= v < 2.0.0",
-        "evancz/elm-html": "1.0.0 <= v < 2.0.0"
+        "evancz/elm-html": "1.0.0 <= v < 2.0.0",
+        "evancz/local-channel": "1.0.0 <= v < 2.0.0"
     }
 }

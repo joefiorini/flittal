@@ -1,4 +1,4 @@
-module Board.Controller (renderBoard, checkFocus) where
+module Board.Controller (checkFocus, startingState, Board, Action, view, keyboardRequest, moveBoxAction, step) where
 
 import Keyboard
 import Debug
@@ -6,42 +6,76 @@ import Debug
 import Signal
 import Signal (Channel, (<~))
 
+import Html (..)
+import Html.Events (on)
+import Html.Attributes (id, style, property)
+
 import Board.View (draw)
 import Board.Model
 
 import Box.Action
-
-import Board.Action (..)
 import Box.Controller as Box
+
+import Board.Action
+import Board.Action (Action(..))
+
 
 import Connection.Controller as Connection
 import Connection.Model
 
-import DomUtils (DragEvent, DnDPort, extractBoxId)
+import DomUtils (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent, DnDPort)
 
 import Html (Html)
+
+import LocalChannel as LC
 
 import String (split, toInt)
 import List
 import List ((::))
 
+import Result
+
 import Native.Custom.Html
 
 type alias Board = Board.Model.Model
+type alias Action = Board.Action.Action
 
-renderBoard : DnDPort -> DnDPort -> Signal.Signal Html
-renderBoard dropP dragstartP = Signal.map render <| state dropP dragstartP
+view channel model =
+  div [ style
+      [ styleProperty "position" "relative"
+      , styleProperty "width" "900px"
+      , styleProperty "height" "600px"
+      , styleProperty "border" "solid thin blue"
+      , styleProperty "overflow" "hidden"
+      ]
+      , id "container"
+      , on "dblclick" getTargetId (\v -> LC.send channel <| buildEditingAction v)
+      , on "mousedown" getMouseSelectionEvent (\v -> LC.send channel <| buildSelectAction v)
+    ] <| widgets model
 
 renderConnections : List Connection.Model.Model -> List Html
 renderConnections = List.map Connection.renderConnection
 
-widgets : Board -> List Html
-widgets board = List.concatMap identity [ (List.map (Box.renderBox actions) board.boxes)
-                , (renderConnections board.connections)
-                ]
+buildSelectAction event = let boxIdM = extractBoxId event.id in
+                    case boxIdM of
+                      Result.Ok key ->
+                        if | event.metaKey -> SelectBoxMulti key
+                           | otherwise -> SelectBox key
+                      Result.Err s -> Debug.log "deselect" DeselectBoxes
 
-render : Board -> Html
-render board = draw board actions <| widgets board
+buildEditingAction : String -> Action
+buildEditingAction id = let boxIdM = extractBoxId id in
+                   case boxIdM of
+                     Result.Ok key ->
+                       EditingBox key True
+                     Result.Err s -> NoOp
+
+widgets : Board -> List Html
+widgets board =
+  List.concatMap identity
+    [ (List.map (Box.renderBox actions) board.boxes)
+    , (renderConnections board.connections)
+    ]
 
 actions : Channel Action
 actions = Signal.channel NoOp
@@ -55,8 +89,6 @@ checkFocus =
         toSelector (EditingBox id _) = ("#box-" ++ toString id ++ "-label")
     in
         toSelector <~ Signal.keepIf needsFocus (EditingBox 0 True) (Signal.subscribe actions)
-
-keyboardRequestAction = Signal.map keyboardRequest Keyboard.lastPressed
 
 keyboardRequest keyCode = case keyCode of
   65 -> NewBox
@@ -79,14 +111,6 @@ startingState =
   , nextIdentifier = 1
   }
 
-state : DnDPort -> DnDPort -> Signal.Signal Board
-state dropP dragstartP = Signal.foldp step startingState (Signal.mergeMany [
-                                           keyboardRequestAction
-                                         , Signal.subscribe actions
-                                         , moveBoxAction <~ dropP
-                                         , moveBoxAction <~ dragstartP
-                                         ])
-
 isEditing = List.any (.isEditing)
 
 updateStateSelections box state =
@@ -99,7 +123,7 @@ containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
 sortLeftToRight : List Box.Box -> List Box.Box
 sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << (.position)) boxes
 
-boxForKey : BoxKey -> List Box -> Box
+boxForKey : Box.BoxKey -> List Box.Box -> Box.Box
 boxForKey key boxes = List.head (List.filter (\b -> b.key == key) boxes)
 
 makeBox : Box.BoxKey -> Box.Box
