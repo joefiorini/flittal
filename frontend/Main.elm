@@ -51,7 +51,7 @@ startingState =
 
 
 type Update = NoOp
-            | BoardUpdate Board.Action
+            | BoardUpdate Board.Update
 
 updates : Signal.Channel Update
 updates = Signal.channel NoOp

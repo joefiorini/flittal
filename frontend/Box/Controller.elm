@@ -25,7 +25,7 @@ import Json.Decode as Json
 type alias Model = Model.Model
 type alias BoxKey = Model.BoxKey
 
-type Action = Move DragEvent
+type Update = Move DragEvent
             | Editing Bool
             | EditingBox Model Bool
             | CancelEditingBox Model
@@ -36,7 +36,7 @@ type Action = Move DragEvent
             | NoOp
             | Update String
 
-view : LC.LocalChannel Action -> Model -> Html
+view : LC.LocalChannel Update -> Model -> Html
 view channel box =
   div [style
     [ styleProperty "position" "absolute"
@@ -57,8 +57,8 @@ view channel box =
   ]
   [ if box.isEditing then labelField channel box box.label else text box.label ]
 
-entersEditMode action =
-  case action of
+entersEditMode update =
+  case update of
     EditingBox _ toggle ->
       toggle
     CancelEditingBox _ ->
@@ -81,13 +81,13 @@ keyCodeAndValue =
     ("keyCode" := Json.int)
     (Json.at ["target", "value"] Json.string)
 
-extractLabelAction box (keyCode, value) =
+extractLabelUpdate box (keyCode, value) =
   if | keyCode == 13 ->
     CancelEditingBox box
      | otherwise ->
     Debug.log "UpdateBox" <| UpdateBox box value
 
-labelField : LC.LocalChannel Action -> Model -> String -> Html
+labelField : LC.LocalChannel Update -> Model -> String -> Html
 labelField channel box label =
   let nullHandler v = LC.send channel NoOp
   in
@@ -95,7 +95,7 @@ labelField channel box label =
       [ id <| "box-" ++ toString box.key ++ "-label"
       , type' "text"
       , value label
-      -- , on "input" keyCodeAndValue (\a -> Debug.log "input:keydown" LC.send channel <| extractLabelAction box a)
+      -- , on "input" keyCodeAndValue (\a -> Debug.log "input:keydown" LC.send channel <| extractLabelUpdate box a)
       , on "mousedown" stopPropagation nullHandler
       ] []
 
@@ -110,8 +110,8 @@ moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
 labelSelector : Model -> String
 labelSelector box = "#box-" ++ toString box.key ++ "-label"
 
-step : Action -> Model -> Model
-step action box = case action of
+step : Update -> Model -> Model
+step update box = case update of
   Move event ->
     Debug.log "Moved a box" <| moveBox event box
   SetSelected index ->

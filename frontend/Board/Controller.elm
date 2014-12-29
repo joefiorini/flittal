@@ -33,8 +33,8 @@ import Native.Custom.Html
 
 type alias Board = Board.Model.Model
 
-type Action = NoOp |
-  BoxAction Box.Action |
+type Update = NoOp |
+  BoxAction Box.Update |
   RequestedAdd |
   UpdateBox Box.Model String |
   NewBox |
@@ -87,14 +87,14 @@ buildSelectAction event = let boxIdM = extractBoxId event.id in
                            | otherwise -> SelectBox key
                       Result.Err s -> Debug.log "deselect" DeselectBoxes
 
-buildEditingAction : String -> Action
+buildEditingAction : String -> Update
 buildEditingAction id = let boxIdM = extractBoxId id in
                    case boxIdM of
                      Result.Ok key ->
                        EditingBox key True
                      Result.Err s -> NoOp
 
-widgets : LC.LocalChannel Action -> Board -> List Html
+widgets : LC.LocalChannel Update -> Board -> List Html
 widgets channel board =
   let boxChannel = LC.localize (\a -> Debug.log "BoxAction" <| BoxAction a) channel
   in
@@ -103,7 +103,7 @@ widgets channel board =
     , (renderConnections board.connections)
     ]
 
-actions : Channel Action
+actions : Channel Update
 actions = Signal.channel NoOp
 
 checkFocus =
@@ -123,7 +123,7 @@ keyboardRequest keyCode = case keyCode of
   13 -> EditingSelectedBox True
   _ -> NoOp
 
-moveBoxAction : DragEvent -> Action
+moveBoxAction : DragEvent -> Update
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
     case boxKeyM of
       Ok key ->
@@ -170,16 +170,16 @@ replaceBox : List Box.Model -> Box.Model -> List Box.Model
 replaceBox boxes withBox = List.map (\box ->
       if box.key == withBox.key then withBox else box) boxes
 
-step : Action -> Board -> Board
-step action state =
-  let updateBoxInState action box iterator = (if iterator.key == box.key then Box.step action iterator else iterator)
-      updateSelectedBoxes action iterator = (if iterator.selectedIndex > -1 then Box.step action iterator else iterator)
-      performActionOnAllBoxes action = (Box.step action)
+step : Update -> Board -> Board
+step update state =
+  let updateBoxInState update box iterator = (if iterator.key == box.key then Box.step update iterator else iterator)
+      updateSelectedBoxes update iterator = (if iterator.selectedIndex > -1 then Box.step update iterator else iterator)
+      performActionOnAllBoxes update = (Box.step update)
       nextSelectedIndex boxes = List.foldl (\last index -> if index > last then index + 1 else last + 1) 0 <| List.map (.selectedIndex) boxes
       selectedBoxes boxes = List.sortBy (.selectedIndex)
                         <| List.filter (\b -> b.selectedIndex > -1) boxes
       deselectBoxes = List.map (\box -> { box | selectedIndex <- -1 }) in
-    case Debug.log "Performing action" action of
+    case Debug.log "Performing update" update of
       NewBox ->
         if | isEditing state.boxes -> state
            | True ->
