@@ -4,8 +4,6 @@ import DomUtils
 import DomUtils (DragEvent, stopPropagation, styleProperty)
 import Geometry.Types (toPxPoint)
 
-import Box.View (draw)
-
 import Html (..)
 import Html.Attributes (id, class, autofocus, style, property, boolProperty, type', value)
 import Html.Events (on, keyCode, onKeyPress, targetValue)
