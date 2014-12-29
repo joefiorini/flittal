@@ -35,6 +35,14 @@
           board.ports.globalKeyDown.send(e.keyCode);
       }, true);
 
+      var forms = document.querySelectorAll('form');
+
+      window.onsubmit = function(e) {
+        e.preventDefault();
+      };
+
+      // preventDefault(forms, "submit");
+
       board.ports.focus.subscribe(function(selector) {
           setTimeout(function() {
               var nodes = document.querySelectorAll(selector);
@@ -46,17 +54,20 @@
       });
 
       board.ports.transitionToRoute.subscribe(function(url) {
-        console.log('updating url with', url);
         window.history.pushState({}, '', url);
       });
 
       var links = document.querySelectorAll("a[href='#']");
+      preventDefault(links, "click");
 
-      Array.prototype.slice.apply(links).forEach(function(node) {
-          node.addEventListener("click", function(e) {
-            e.preventDefault();
-          });
-      });
+      function preventDefault(nodes, event) {
+
+        Array.prototype.slice.apply(nodes).forEach(function(node) {
+            node.addEventListener(event, function(e) {
+              e.preventDefault();
+            });
+        });
+      }
 
       function sendPort(port, result) {
         console.log('sending ', port, result);

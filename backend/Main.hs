@@ -13,9 +13,10 @@ import Database.PostgreSQL.Simple (postgreSQLConnectionString, defaultConnectInf
 import Control.Concurrent.STM (newTVarIO, readTVarIO, TVar)
 import Control.Monad.Reader (ReaderT (..))
 
+import Network.HTTP.Types.Method (StdMethod(..))
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Web.Scotty.Trans (scottyT, get, post, json, middleware, notFound)
-import Web.Scotty.Trans (jsonData, raw, ActionT, body, stringError, raise)
+import Web.Scotty.Trans (jsonData, raw, ActionT, body, stringError, raise, addHeader, addroute)
 import Data.Text.Lazy (Text)
 import Type.UserInfo
 
@@ -52,7 +53,7 @@ getDefaultConnectionString =
 getConfig :: IO ServerConfig
 getConfig = do
   databaseUrl <- getEnvDefault "DATABASE_URL" (BS.unpack getDefaultConnectionString)
-  httpPortS <- getEnvDefault "PORT" "8000"
+  httpPortS <- getEnvDefault "PORT" "3000"
   return ServerConfig
     { databaseUrl = databaseUrl
     , httpPort = read httpPortS
@@ -65,6 +66,7 @@ app db = do
       listAction = flip mkListAction connection
       createAction = flip mkCreateAction connection
   middleware logStdoutDev
+  addroute OPTIONS "/users" corsA
   get "/" rootA
   get "/users" $ listAction user
   post "/users" $ createAction user
@@ -73,3 +75,7 @@ app db = do
 rootA :: Action
 rootA = json ("Hello World" :: String)
 
+corsA :: Action
+corsA = do
+  addHeader "Access-Control-Allow-Origin" "*"
+  addHeader "Access-Control-Allow-Headers" "Content-Type, Accept"

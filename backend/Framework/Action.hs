@@ -8,7 +8,7 @@ import Data.Text.Lazy (Text, unpack)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.UUID (UUID)
 import Control.Monad.Trans (liftIO)
-import Web.Scotty.Trans (ActionT, json, jsonData, param, Parsable(..))
+import Web.Scotty.Trans (ActionT, json, jsonData, param, Parsable(..), addHeader)
 
 import Database.PostgreSQL.Simple.ToRow (ToRow(toRow))
 import Database.PostgreSQL.Simple.ToField (ToField(toField))
@@ -38,11 +38,11 @@ runCreateAction r c o = do
 runListAction :: (DB.FromRow a) => Resource a b -> ResourceStore -> IO [a]
 runListAction r c = DB.query_ c (list r)
 
-  
 mkCreateAction :: (ToJSON a, FromJSON b, DB.FromRow a, DB.FromRow b) => Resource a b -> ResourceStore -> Action
 mkCreateAction r c =  do
   obj <- jsonData
   item <- liftIO $ runCreateAction r c obj
+  addHeader "Access-Control-Allow-Origin" "*"
   json $ (represent $ head item)
   -- json $ (represent $ head item)
 
@@ -50,10 +50,12 @@ mkMemberAction :: (ToJSON a, DB.FromRow a) => Resource a b -> ResourceStore -> A
 mkMemberAction resource connection = do
   itemId <- (param "id") :: ActionT Text ConfigM UUID
   item <- liftIO $ runMemberAction resource connection itemId
+  addHeader "Access-Control-Allow-Origin" "*"
   json $ (represent $ head item)
 
 mkListAction :: (ToJSON a, DB.FromRow a) => Resource a b -> ResourceStore -> Action
 mkListAction resource connection = do
   item <- liftIO $ runListAction resource connection
+  addHeader "Access-Control-Allow-Origin" "*"
   json item
 
