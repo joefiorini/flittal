@@ -1,16 +1,17 @@
 module Main where
 import Graphics.Element (Element)
 import Html
-import Html (Html, toElement, div)
+import Html (Html, toElement, div, main', body, text)
 import Html.Attributes (class)
 import Board.Controller as Board
 import Board.Controller (checkFocus)
 import DomUtils (DragEvent)
 import Mousetrap
-import Router
-import Router.Types (RouteHandler(..))
-import Router.Renderers (renderTopLevel)
 import LocalChannel as LC
+import Partials.Header as Header
+import Partials.Footer as Footer
+import Routes
+import Routes (Route)
 import Signal
 import Signal (Signal, (<~))
 import Keyboard
@@ -31,7 +32,7 @@ type alias AppState =
   }
 
 main : Signal Element
-main = Signal.map (\h -> toElement 900 600 <| container h) state
+main = Signal.map2 (\h r -> toElement 900 1200 <| container h r) state routeHandler
 
 keyboardRequestAction = Signal.map convertKeyboardOperation (Signal.dropWhen inEditingMode 0 Keyboard.lastPressed)
 
@@ -50,11 +51,19 @@ startingState =
   }
 
 
+routeHandler = Signal.subscribe routeChannel
+
+type RouteUpdate = NavigationUpdate Header.Update
+                 | None
+
 type Update = NoOp
             | BoardUpdate Board.Update
 
 updates : Signal.Channel Update
 updates = Signal.channel NoOp
+
+routeChannel : Signal.Channel Route
+routeChannel = Signal.channel Routes.Root
 
 userInput = Signal.mergeMany [drop, dragstart, dragend]
 
@@ -91,10 +100,34 @@ step update state =
       { state | currentBoard <- updatedBoard }
     _ -> state
 
-container : AppState -> Html.Html
-container state =
-  let boardChannel' = LC.create BoardUpdate updates
+container : AppState -> Route -> Html.Html
+container state route =
+  let headerChannel = LC.create toRoute routeChannel
+      boardChannel = LC.create BoardUpdate updates
   in
-    div [ class "container" ]
-      [ Board.view boardChannel' state.currentBoard ]
+    body []
+      [ Header.view headerChannel
+      , main' []
+          [ case route of
+              Routes.Root ->
+                text "Welcome to Diagrammer"
+              Routes.Demo ->
+                Board.view boardChannel state.currentBoard
+              Routes.SignUp ->
+                text "Sign Up"
+              Routes.SignIn ->
+                text "Sign In"
+          ]
+      , Footer.view
+      ]
 
+-- Wrapping the route in a local type for flexibility in
+-- how I can pass data between routes
+toRoute : Header.Update -> Route
+toRoute update =
+  case Debug.log "toRoute" update of
+    Header.SignUp -> Routes.SignUp
+    Header.SignIn -> Routes.SignIn
+    Header.Demo -> Routes.Demo
+    Header.Home -> Routes.Root
+    _ -> Routes.Root

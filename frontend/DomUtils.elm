@@ -1,7 +1,11 @@
 module DomUtils where
 
 import Html (..)
+import Html.Attributes (href)
+import Html.Events (onClick)
 import Native.Custom.Html
+
+import Signal
 
 import Json.Decode as Json
 import Json.Decode (string, Decoder, at, (:=), object5, bool)
@@ -53,3 +57,11 @@ on = Native.Custom.Html.on
 
 extractBoxId : String -> Result String Int
 extractBoxId id = toInt << head << reverse <| split "-" id
+
+linkTo : String -> String -> Signal.Message -> Html
+linkTo title url handle =
+  a
+    [ href url
+    , onClick handle
+    ]
+    [ text title ]
