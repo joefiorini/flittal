@@ -49,5 +49,7 @@ getMouseSelectionEvent =
 stopPropagation = Native.Custom.Html.stopPropagation
 setFocus = Native.Custom.Html.setFocus
 
+on = Native.Custom.Html.on
+
 extractBoxId : String -> Result String Int
 extractBoxId id = toInt << head << reverse <| split "-" id

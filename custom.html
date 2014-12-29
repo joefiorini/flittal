@@ -27,8 +27,13 @@
       var board = Elm.fullscreen(Elm.Main, {
         dragstart: result,
         dragend: result,
-        drop: result
+        drop: result,
+        globalKeyDown: 0
       });
+
+      document.addEventListener('keydown', function(e) {
+          board.ports.globalKeyDown.send(e.keyCode);
+      }, true);
 
       board.ports.focus.subscribe(function(selector) {
           setTimeout(function() {

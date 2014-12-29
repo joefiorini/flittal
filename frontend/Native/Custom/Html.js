@@ -6,6 +6,17 @@ Elm.Native.Custom.Html.make = function(elm) {
   var Maybe = Elm.Maybe.make(elm);
   var Utils = Elm.Native.Utils.make(elm);
 
+  function DataSet(elem) {
+    var store = hashStore(elem)
+
+    if (!store.hash) {
+      store.hash = createHash(elem)
+    }
+
+    return store.hash
+  }
+
+
   function getTargetId(event) {
       return 'id' in event.target ?
           Maybe.Just(event.target.id) :
@@ -48,11 +59,43 @@ Elm.Native.Custom.Html.make = function(elm) {
     return Maybe.Just(event);
   }
 
+  function on(name, decoder, createMessage) {
+    function eventHandler(event) {
+      var value = A2(Json.runDecoderValue, decoder, event);
+      event.bubbles = false;
+      if (value.ctor === 'Ok') {
+        createMessage(value._0)();
+      }
+    }
+    return property(name, DataSetHook(eventHandler));
+  }
+
+  function property(key, value) {
+    return {
+      key: key,
+      value: value
+    };
+  }
+
+  function DataSetHook(value) {
+    if (!(this instanceof DataSetHook)) {
+      return new DataSetHook(value);
+    }
+
+    this.value = value;
+  }
+
+  DataSetHook.prototype.hook = function (node, propertyName) {
+    var ds = DataSet(node);
+    ds[propertyName] = this.value;
+  };
+
   return Elm.Native.Custom.Html.values = {
     setFocus: setFocus,
     getTargetId: getTargetId,
     preventDefault: preventDefault,
     stopPropagation: stopPropagation,
-    getMouseSelectionEvent: getMouseSelectionEvent
+    getMouseSelectionEvent: getMouseSelectionEvent,
+    on: F3(on)
   };
 };

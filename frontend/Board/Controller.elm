@@ -1,4 +1,4 @@
-module Board.Controller (checkFocus, startingState, Board, Action, view, keyboardRequest, moveBoxAction, step) where
+module Board.Controller where
 
 import Keyboard
 import Debug
@@ -10,15 +10,9 @@ import Html (..)
 import Html.Events (on)
 import Html.Attributes (id, style, property)
 
-import Board.View (draw)
 import Board.Model
 
-import Box.Action
 import Box.Controller as Box
-
-import Board.Action
-import Board.Action (Action(..))
-
 
 import Connection.Controller as Connection
 import Connection.Model
@@ -38,7 +32,24 @@ import Result
 import Native.Custom.Html
 
 type alias Board = Board.Model.Model
-type alias Action = Board.Action.Action
+
+type Action = NoOp |
+  BoxAction Box.Action |
+  RequestedAdd |
+  UpdateBox Box.Model String |
+  NewBox |
+  MoveBox Box.BoxKey DragEvent |
+  DeselectBoxes |
+  EditingBox Box.BoxKey Bool |
+  EditingSelectedBox Bool |
+  SelectBox Box.BoxKey |
+  SelectBoxMulti Box.BoxKey |
+  CancelEditingBox Box.BoxKey |
+  ConnectSelections |
+  ReconnectSelections |
+  DeleteSelections |
+  DraggingBox Box.BoxKey |
+  Drop DragEvent
 
 view channel model =
   div [ style
@@ -51,7 +62,20 @@ view channel model =
       , id "container"
       , on "dblclick" getTargetId (\v -> LC.send channel <| buildEditingAction v)
       , on "mousedown" getMouseSelectionEvent (\v -> LC.send channel <| buildSelectAction v)
-    ] <| widgets model
+    ] <| widgets channel model
+
+entersEditMode update =
+  Debug.log "entersEditMode" <| case update of
+    (EditingBox _ toggle) ->
+      toggle
+    (EditingSelectedBox toggle) ->
+      toggle
+    (BoxAction a) ->
+      Box.entersEditMode a
+    otherwise ->
+      False
+
+
 
 renderConnections : List Connection.Model.Model -> List Html
 renderConnections = List.map Connection.renderConnection
@@ -70,10 +94,12 @@ buildEditingAction id = let boxIdM = extractBoxId id in
                        EditingBox key True
                      Result.Err s -> NoOp
 
-widgets : Board -> List Html
-widgets board =
+widgets : LC.LocalChannel Action -> Board -> List Html
+widgets channel board =
+  let boxChannel = LC.localize (\a -> Debug.log "BoxAction" <| BoxAction a) channel
+  in
   List.concatMap identity
-    [ (List.map (Box.renderBox actions) board.boxes)
+    [ (List.map (Box.view boxChannel) board.boxes)
     , (renderConnections board.connections)
     ]
 
@@ -114,19 +140,19 @@ startingState =
 isEditing = List.any (.isEditing)
 
 updateStateSelections box state =
-  let updateBox lastBox _ = Box.step (Box.Action.SetSelected <| lastBox.selectedIndex + 1) box in
+  let updateBox lastBox _ = Box.step (Box.SetSelected <| lastBox.selectedIndex + 1) box in
   { state | boxes <- List.foldl updateBox state.boxes }
 
 contains obj = List.any (\b -> b == obj)
 containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
 
-sortLeftToRight : List Box.Box -> List Box.Box
+sortLeftToRight : List Box.Model -> List Box.Model
 sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << (.position)) boxes
 
-boxForKey : Box.BoxKey -> List Box.Box -> Box.Box
+boxForKey : Box.BoxKey -> List Box.Model -> Box.Model
 boxForKey key boxes = List.head (List.filter (\b -> b.key == key) boxes)
 
-makeBox : Box.BoxKey -> Box.Box
+makeBox : Box.BoxKey -> Box.Model
 makeBox identifier =
   { position = (0,0)
   , size = (100, 50)
@@ -140,7 +166,7 @@ makeBox identifier =
   , borderSize = 2
   }
 
-replaceBox : List Box.Box -> Box.Box -> List Box.Box
+replaceBox : List Box.Model -> Box.Model -> List Box.Model
 replaceBox boxes withBox = List.map (\box ->
       if box.key == withBox.key then withBox else box) boxes
 
@@ -153,56 +179,64 @@ step action state =
       selectedBoxes boxes = List.sortBy (.selectedIndex)
                         <| List.filter (\b -> b.selectedIndex > -1) boxes
       deselectBoxes = List.map (\box -> { box | selectedIndex <- -1 }) in
-    case action of
+    case Debug.log "Performing action" action of
       NewBox ->
         if | isEditing state.boxes -> state
            | True ->
             let newBox = makeBox state.nextIdentifier in
               Debug.log "newBox" { state | boxes <- newBox :: (deselectBoxes state.boxes)
                                          , nextIdentifier <- state.nextIdentifier + 1 }
-      CancelEditingBox key ->
-        let box = boxForKey key state.boxes
-            cancelEditing = List.map (updateBoxInState Box.Action.CancelEditing box)
-            updateBoxes = cancelEditing >> deselectBoxes in
-          Debug.log "Canceling edit" { state | boxes <- updateBoxes state.boxes }
+      BoxAction (Box.CancelEditingBox box) ->
+        let box' = Box.step Box.CancelEditing box
+            boxes' = replaceBox state.boxes box'
+        in
+          Debug.log "Canceling edit" { state | boxes <- deselectBoxes boxes' }
       DeselectBoxes ->
-        let cancelEditing = List.map (Box.step Box.Action.CancelEditing)
+        let cancelEditing = List.map (Box.step Box.CancelEditing)
             updateBoxes = cancelEditing >> deselectBoxes in
           { state | boxes <- updateBoxes state.boxes }
       SelectBoxMulti id ->
         let box = boxForKey id state.boxes
-            updateBoxes boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes in
+            updateBoxes boxes = List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes in
           Debug.log "adding box to selection" { state | boxes <- updateBoxes state.boxes }
 
       DraggingBox id ->
         let box = boxForKey id state.boxes
-            selectedBox boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes
-            draggingBox = List.map (updateSelectedBoxes Box.Action.Dragging)
+            selectedBox boxes = List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+            draggingBox = List.map (updateSelectedBoxes Box.Dragging)
             updateBoxes = selectedBox >> draggingBox in
             Debug.log "started dragging" { state | boxes <- updateBoxes state.boxes }
 
       SelectBox id ->
         let box = boxForKey id state.boxes
-            selectedBox boxes = List.map (updateBoxInState (Box.Action.SetSelected <| nextSelectedIndex boxes) box) boxes
+            selectedBox boxes = List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
             updateBoxes = deselectBoxes >> selectedBox in
           if | box.isSelected -> state
              | otherwise ->
           Debug.log "selecting box" { state | boxes <- updateBoxes state.boxes }
-      EditingBox id toggle ->
-        let box = boxForKey id state.boxes in
-          Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle) box }
+      EditingBox boxKey toggle ->
+        let box = boxForKey boxKey state.boxes
+            box' = Box.step (Box.Editing toggle) box
+            boxes' = replaceBox state.boxes box'
+        in
+          Debug.log "Canceling edit" { state | boxes <- boxes' }
+
+      BoxAction (Box.EditingBox box toggle) ->
+        let box' = Box.step (Box.Editing toggle) box
+        in
+          Debug.log "editing box" { state | boxes <- replaceBox state.boxes <| box' }
       EditingSelectedBox toggle ->
           let selectedBoxes = List.filter (\b -> b.selectedIndex /= -1) state.boxes in
             if | List.length selectedBoxes == 1 ->
-              { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Editing toggle)
+              { state | boxes <- replaceBox state.boxes <| Box.step (Box.Editing toggle)
                                                         <| List.head selectedBoxes }
                | otherwise ->
               state
-      UpdateBox box label ->
-        { state | boxes <- replaceBox state.boxes <| Box.step (Box.Action.Update label) box }
+      BoxAction (Box.UpdateBox box label) ->
+        Debug.log "Box.UpdateBox" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Update label) box }
       MoveBox key event ->
-        let draggingBox = List.map (updateSelectedBoxes Box.Action.Dragging)
-            moveAllSelectedBoxes boxes = List.map (updateSelectedBoxes (Box.Action.Move event)) boxes
+        let draggingBox = List.map (updateSelectedBoxes Box.Dragging)
+            moveAllSelectedBoxes boxes = List.map (updateSelectedBoxes (Box.Move event)) boxes
             updateBoxes = moveAllSelectedBoxes >> draggingBox
         in
           Debug.log "moved box"
@@ -225,5 +259,6 @@ step action state =
                       (\c -> c.startBox.selectedIndex == -1 &&
                         c.endBox.selectedIndex == -1)
                       state.connections }
+      _ -> state
       NoOp -> Debug.log "NoOp" state
 
