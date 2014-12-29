@@ -50,11 +50,23 @@ startingState =
   { currentBoard = Board.startingState
   }
 
+routesMap routeName =
+  case routeName of
+    Routes.Root -> ("/", Routes.Root)
+    Routes.SignUp -> ("/register", Routes.SignUp)
+    Routes.SignIn -> ("/sign-in", Routes.SignIn)
+    Routes.Demo -> ("/demo", Routes.Demo)
 
-routeHandler = Signal.subscribe routeChannel
+port transitionToRoute : Signal Routes.Url
+port transitionToRoute =
+  Routes.sendToPort routeHandler
 
-type RouteUpdate = NavigationUpdate Header.Update
-                 | None
+routeHandler =
+  Routes.map routesMap
+    <| Signal.subscribe routeChannel
+
+type RouteUpdate = Default
+                 | NavigationRouteUpdate Header.RouteUpdate
 
 type Update = NoOp
             | BoardUpdate Board.Update
@@ -62,7 +74,7 @@ type Update = NoOp
 updates : Signal.Channel Update
 updates = Signal.channel NoOp
 
-routeChannel : Signal.Channel Route
+routeChannel : Signal.Channel Routes.RouteName
 routeChannel = Signal.channel Routes.Root
 
 userInput = Signal.mergeMany [drop, dragstart, dragend]
@@ -100,9 +112,9 @@ step update state =
       { state | currentBoard <- updatedBoard }
     _ -> state
 
-container : AppState -> Route -> Html.Html
-container state route =
-  let headerChannel = LC.create toRoute routeChannel
+container : AppState -> Routes.Route -> Html.Html
+container state (url,route) =
+  let headerChannel = LC.create identity routeChannel
       boardChannel = LC.create BoardUpdate updates
   in
     body []
@@ -120,14 +132,3 @@ container state route =
           ]
       , Footer.view
       ]
-
--- Wrapping the route in a local type for flexibility in
--- how I can pass data between routes
-toRoute : Header.Update -> Route
-toRoute update =
-  case Debug.log "toRoute" update of
-    Header.SignUp -> Routes.SignUp
-    Header.SignIn -> Routes.SignIn
-    Header.Demo -> Routes.Demo
-    Header.Home -> Routes.Root
-    _ -> Routes.Root

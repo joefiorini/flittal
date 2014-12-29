@@ -1,6 +1,20 @@
 module Routes where
 
-type Route = Root
+import Debug
+import Signal
+
+type RouteName = Root
            | Demo
            | SignUp
            | SignIn
+
+type alias Url = String
+type alias Route = (Url, RouteName)
+
+
+map : (RouteName -> Route) -> Signal RouteName -> Signal Route
+map = Signal.map
+
+sendToPort : Signal Route -> Signal Url
+sendToPort routeSignal =
+  Signal.map fst routeSignal

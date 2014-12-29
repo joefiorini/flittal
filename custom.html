@@ -45,6 +45,19 @@
           }, 50);
       });
 
+      board.ports.transitionToRoute.subscribe(function(url) {
+        console.log('updating url with', url);
+        window.history.pushState({}, '', url);
+      });
+
+      var links = document.querySelectorAll("a[href='#']");
+
+      Array.prototype.slice.apply(links).forEach(function(node) {
+          node.addEventListener("click", function(e) {
+            e.preventDefault();
+          });
+      });
+
       function sendPort(port, result) {
         console.log('sending ', port, result);
 
