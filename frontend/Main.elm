@@ -12,6 +12,7 @@ import Partials.Header as Header
 import Partials.Footer as Footer
 import Routes
 import Routes (Route)
+import Error
 import Http
 import Signal
 import Result
@@ -38,7 +39,7 @@ type alias AppState =
   { currentBoard        : Board.Board
   , signUpForm          : SignUp.Model
   , ajaxAction          : AjaxAction
-  , ajaxResult          : Result String String
+  , ajaxResult          : Result Error.Type String
   }
 
 main : Signal Element
@@ -63,7 +64,7 @@ ajaxActions action state =
         case Debug.log "http result" r of
           Http.Success s -> { state | ajaxResult <- (Result.Ok s) }
           Http.Waiting -> state
-          Http.Failure code s -> { state | ajaxResult <- (Result.Err s) })
+          Http.Failure code s -> { state | ajaxResult <- (Result.Err (Error.toError s)) })
       (Http.send <| request action)
       state
 
@@ -143,8 +144,13 @@ inEditingMode = Signal.map entersEditMode (Signal.subscribe updates)
 convertDragOperation dragE =
   BoardUpdate <| Board.moveBoxAction dragE
 
+clearActions state =
+  { state | ajaxAction <- None, ajaxResult <- Result.Ok "" }
+
 step : Update -> AppState -> AppState
-step update state =
+step update state' =
+  let state = clearActions state'
+  in
   case Debug.log "update" update of
     SignUpUpdate (SignUp.SubmitForm) ->
       let request = SignUp.buildRequest state.signUpForm
@@ -175,7 +181,7 @@ container state (url,route) =
               Routes.Demo ->
                 Board.view boardChannel state.currentBoard
               Routes.SignUp ->
-                SignUp.view signUpChannel state.signUpForm
+                SignUp.view signUpChannel state.signUpForm state.ajaxResult
               Routes.SignIn ->
                 text "Sign In"
           ]

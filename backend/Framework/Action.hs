@@ -1,14 +1,16 @@
-{-# LANGUAGE OverloadedStrings, RankNTypes #-}
+{-# LANGUAGE OverloadedStrings, RankNTypes, DeriveDataTypeable #-}
 
 module Framework.Action ( mkListAction, mkMemberAction, mkCreateAction, Action ) where
 
 import Framework.App
 import Framework.Resource
-import Data.Text.Lazy (Text, unpack)
+import Control.Exception
+import Data.Text.Lazy (Text, unpack, pack)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.UUID (UUID)
+import Data.Typeable (Typeable)
 import Control.Monad.Trans (liftIO)
-import Web.Scotty.Trans (ActionT, json, jsonData, param, Parsable(..), addHeader)
+import Web.Scotty.Trans (ActionT, json, jsonData, param, Parsable(..), addHeader, ScottyError(..))
 
 import Database.PostgreSQL.Simple.ToRow (ToRow(toRow))
 import Database.PostgreSQL.Simple.ToField (ToField(toField))
@@ -16,10 +18,19 @@ import Database.PostgreSQL.Simple.ToField (ToField(toField))
 import qualified Data.Maybe                 as Maybe
 import qualified Data.UUID                  as UUID
 import qualified Database.PostgreSQL.Simple as DB
+import qualified Database.PostgreSQL.Simple.Errors as Errors
 
 import Type.UserInfo
 
 type Action = ActionT Text ConfigM ()
+
+data AppError = DuplicateEmailAddressError
+  deriving (Typeable, Show, Read)
+
+instance Exception AppError
+instance ScottyError AppError where
+  stringError = read
+  showError = pack . show
 
 instance DB.ToRow UUID where
   toRow uuid = [toField uuid]
@@ -33,7 +44,10 @@ runMemberAction r c = DB.query c (member r)
 runCreateAction :: (DB.FromRow a, DB.FromRow b) => Resource a b -> ResourceStore -> b -> IO [a]
 runCreateAction r c o = do
   (q, p) <- (create r o)
-  DB.query c q p
+  Errors.catchViolation handleViolation $ DB.query c q p
+  where
+    handleViolation _ (Errors.UniqueViolation "users_email_unique") =
+      throw DuplicateEmailAddressError
 
 runListAction :: (DB.FromRow a) => Resource a b -> ResourceStore -> IO [a]
 runListAction r c = DB.query_ c (list r)
@@ -59,3 +73,4 @@ mkListAction resource connection = do
   addHeader "Access-Control-Allow-Origin" "*"
   json item
 
+  

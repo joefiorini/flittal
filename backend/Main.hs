@@ -14,10 +14,12 @@ import Control.Concurrent.STM (newTVarIO, readTVarIO, TVar)
 import Control.Monad.Reader (ReaderT (..))
 
 import Network.HTTP.Types.Method (StdMethod(..))
+import qualified Network.HTTP.Types.Status as Status
+
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Web.Scotty.Trans (scottyT, get, post, json, middleware, notFound)
-import Web.Scotty.Trans (jsonData, raw, ActionT, body, stringError, raise, addHeader, addroute)
-import Data.Text.Lazy (Text)
+import Web.Scotty.Trans (jsonData, raw, ActionT, body, stringError, raise, addHeader, addroute, defaultHandler, ScottyError, showError, status)
+import Data.Text.Lazy (Text, unpack)
 import Type.UserInfo
 
 import System.Posix.Env (getEnvDefault)
@@ -66,6 +68,7 @@ app db = do
       listAction = flip mkListAction connection
       createAction = flip mkCreateAction connection
   middleware logStdoutDev
+  defaultHandler handleError
   addroute OPTIONS "/users" corsA
   get "/" rootA
   get "/users" $ listAction user
@@ -79,3 +82,10 @@ corsA :: Action
 corsA = do
   addHeader "Access-Control-Allow-Origin" "*"
   addHeader "Access-Control-Allow-Headers" "Content-Type, Accept"
+
+handleError :: (ScottyError e) => e -> Action
+handleError error = do
+  let msg = (BS.pack . unpack) $ showError error
+  addHeader "Access-Control-Allow-Origin" "*"
+  status $ Status.mkStatus 500 msg
+  json ("{\"error\": \"" ++ (BS.unpack msg) ++ "\"}" :: String)

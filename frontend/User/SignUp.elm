@@ -1,9 +1,11 @@
 module User.SignUp where
 
-import Html (input, form, label, text, button)
-import Html.Attributes (for, type', name, id, method)
+import Html (input, form, label, text, button, div)
+import Html.Attributes (for, type', name, id, method, class)
 import Html.Events (on, targetValue, onClick)
 import Http
+import Error
+import Result
 import Json.Encode as Encode
 import Debug
 import LocalChannel as LC
@@ -55,33 +57,46 @@ step update model =
     SubmitForm -> Debug.log "submitting" model
     NoOp -> model
 
-view channel model =
+view channel model ajaxResult =
   let updateField name value = LC.send channel (UpdateField name value)
+      error = case ajaxResult of
+                 Result.Err t ->
+                   case t of
+                     Error.DuplicateEmailAddressError ->
+                       "There is already an account with that email."
+                     _ ->
+                       "Sorry, a strange error occurred during registration. Please try again later."
+                 _ -> ""
   in
-    form
-      [ method "post"
-      ]
-      [ label
-          [ for "email" ]
-          [ text "Email" ]
-      , input
-          [ type' "email"
-          , name "email"
-          , id "email"
-          , on "input" targetValue (updateField "email")
+    div [ ]
+      [ if | error /= "" ->
+          div [ class "error" ] [ text error ]
+           | otherwise -> div [] []
+      , form
+        [ method "post"
+        ]
+        [ label
+            [ for "email" ]
+            [ text "Email" ]
+        , input
+            [ type' "email"
+            , name "email"
+            , id "email"
+            , on "input" targetValue (updateField "email")
+            ]
+            []
+        , input
+            [ type' "password"
+            , name "password"
+            , id "password"
+            , on "input" targetValue (updateField "password")
+            ]
+            []
+        , button
+            [ type' "submit"
+            , name "submit"
+            , onClick (LC.send channel SubmitForm)
+            ]
+            [ text "Sign Up" ]
           ]
-          []
-      , input
-          [ type' "password"
-          , name "password"
-          , id "password"
-          , on "input" targetValue (updateField "password")
-          ]
-          []
-      , button
-          [ type' "submit"
-          , name "submit"
-          , onClick (LC.send channel SubmitForm)
-          ]
-          [ text "Sign Up" ]
         ]
