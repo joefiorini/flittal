@@ -13,7 +13,7 @@ import Partials.Footer as Footer
 import Signal
 import Result
 import Routes
-import Signal (Signal, (<~))
+import Signal (Signal, (<~), (~))
 import Keyboard
 import Window
 import Debug
@@ -32,7 +32,10 @@ type alias AppState =
   }
 
 main : Signal Element
-main = Signal.map2 (\h r -> toElement 900 1200 <| container h r) state routeHandler
+main = (\s r (w,h) -> toElement w h  <| container s r h)
+        <~ state
+        ~ routeHandler
+        ~ Window.dimensions
 
 keyboardRequestAction = Signal.map convertKeyboardOperation (Signal.dropWhen inEditingMode 0 Keyboard.lastPressed)
 
@@ -52,9 +55,12 @@ startingState =
   }
 
 routesMap routeName =
-  case routeName of
-    Routes.Root -> ("/", Routes.Root)
-    Routes.Demo -> ("/demo", Routes.Demo)
+  let url =
+    case routeName of
+      Routes.Root -> "/"
+      Routes.About -> "/about"
+  in
+     (url, routeName)
 
 port transitionToRoute : Signal Routes.Url
 port transitionToRoute =
@@ -63,9 +69,6 @@ port transitionToRoute =
 routeHandler =
   Routes.map routesMap
     <| Signal.subscribe routeChannel
-
-type RouteUpdate = Default
-                 | NavigationRouteUpdate Header.RouteUpdate
 
 type Update = NoOp
             | BoardUpdate Board.Update
@@ -112,8 +115,8 @@ step update state =
       { state | currentBoard <- updatedBoard }
     _ -> state
 
-container : AppState -> Routes.Route -> Html.Html
-container state (url,route) =
+container : AppState -> Routes.Route -> Int -> Html.Html
+container state (url,route) screenHeight =
   let headerChannel = LC.create identity routeChannel
       boardChannel = LC.create BoardUpdate updates
   in
@@ -122,9 +125,9 @@ container state (url,route) =
       , main' []
           [ case route of
               Routes.Root ->
-                text "Welcome to Diagrammer"
-              Routes.Demo ->
-                Board.view boardChannel state.currentBoard
+                Board.view boardChannel state.currentBoard (screenHeight - 36)
+              Routes.About ->
+                text "About Diagrammer"
           ]
       , Footer.view
       ]

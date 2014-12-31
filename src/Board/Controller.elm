@@ -30,6 +30,7 @@ import List ((::))
 import Result
 
 import Native.Custom.Html
+import Geometry.Types as Geometry
 
 type alias Board = Board.Model.Model
 
@@ -51,11 +52,11 @@ type Update = NoOp |
   DraggingBox Box.BoxKey |
   Drop DragEvent
 
-view channel model =
+view channel model height =
   div [ style
       [ styleProperty "position" "relative"
-      , styleProperty "width" "900px"
-      , styleProperty "height" "600px"
+      , styleProperty "width" "100%"
+      , styleProperty "height" <| Geometry.toPx height
       , styleProperty "border" "solid thin blue"
       , styleProperty "overflow" "hidden"
       ]

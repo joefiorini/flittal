@@ -4,9 +4,7 @@ import Debug
 import Signal
 
 type RouteName = Root
-           | Demo
-           | SignUp
-           | SignIn
+               | About
 
 type alias Url = String
 type alias Route = (Url, RouteName)
