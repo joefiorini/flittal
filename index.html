@@ -2,7 +2,7 @@
 
   <head>
     <title>Embedding Elm in HTML!</title>
-    <script type="text/javascript" src="build/Main.js"></script>
+    <script type="text/javascript" src="/build/Main.js"></script>
   </head>
 
   <body>
@@ -24,12 +24,25 @@
         dragstart: result,
         dragend: result,
         drop: result,
-        globalKeyDown: 0
+        globalKeyDown: 0,
+        loadedState: ""
       });
 
       document.addEventListener('keydown', function(e) {
           board.ports.globalKeyDown.send(e.keyCode);
       }, true);
+
+      window.onpopstate = function(e) {
+        var currentUrl = window.location.href;
+        var matches = currentUrl.match(/\/boards\/(.*)$/);
+
+        if (matches.length && matches.length > 0) {
+          var serializedState = matches[1];
+          var deserializedState = JSON.parse(atob(serializedState));
+          board.ports.loadedState.send(deserializedState);
+        }
+
+      };
 
       var forms = document.querySelectorAll('form');
 
@@ -47,6 +60,14 @@
                   nodes[0].setSelectionRange(0, nodes[0].value.length)
               }
           }, 50);
+      });
+
+      board.ports.serializeState.subscribe(function(state) {
+        console.log(JSON.stringify(state));
+        var encoded = btoa(JSON.stringify(state));
+
+        window.history.pushState({}, "", "/boards/" + encoded);
+        return state;
       });
 
       board.ports.transitionToRoute.subscribe(function(url) {

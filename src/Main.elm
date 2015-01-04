@@ -10,6 +10,10 @@ import Mousetrap
 import LocalChannel as LC
 import Partials.Header as Header
 import Partials.Footer as Footer
+import Native.App as App
+import Json.Encode as Encode
+import Json.Decode as Decode
+import Json.Decode ((:=))
 import Signal
 import Result
 import Routes
@@ -34,8 +38,8 @@ type alias AppState =
 main : Signal Element
 main = (\s r (w,h) -> toElement w h  <| container s r h)
         <~ state
-        ~ routeHandler
-        ~ Window.dimensions
+         ~ routeHandler
+         ~ Window.dimensions
 
 keyboardRequestAction = Signal.map convertKeyboardOperation (Signal.dropWhen inEditingMode 0 Keyboard.lastPressed)
 
@@ -62,6 +66,40 @@ routesMap routeName =
   in
      (url, routeName)
 
+encodeAppState : AppState -> Encode.Value
+encodeAppState state =
+  Encode.object
+    [ ("currentBoard", Board.encode state.currentBoard)
+    ]
+
+decodeAppState : Decode.Decoder AppState
+decodeAppState =
+  Decode.object1 AppState
+    ("currentBoard" := Board.decode)
+
+extractAppState : Result.Result String AppState -> AppState
+extractAppState result =
+  case result of
+    Result.Ok state -> state
+    Result.Err s -> Debug.crash s
+
+deserializedState : Signal Update
+deserializedState =
+  let deserializeAppState = Decode.decodeString decodeAppState
+      loadedState' = Signal.keepIf ((/=) "")
+        (Encode.encode 0 <| encodeAppState startingState) loadedState
+  in
+    (HydrateAppState << extractAppState << deserializeAppState) <~ loadedState'
+
+port loadedState : Signal String
+
+port serializeState : Signal String
+port serializeState =
+  let serializeAppState = (Encode.encode 0) << encodeAppState
+  in
+    serializeAppState <~ state
+
+
 port transitionToRoute : Signal Routes.Url
 port transitionToRoute =
   Routes.sendToPort routeHandler
@@ -71,6 +109,7 @@ routeHandler =
     <| Signal.subscribe routeChannel
 
 type Update = NoOp
+            | HydrateAppState AppState
             | BoardUpdate Board.Update
 
 updates : Signal.Channel Update
@@ -86,6 +125,7 @@ state =
   Signal.foldp step startingState
     (Signal.mergeMany
       [ Signal.subscribe updates
+      , deserializedState
       , Signal.map globalKeyboardShortcuts Mousetrap.keydown
       , convertDragOperation <~ Signal.mergeMany [drop, dragstart]
       ])
@@ -109,6 +149,7 @@ convertDragOperation dragE =
 step : Update -> AppState -> AppState
 step update state =
   case Debug.log "update" update of
+    HydrateAppState state' -> Debug.log "Updated State" state'
     BoardUpdate u ->
       let updatedBoard = Board.step u state.currentBoard
       in

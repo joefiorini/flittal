@@ -68,6 +68,8 @@ entersEditMode update =
     otherwise ->
       False
 
+encode = Model.encode
+
 onKeyDown channel box = let checkKeyCode keyCode = (case keyCode of
                             -- TODO: Kill at least the 13 in this one
                             13 -> EditingBox box False

@@ -76,7 +76,8 @@ entersEditMode update =
     otherwise ->
       False
 
-
+encode = Board.Model.encode
+decode = Board.Model.decode
 
 renderConnections : List Connection.Model.Model -> List Html
 renderConnections = List.map Connection.renderConnection
@@ -161,7 +162,6 @@ makeBox identifier =
   , originalLabel = "New Box"
   , key = identifier
   , isEditing = False
-  , isSelected = False
   , isDragging = False
   , selectedIndex = 1
   , borderSize = 2
@@ -212,7 +212,7 @@ step update state =
         let box = boxForKey id state.boxes
             selectedBox boxes = List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
             updateBoxes = deselectBoxes >> selectedBox in
-          if | box.isSelected -> state
+          if | box.selectedIndex > -1 -> state
              | otherwise ->
           Debug.log "selecting box" { state | boxes <- updateBoxes state.boxes }
       EditingBox boxKey toggle ->

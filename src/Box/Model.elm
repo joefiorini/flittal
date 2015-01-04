@@ -1,15 +1,13 @@
-module Box.Model (Model, BoxKey) where
+module Box.Model where
 
+import Geometry.Types as Geometry
 import Geometry.Types (Geometric)
-
--- type Position b = { b | position: Point }
--- type Size b = { b | size: Point }
--- type Labelled b = { b | label: String }
--- type Keyed b = { b | key: Int }
-
--- type BoxModel b = { b | isEditing: Bool
---                       , isSelected: Bool
---                       , originalLabel: String }
+import Json.Encode as Encode
+import Json.Decode as Decode
+import Json.Decode ((:=))
+import Json.Ext as JsonExt
+import Result
+import Result (andThen)
 
 type alias BoxKey = Int
 
@@ -18,9 +16,77 @@ type alias Model = Geometric
   , label: String
   , originalLabel: String
   , isEditing: Bool
-  , isSelected: Bool
   , isDragging: Bool
   , selectedIndex: Int
   , borderSize: Int
   }
+
+mkBox position size label originalLabel key isEditing isDragging selectedIndex borderSize =
+  { position = position
+  , size = size
+  , label = label
+  , originalLabel = originalLabel
+  , key = key
+  , isEditing = isEditing
+  , isDragging = isDragging
+  , selectedIndex = selectedIndex
+  , borderSize = borderSize
+  }
+-- mkBox  =
+--   let get key def = (Dict.get key) ? def
+--   in
+--     { position = get "position" ""
+--     , size = get "size" ""
+--     , label = snd label
+--     , originalLabel = snd originalLabel
+--     , key = snd key
+--     , isEditing = snd isEditing
+--     , isDragging = snd isDragging
+--     , selectedIndex = snd selectedIndex
+--     , borderSize = snd borderSize
+--     }
+
+encode : Model -> Encode.Value
+encode box =
+  Encode.object
+    [ ("position", Geometry.encodePoint box.position)
+    , ("size", Geometry.encodeSize box.size)
+    , ("key", Encode.int box.key)
+    , ("label", Encode.string box.label)
+    , ("originalLabel", Encode.string box.originalLabel)
+    , ("isEditing", Encode.bool box.isEditing)
+    , ("isDragging", Encode.bool box.isDragging)
+    , ("selectedIndex", Encode.int box.selectedIndex)
+    , ("borderSize", Encode.int box.borderSize)
+    ]
+
+
+apply : Decode.Decoder (a -> b) -> Decode.Decoder a -> Decode.Decoder b
+apply func value =
+  JsonExt.map2 (<|) func value
+
+decode : Decode.Decoder Model
+decode =
+  let property ~= decoder = Decode.decodeValue (property := decoder)
+      extract property decoder = (property := decoder)
+  in
+   Decode.map mkBox
+    (extract "position" Geometry.decodePoint)
+    `apply`
+    (extract "size" Geometry.decodeSize)
+    `apply`
+    (extract "label" Decode.string)
+    `apply`
+    (extract "originalLabel" Decode.string)
+    `apply`
+    (extract "key" Decode.int)
+    `apply`
+    (extract "isEditing" Decode.bool)
+    `apply`
+    (extract "isDragging" Decode.bool)
+    `apply`
+    (extract "selectedIndex" Decode.int)
+    `apply`
+    (extract "borderSize" Decode.int)
+
 
