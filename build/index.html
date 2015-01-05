@@ -1,0 +1,146 @@
+<html>
+
+  <head>
+    <title>Embedding Elm in HTML!</title>
+    <link type="text/css" rel="stylesheet" href="/main.css">
+    <script type="text/javascript" src="/Main.js"></script>
+  </head>
+
+  <body>
+
+    <script>
+      var result = {
+        id: "",
+        isStart: false,
+        isDrop: false,
+        isEnd: false,
+        isMulti: false,
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0
+      };
+
+      var board = Elm.fullscreen(Elm.Main, {
+        dragstart: result,
+        dragend: result,
+        drop: result,
+        globalKeyDown: 0,
+        loadedState: ""
+      });
+
+      window.onpopstate = function(e) {
+        var currentUrl = window.location.href;
+        var matches = currentUrl.match(/\/boards\/(.*)$/);
+
+        if (matches.length && matches.length > 0) {
+          var serializedState = matches[1];
+          var deserializedState = JSON.parse(atob(serializedState));
+          console.log(deserializedState);
+          board.ports.loadedState.send(deserializedState);
+        }
+
+      };
+
+      var forms = document.querySelectorAll('form');
+
+      window.onsubmit = function(e) {
+        e.preventDefault();
+      };
+
+      // preventDefault(forms, "submit");
+
+      board.ports.focus.subscribe(function(selector) {
+          setTimeout(function() {
+              var nodes = document.querySelectorAll(selector);
+              if (nodes.length === 1 && document.activeElement !== nodes[0]) {
+                  nodes[0].focus()
+                  nodes[0].setSelectionRange(0, nodes[0].value.length)
+              }
+          }, 50);
+      });
+
+      board.ports.serializeState.subscribe(function(state) {
+        var encoded = btoa(JSON.stringify(state));
+
+        window.history.pushState({}, "", "/boards/" + encoded);
+        return state;
+      });
+
+      board.ports.transitionToRoute.subscribe(function(url) {
+        window.history.pushState({}, '', url);
+      });
+
+      var links = document.querySelectorAll("a[href='#']");
+      preventDefault(links, "click");
+
+      function preventDefault(nodes, event) {
+
+        Array.prototype.slice.apply(nodes).forEach(function(node) {
+            node.addEventListener(event, function(e) {
+              e.preventDefault();
+            });
+        });
+      }
+
+      function sendPort(port, result) {
+        console.log('sending ', port, result);
+
+        result.isStart = result.isEnd = result.isDrop = false;
+
+        switch(port) {
+          case "dragstart":
+            result.isStart = true;
+            break;
+          case "dragend":
+            result.isEnd = true;
+            break;
+          case "drop":
+            result.isDrop = true;
+            break;
+        }
+
+        board.ports[port].send(result);
+      }
+
+      setTimeout(function() {
+        var container = document.querySelector("main");
+        container.addEventListener('dragstart', function(e) {
+
+          result.id = e.target.id;
+          result.startX = event.clientX;
+          result.startY = event.clientY;
+
+          if(e.metaKey) {
+            result.isMulti = true;
+          } else {
+            result.isMulti = false;
+          }
+
+          e.dataTransfer.dropEffect = 'move';
+
+          sendPort('dragstart', result);
+        });
+
+        container.addEventListener('dragover', function(e) {
+          e.preventDefault();
+        });
+
+        container.addEventListener('dragend', function(e) {
+          sendPort('dragend', result);
+        });
+
+        container.addEventListener('drop', function(e) {
+          e.stopPropagation();
+          result.endX = e.clientX;
+          result.endY = e.clientY;
+
+          sendPort('drop', result);
+        });
+      }, 1000);
+      // board.ports.dragstart.send
+    </script>
+  </body>
+
+
+</html>

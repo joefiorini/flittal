@@ -1,7 +1,7 @@
 ELM_MAKE_OUTPUT = Main.js
 ELM_HTML_FILE = index.html
 SCSS = styles
-CSS_OUTPUT = Main.css
+CSS_OUTPUT = main.css
 NATIVE = Native/**/*.js
 SRC = src
 DIST = build
@@ -9,9 +9,9 @@ VENDOR = vendor
 ELM_SRC = $(SRC)/**/*.elm
 SASSC_LOAD_PATH = bower_components/foundation/scss
 VENDOR_FILES = $(addprefix $(VENDOR)/,router.js route-recognizer.js rsvp.js)
-DIST_FILES = $(ELM_MAKE_OUTPUT) $(ELM_HTML_FILE) $(VENDOR_FILES) $(CSS_OUTPUT)
+DIST_FILES = $(ELM_MAKE_OUTPUT) $(ELM_HTML_FILE) $(CSS_OUTPUT)
 
-.PHONY: deps_osx db db_migrate db_setup db_clean deploy serve
+.PHONY: deps_osx db db_migrate db_setup db_clean deploy deploy_alpha serve
 
 $(DIST)/index.html: index.html
 	cp $< $@
@@ -26,10 +26,12 @@ $(DIST)/%: %
 	mkdir -p $(DIST)
 	cp $< $@
 
-deploy: Main.elm Main.css $(addprefix $(DIST)/,$(DIST_FILES))
+deploy_alpha: deploy
+	git subtree push --prefix $(DIST) alpha master
+
+deploy: src/Main.elm styles/main.scss $(addprefix $(DIST)/,$(DIST_FILES))
 	git add .
 	git commit -m "Deploy :tada:"
-	git subtree push --prefix $(DIST) deploy master
 
 serve: $(DIST)/index.html $(DIST)/Main.js $(DIST)/main.css
 	./serve
