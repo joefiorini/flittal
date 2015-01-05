@@ -1,0 +1,17 @@
+{
+  "name": "flittal",
+  "version": "0.0.0",
+  "homepage": "https://github.com/joefiorini/diagrammer",
+  "authors": [
+    "Joe Fiorini <joe@joefiorini.com>"
+  ],
+  "description": "Planning at the speed of thought",
+  "moduleType": [
+    "node"
+  ],
+  "license": "Limited",
+  "private": true,
+  "dependencies": {
+    "foundation": "~5.5.0"
+  }
+}

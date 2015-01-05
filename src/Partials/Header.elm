@@ -10,7 +10,7 @@ import List
 navLinks : LC.LocalChannel Routes.RouteName -> List Html
 navLinks channel =
   List.concat
-    [ [ linkTo "Diagrammer" "#" (LC.send channel Routes.Root) ]
+    [ [ linkTo "Flittal" "#" (LC.send channel Routes.Root) ]
     , [ linkTo "About" "#" (LC.send channel Routes.About) ]
     ]
 

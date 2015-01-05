@@ -1,6 +1,6 @@
 ELM_MAKE_OUTPUT = Main.js
 ELM_HTML_FILE = index.html
-SCSS = scss
+SCSS = styles
 CSS_OUTPUT = Main.css
 NATIVE = Native/**/*.js
 SRC = src
@@ -16,7 +16,7 @@ DIST_FILES = $(ELM_MAKE_OUTPUT) $(ELM_HTML_FILE) $(VENDOR_FILES) $(CSS_OUTPUT)
 $(DIST)/%.js: $(SRC)/%.elm $(ELM_SRC) $(NATIVE)
 	elm-make --output $@ $<
 
-%.css: $(SCSS)/%.scss
+$(DIST)/%.css: $(SCSS)/%.scss
 	sassc -t compressed -I $(SASSC_LOAD_PATH) -m $< $@
 
 $(DIST)/%: %
