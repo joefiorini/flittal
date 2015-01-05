@@ -2,7 +2,7 @@
 	"version": 3,
 	"file": "main.css",
 	"sources": [
-		"../styles/main.scss"
+		"../src/styles/main.scss"
 	],
 	"sourcesContent": [],
 	"mappings": "AAAA,SAAW,EAEP,QAAS,aACT,QAAS,SAAb,SAAW,CAAC,aAEN,QAAS",

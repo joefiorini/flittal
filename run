@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-ls {src/*.elm,src/**/*.elm} | entr -drc make build/Main.js
+make serve &
+find src | entr -drc make dist

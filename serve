@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-(cd build && pushstate-server . 8000)
+cd build
+pushstate-server . 8000
