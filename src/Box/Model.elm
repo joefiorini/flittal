@@ -8,6 +8,7 @@ import Json.Decode ((:=))
 import Json.Ext as JsonExt
 import Result
 import Result (andThen)
+import List
 
 type alias BoxKey = Int
 
@@ -32,19 +33,6 @@ mkBox position size label originalLabel key isEditing isDragging selectedIndex b
   , selectedIndex = selectedIndex
   , borderSize = borderSize
   }
--- mkBox  =
---   let get key def = (Dict.get key) ? def
---   in
---     { position = get "position" ""
---     , size = get "size" ""
---     , label = snd label
---     , originalLabel = snd originalLabel
---     , key = snd key
---     , isEditing = snd isEditing
---     , isDragging = snd isDragging
---     , selectedIndex = snd selectedIndex
---     , borderSize = snd borderSize
---     }
 
 encode : Model -> Encode.Value
 encode box =
@@ -89,4 +77,11 @@ decode =
     `apply`
     (extract "borderSize" Decode.int)
 
+isSelected : Model -> Bool
+isSelected box =
+  box.selectedIndex == -1
 
+filterKey : (Model -> Bool) -> BoxKey -> List Model -> List Model
+filterKey pred key boxes =
+    List.filter (\b ->
+      b.key == key && pred b) boxes

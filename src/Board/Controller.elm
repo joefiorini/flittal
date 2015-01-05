@@ -243,9 +243,9 @@ step update state =
           Debug.log "moved box"
             step ReconnectSelections { state | boxes <- updateBoxes state.boxes }
       ReconnectSelections ->
-        { state | connections <- Connection.rebuildConnections
-                                  <| List.map (Connection.updateBoxes state.boxes)
-                                  state.connections }
+        { state | connections <- Connection.boxMap
+                                  Connection.connectBoxes
+                                  state.boxes state.connections }
       ConnectSelections ->
         if | List.length (selectedBoxes state.boxes) < 2 -> state
            | otherwise ->
@@ -254,12 +254,16 @@ step update state =
                                           <| Debug.log "Selected Boxes" <| selectedBoxes state.boxes }
 
       DeleteSelections ->
+        let isSelected boxKey =
+          List.length (Box.filterKey Box.isSelected boxKey state.boxes)
+            == 0
+        in
         Debug.log "Deleting Selections"
-          { state | boxes <- List.filter (\b -> b.selectedIndex == -1) state.boxes,
+          { state | boxes <- List.filter Box.isSelected state.boxes,
                     connections <- List.filter
-                      (\c -> c.startBox.selectedIndex == -1 &&
-                        c.endBox.selectedIndex == -1)
+                      (\c ->
+                        (isSelected c.startBox) &&
+                        (isSelected c.endBox))
                       state.connections }
       _ -> state
       NoOp -> Debug.log "NoOp" state
-

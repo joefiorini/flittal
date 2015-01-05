@@ -178,8 +178,17 @@ buildSegments {start,end,order} =
       [verticalSegment p1 p2]
 
 
-rebuildConnections : List Model -> List Model
-rebuildConnections = List.map connectBoxes
+boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model
+boxMap f boxes connections =
+  List.map (\c ->
+    let startBox = List.head
+        <| List.filter (\b -> b.key == c.startBox) boxes
+        endBox = List.head
+        <| List.filter (\b -> b.key == c.endBox) boxes
+    in
+       f startBox endBox
+     ) connections
+
 
 
 buildConnections : List Model -> List Box -> List Model
@@ -187,20 +196,13 @@ buildConnections connections boxes =
   snd (List.foldl connectBoxesFold (List.head boxes, connections) (List.tail boxes))
 
 
-updateBoxes : List Box -> Model -> Model
-updateBoxes boxes connection  =
-      let findBox box boxes = List.head <| List.filter (\b -> b.key == box.key) boxes in
-      { connection | startBox <- findBox connection.startBox boxes
-                   , endBox <- findBox connection.endBox boxes }
-
-
-connectBoxes : Model -> Model
-connectBoxes {startBox,endBox} =
+connectBoxes : Box -> Box -> Model
+connectBoxes startBox endBox =
   { segments = buildSegments <| portLocations startBox endBox
   , startPort = (.start) <| portLocations startBox endBox
   , endPort = (.end) <| portLocations startBox endBox
-  , startBox = startBox
-  , endBox = endBox }
+  , startBox = startBox.key
+  , endBox = endBox.key }
 
 
 connectBoxesFold : Box -> (Box, List Model) -> (Box, List Model)
@@ -208,6 +210,6 @@ connectBoxesFold rightBox (leftBox, connections)  =
   let newConnection = { segments = buildSegments <| portLocations leftBox rightBox
                       , startPort = (.start) <| portLocations leftBox rightBox
                       , endPort = (.end) <| portLocations leftBox rightBox
-                      , startBox = leftBox
-                      , endBox = rightBox } in
+                      , startBox = leftBox.key
+                      , endBox = rightBox.key } in
   (rightBox, newConnection :: connections)

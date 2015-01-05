@@ -25,6 +25,7 @@ import Json.Decode as Json
 type alias Model = Model.Model
 type alias BoxKey = Model.BoxKey
 
+
 type Update = Move DragEvent
             | Editing Bool
             | EditingBox Model Bool
@@ -35,6 +36,9 @@ type Update = Move DragEvent
             | UpdateBox Model String
             | NoOp
             | Update String
+
+filterKey = Model.filterKey
+isSelected = Model.isSelected
 
 view : LC.LocalChannel Update -> Model -> Html
 view channel box =

@@ -39,8 +39,8 @@ type alias Model =
   { segments: List Line
   , startPort: PortLocation
   , endPort: PortLocation
-  , startBox: Box.Model
-  , endBox: Box.Model
+  , startBox: Box.BoxKey
+  , endBox: Box.BoxKey
   }
 
 encodePort portLocation =
@@ -79,8 +79,8 @@ encode connection =
      [ ("segments", Encode.list encodedSegments)
      , ("startPort", encodePort connection.startPort)
      , ("endPort", encodePort connection.endPort)
-     , ("startBox", Box.encode connection.startBox)
-     , ("endBox", Box.encode connection.endBox)
+     , ("startBox", Encode.int connection.startBox)
+     , ("endBox", Encode.int connection.endBox)
      ]
 
 encodeLineLayout layout =
@@ -115,5 +115,5 @@ decode =
     ("segments" := Decode.list decodeSegment)
     ("startPort" := decodePort)
     ("endPort" := decodePort)
-    ("startBox" := Box.decode)
-    ("endBox" := Box.decode)
+    ("startBox" := Decode.int)
+    ("endBox" := Decode.int)
