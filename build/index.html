@@ -63,7 +63,7 @@
       board.ports.serializeState.subscribe(function(state) {
         var encoded = btoa(JSON.stringify(state));
 
-        window.history.pushState({}, "", "/boards/" + encoded);
+        window.history.replaceState({}, "", "/boards/" + encoded);
         return state;
       });
 
