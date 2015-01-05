@@ -11,7 +11,10 @@ SASSC_LOAD_PATH = bower_components/foundation/scss
 VENDOR_FILES = $(addprefix $(VENDOR)/,router.js route-recognizer.js rsvp.js)
 DIST_FILES = $(ELM_MAKE_OUTPUT) $(ELM_HTML_FILE) $(VENDOR_FILES) $(CSS_OUTPUT)
 
-.PHONY: deps_osx db db_migrate db_setup db_clean deploy
+.PHONY: deps_osx db db_migrate db_setup db_clean deploy serve
+
+$(DIST)/index.html: index.html
+	cp $< $@
 
 $(DIST)/%.js: $(SRC)/%.elm $(ELM_SRC) $(NATIVE)
 	elm-make --output $@ $<
@@ -27,6 +30,9 @@ deploy: Main.elm Main.css $(addprefix $(DIST)/,$(DIST_FILES))
 	git add .
 	git commit -m "Deploy :tada:"
 	git subtree push --prefix $(DIST) deploy master
+
+serve: $(DIST)/index.html $(DIST)/Main.js $(DIST)/main.css
+	./serve
 
 deps_osx:
 	brew install sqitch
