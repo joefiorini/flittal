@@ -5,6 +5,7 @@ import Html (Html, toElement, div, main', body, text)
 import Html.Attributes (class)
 import Board.Controller as Board
 import Board.Controller (checkFocus)
+import Box.Controller as Box
 import DomUtils (DragEvent)
 import Mousetrap
 import LocalChannel as LC
@@ -44,7 +45,7 @@ main = (\s r (w,h) -> toElement w h  <| container s r h)
 
 globalKeyboardShortcuts : String -> Update
 globalKeyboardShortcuts keyCommand =
-  case keyCommand of
+  case Debug.log "keyCommand" keyCommand of
     "a"     -> BoardUpdate Board.NewBox
     "c"     -> BoardUpdate Board.ConnectSelections
     "d"     -> BoardUpdate Board.DeleteSelections
@@ -58,6 +59,12 @@ globalKeyboardShortcuts keyCommand =
     "8"     -> BoardUpdate <| Board.UpdateBoxColor Light4
     "9"     -> BoardUpdate <| Board.UpdateBoxColor Black
     "0"     -> BoardUpdate <| Board.UpdateBoxColor White
+    "shift+="       -> BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
+    "-"             -> BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
+    "ctrl+shift+="  -> BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
+    "ctrl+-"        -> BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
+    "alt+shift+="   -> BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
+    "alt+-"         -> BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
     "enter" -> BoardUpdate (Board.EditingSelectedBox True)
     _       -> NoOp
 

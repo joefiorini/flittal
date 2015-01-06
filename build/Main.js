@@ -403,6 +403,10 @@ Elm.Board.Controller.make = function (_elm) {
    var Drop = function (a) {
       return {ctor: "Drop",_0: a};
    };
+   var ResizeBox = function (a) {
+      return {ctor: "ResizeBox"
+             ,_0: a};
+   };
    var UpdateBoxColor = function (a) {
       return {ctor: "UpdateBoxColor"
              ,_0: a};
@@ -632,6 +636,15 @@ Elm.Board.Controller.make = function (_elm) {
                                   state.boxes,
                                   state.connections)]],
                  state);
+               case "ResizeBox":
+               return function () {
+                    var updateBoxes = $List.map(updateSelectedBoxes($Box$Controller.Resize(_v7._0)));
+                    return A2(step,
+                    ReconnectSelections,
+                    _U.replace([["boxes"
+                                ,updateBoxes(state.boxes)]],
+                    state));
+                 }();
                case "SelectBox":
                return function () {
                     var box = A2(boxForKey,
@@ -718,7 +731,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.metaKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 88 and 92");
+            "between lines 89 and 93");
          }();
       }();
    };
@@ -767,7 +780,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 96 and 99");
+            "between lines 97 and 100");
          }();
       }();
    };
@@ -805,17 +818,17 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var actions = $Signal.channel(NoOp);
    var checkFocus = function () {
-      var toSelector = function (_v29) {
+      var toSelector = function (_v30) {
          return function () {
-            switch (_v29.ctor)
+            switch (_v30.ctor)
             {case "EditingBox":
                return A2($Basics._op["++"],
                  "#box-",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v29._0),
+                 $Basics.toString(_v30._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 119, column 41 to 75");
+            "on line 120, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -844,7 +857,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 125 and 129");
+            "between lines 126 and 130");
          }();
       }();
    };
@@ -866,6 +879,7 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,DeleteSelections: DeleteSelections
                                   ,DraggingBox: DraggingBox
                                   ,UpdateBoxColor: UpdateBoxColor
+                                  ,ResizeBox: ResizeBox
                                   ,Drop: Drop
                                   ,view: view
                                   ,entersEditMode: entersEditMode
@@ -978,6 +992,94 @@ Elm.Box.Controller.make = function (_elm) {
    $Json$Decode = Elm.Json.Decode.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
    $Style$Color = Elm.Style.Color.make(_elm);
+   var resize = F2(function (mode,
+   box) {
+      return function () {
+         var minHeight = 40;
+         var maxHeight = 180;
+         var minWidth = 90;
+         var maxWidth = 280;
+         var $ = box.position,
+         left = $._0,
+         top = $._1;
+         var $ = box.size,
+         width = $._0,
+         height = $._1;
+         return function () {
+            switch (mode.ctor)
+            {case "ResizeDownAll":
+               return _U.cmp(width,
+                 minWidth) < 1 || _U.cmp(height,
+                 minHeight) < 1 ? {ctor: "_Tuple2"
+                                  ,_0: box.position
+                                  ,_1: box.size} : {ctor: "_Tuple2"
+                                                   ,_0: {ctor: "_Tuple2"
+                                                        ,_0: left + 5
+                                                        ,_1: top + 5}
+                                                   ,_1: {ctor: "_Tuple2"
+                                                        ,_0: width - 10
+                                                        ,_1: height - 10}};
+               case "ResizeDownEW":
+               return _U.cmp(width,
+                 minWidth) < 1 ? {ctor: "_Tuple2"
+                                 ,_0: box.position
+                                 ,_1: box.size} : {ctor: "_Tuple2"
+                                                  ,_0: {ctor: "_Tuple2"
+                                                       ,_0: left + 5
+                                                       ,_1: top}
+                                                  ,_1: {ctor: "_Tuple2"
+                                                       ,_0: width - 10
+                                                       ,_1: height}};
+               case "ResizeDownNS":
+               return _U.cmp(height,
+                 minHeight) < 1 ? {ctor: "_Tuple2"
+                                  ,_0: box.position
+                                  ,_1: box.size} : {ctor: "_Tuple2"
+                                                   ,_0: {ctor: "_Tuple2"
+                                                        ,_0: left
+                                                        ,_1: top + 5}
+                                                   ,_1: {ctor: "_Tuple2"
+                                                        ,_0: width
+                                                        ,_1: height - 10}};
+               case "ResizeUpAll":
+               return _U.cmp(width,
+                 maxWidth) > -1 || _U.cmp(height,
+                 maxHeight) > -1 ? {ctor: "_Tuple2"
+                                   ,_0: box.position
+                                   ,_1: box.size} : {ctor: "_Tuple2"
+                                                    ,_0: {ctor: "_Tuple2"
+                                                         ,_0: left - 5
+                                                         ,_1: top - 5}
+                                                    ,_1: {ctor: "_Tuple2"
+                                                         ,_0: 10 + width
+                                                         ,_1: 10 + height}};
+               case "ResizeUpEW":
+               return _U.cmp(width,
+                 maxWidth) > -1 ? {ctor: "_Tuple2"
+                                  ,_0: box.position
+                                  ,_1: box.size} : {ctor: "_Tuple2"
+                                                   ,_0: {ctor: "_Tuple2"
+                                                        ,_0: left - 5
+                                                        ,_1: top}
+                                                   ,_1: {ctor: "_Tuple2"
+                                                        ,_0: width + 10
+                                                        ,_1: height}};
+               case "ResizeUpNS":
+               return _U.cmp(height,
+                 maxHeight) > -1 ? {ctor: "_Tuple2"
+                                   ,_0: box.position
+                                   ,_1: box.size} : {ctor: "_Tuple2"
+                                                    ,_0: {ctor: "_Tuple2"
+                                                         ,_0: left
+                                                         ,_1: top - 5}
+                                                    ,_1: {ctor: "_Tuple2"
+                                                         ,_0: width
+                                                         ,_1: 10 + height}};}
+            _U.badCase($moduleName,
+            "between lines 158 and 200");
+         }();
+      }();
+   });
    var labelSelector = function (box) {
       return A2($Basics._op["++"],
       "#box-",
@@ -985,14 +1087,14 @@ Elm.Box.Controller.make = function (_elm) {
       $Basics.toString(box.key),
       "-label"));
    };
-   var moveBox = F2(function (_v0,
+   var moveBox = F2(function (_v1,
    box) {
       return function () {
          return function () {
-            var offsetY = $Basics.snd(box.position) - _v0.startY;
-            var newY = _v0.endY + offsetY;
-            var offsetX = $Basics.fst(box.position) - _v0.startX;
-            var newX = _v0.endX + offsetX;
+            var offsetY = $Basics.snd(box.position) - _v1.startY;
+            var newY = _v1.endY + offsetY;
+            var offsetX = $Basics.fst(box.position) - _v1.startX;
+            var newX = _v1.endX + offsetX;
             return _U.replace([["position"
                                ,{ctor: "_Tuple2"
                                 ,_0: newX
@@ -1029,6 +1131,18 @@ Elm.Box.Controller.make = function (_elm) {
               update._0,
               box));
             case "NoOp": return box;
+            case "Resize":
+            return function () {
+                 var $ = A2(resize,
+                 update._0,
+                 box),
+                 position$ = $._0,
+                 size$ = $._1;
+                 return _U.replace([["size"
+                                    ,size$]
+                                   ,["position",position$]],
+                 box);
+              }();
             case "SetSelected":
             return _U.replace([["selectedIndex"
                                ,update._0]],
@@ -1051,7 +1165,7 @@ Elm.Box.Controller.make = function (_elm) {
                  box));
               }();}
          _U.badCase($moduleName,
-         "between lines 141 and 161");
+         "between lines 204 and 228");
       }();
    });
    var keyCodeAndValue = A3($Json$Decode.object2,
@@ -1104,7 +1218,7 @@ Elm.Box.Controller.make = function (_elm) {
             case "White":
             return "box--white";}
          _U.badCase($moduleName,
-         "between lines 68 and 78");
+         "between lines 77 and 87");
       }();
    };
    var boxClasses = function (box) {
@@ -1115,6 +1229,10 @@ Elm.Box.Controller.make = function (_elm) {
    var filterKey = $Box$Model.filterKey;
    var Update = function (a) {
       return {ctor: "Update"
+             ,_0: a};
+   };
+   var Resize = function (a) {
+      return {ctor: "Resize"
              ,_0: a};
    };
    var NoOp = {ctor: "NoOp"};
@@ -1163,16 +1281,16 @@ Elm.Box.Controller.make = function (_elm) {
              ,_0: a};
    };
    var extractLabelUpdate = F2(function (box,
-   _v13) {
+   _v15) {
       return function () {
-         switch (_v13.ctor)
+         switch (_v15.ctor)
          {case "_Tuple2":
-            return _U.eq(_v13._0,
+            return _U.eq(_v15._0,
               13) ? CancelEditingBox(box) : $Debug.log("UpdateBox")(A2(UpdateBox,
               box,
-              _v13._1));}
+              _v15._1));}
          _U.badCase($moduleName,
-         "between lines 112 and 115");
+         "between lines 121 and 124");
       }();
    });
    var EditingBox = F2(function (a,
@@ -1264,7 +1382,19 @@ Elm.Box.Controller.make = function (_elm) {
    var Move = function (a) {
       return {ctor: "Move",_0: a};
    };
+   var ResizeDownEW = {ctor: "ResizeDownEW"};
+   var ResizeUpEW = {ctor: "ResizeUpEW"};
+   var ResizeDownNS = {ctor: "ResizeDownNS"};
+   var ResizeUpNS = {ctor: "ResizeUpNS"};
+   var ResizeDownAll = {ctor: "ResizeDownAll"};
+   var ResizeUpAll = {ctor: "ResizeUpAll"};
    _elm.Box.Controller.values = {_op: _op
+                                ,ResizeUpAll: ResizeUpAll
+                                ,ResizeDownAll: ResizeDownAll
+                                ,ResizeUpNS: ResizeUpNS
+                                ,ResizeDownNS: ResizeDownNS
+                                ,ResizeUpEW: ResizeUpEW
+                                ,ResizeDownEW: ResizeDownEW
                                 ,Move: Move
                                 ,Editing: Editing
                                 ,EditingBox: EditingBox
@@ -1275,6 +1405,7 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,UpdateBox: UpdateBox
                                 ,UpdateColor: UpdateColor
                                 ,NoOp: NoOp
+                                ,Resize: Resize
                                 ,Update: Update
                                 ,filterKey: filterKey
                                 ,isSelected: isSelected
@@ -1289,6 +1420,7 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,labelField: labelField
                                 ,moveBox: moveBox
                                 ,labelSelector: labelSelector
+                                ,resize: resize
                                 ,step: step};
    return _elm.Box.Controller.values;
 };
@@ -6626,6 +6758,7 @@ Elm.Main.make = function (_elm) {
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
    $Board$Controller = Elm.Board.Controller.make(_elm),
+   $Box$Controller = Elm.Box.Controller.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $DomUtils = Elm.DomUtils.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
@@ -6717,12 +6850,12 @@ Elm.Main.make = function (_elm) {
                                       state.currentBoard,
                                       screenHeight - 36);}
                                  _U.badCase($moduleName,
-                                 "between lines 173 and 178");
+                                 "between lines 180 and 185");
                               }()]))
                               ,$Partials$Footer.view]));
               }();}
          _U.badCase($moduleName,
-         "between lines 167 and 180");
+         "between lines 174 and 187");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -6737,7 +6870,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 91 and 93");
+         "between lines 98 and 100");
       }();
    };
    var encodeAppState = function (state) {
@@ -6752,7 +6885,7 @@ Elm.Main.make = function (_elm) {
             {case "About": return "/about";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 72 and 75");
+            "between lines 79 and 82");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -6769,8 +6902,13 @@ Elm.Main.make = function (_elm) {
                        ,currentBoard: $Board$Controller.startingState};
    var globalKeyboardShortcuts = function (keyCommand) {
       return function () {
-         switch (keyCommand)
-         {case "0":
+         var _v14 = A2($Debug.log,
+         "keyCommand",
+         keyCommand);
+         switch (_v14)
+         {case "-":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownAll));
+            case "0":
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.White));
             case "1":
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark1));
@@ -6792,12 +6930,22 @@ Elm.Main.make = function (_elm) {
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Black));
             case "a":
             return BoardUpdate($Board$Controller.NewBox);
+            case "alt+-":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownEW));
+            case "alt+shift+=":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpEW));
             case "c":
             return BoardUpdate($Board$Controller.ConnectSelections);
+            case "ctrl+-":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownNS));
+            case "ctrl+shift+=":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpNS));
             case "d":
             return BoardUpdate($Board$Controller.DeleteSelections);
             case "enter":
-            return BoardUpdate($Board$Controller.EditingSelectedBox(true));}
+            return BoardUpdate($Board$Controller.EditingSelectedBox(true));
+            case "shift+=":
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpAll));}
          return NoOp;
       }();
    };
@@ -6932,7 +7080,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v15._1));}
          _U.badCase($moduleName,
-         "on line 40, column 23 to 56");
+         "on line 41, column 23 to 56");
       }();
    }),
    state),

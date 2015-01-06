@@ -23,9 +23,17 @@ import Json.Decode ((:=))
 import Json.Decode as Json
 
 import Style.Color (..)
+import Geometry.Types as Geometry
 
 type alias Model = Model.Model
 type alias BoxKey = Model.BoxKey
+
+type ResizeMode = ResizeUpAll
+                | ResizeDownAll
+                | ResizeUpNS
+                | ResizeDownNS
+                | ResizeUpEW
+                | ResizeDownEW
 
 
 type Update = Move DragEvent
@@ -38,6 +46,7 @@ type Update = Move DragEvent
             | UpdateBox Model String
             | UpdateColor Color
             | NoOp
+            | Resize ResizeMode
             | Update String
 
 filterKey = Model.filterKey
@@ -137,6 +146,60 @@ moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
 labelSelector : Model -> String
 labelSelector box = "#box-" ++ toString box.key ++ "-label"
 
+resize : ResizeMode -> Model -> (Geometry.Point, Geometry.Size)
+resize mode box =
+  let (width,height) = box.size
+      (left,top) = box.position
+      maxWidth = 280
+      minWidth = 90
+      maxHeight = 180
+      minHeight = 40
+  in
+    case mode of
+      ResizeUpAll ->
+        if (width >= maxWidth) || (height >= maxHeight) then
+          (box.position, box.size)
+        else
+          ( (left - 5, top - 5)
+          , (10 + width, 10 + height)
+          )
+      ResizeDownAll ->
+        if (width <= minWidth) || (height <= minHeight) then
+          (box.position, box.size)
+        else
+          ( (left + 5, top + 5)
+          , (width - 10, height - 10)
+          )
+      ResizeUpNS ->
+        if height >= maxHeight then
+           (box.position, box.size)
+        else
+          ( (left, top - 5)
+          , (width, 10 + height)
+          )
+      ResizeDownNS ->
+        if height <= minHeight then
+          (box.position, box.size)
+        else
+          ( (left, top + 5)
+          , (width, height - 10)
+          )
+      ResizeUpEW ->
+        if width >= maxWidth then
+           (box.position, box.size)
+        else
+          ( (left - 5, top)
+          , (width + 10, height)
+          )
+      ResizeDownEW ->
+        if width <= minWidth then
+           (box.position, box.size)
+        else
+          ( (left + 5, top)
+          , (width - 10, height)
+          )
+
+
 step : Update -> Model -> Model
 step update box = case update of
   Move event ->
@@ -158,4 +221,8 @@ step update box = case update of
         style' = { style | color <- color }
     in
        Debug.log "updated color" { box | style <- style' }
+  Resize mode ->
+    let (position',size') = resize mode box
+    in
+       { box | size <- size', position <- position' }
   NoOp -> box

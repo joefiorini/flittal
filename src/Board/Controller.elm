@@ -52,6 +52,7 @@ type Update = NoOp |
   DeleteSelections |
   DraggingBox Box.BoxKey |
   UpdateBoxColor Color |
+  ResizeBox Box.ResizeMode |
   Drop DragEvent
 
 view channel model height =
@@ -262,6 +263,10 @@ step update state =
                         (isSelected c.startBox) &&
                         (isSelected c.endBox))
                       state.connections }
+      ResizeBox mode ->
+        let updateBoxes = List.map (updateSelectedBoxes (Box.Resize mode))
+        in
+          step ReconnectSelections { state | boxes <- updateBoxes  state.boxes }
       UpdateBoxColor color ->
           { state | boxes <- List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }
       _ -> state
