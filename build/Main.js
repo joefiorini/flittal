@@ -829,7 +829,7 @@ Elm.Board.Controller.make = function (_elm) {
                  "deselect",
                  DeselectBoxes);
                case "Ok":
-               return event.metaKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
+               return event.shiftKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
             "between lines 92 and 96");
          }();

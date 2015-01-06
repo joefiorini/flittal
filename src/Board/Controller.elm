@@ -91,7 +91,7 @@ renderConnections = List.map Connection.renderConnection
 buildSelectAction event = let boxIdM = extractBoxId event.id in
                     case boxIdM of
                       Result.Ok key ->
-                        if | event.metaKey -> SelectBoxMulti key
+                        if | event.shiftKey -> SelectBoxMulti key
                            | otherwise -> SelectBox key
                       Result.Err s -> Debug.log "deselect" DeselectBoxes
 
