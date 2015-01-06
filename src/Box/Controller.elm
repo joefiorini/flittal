@@ -35,8 +35,19 @@ type ResizeMode = ResizeUpAll
                 | ResizeUpEW
                 | ResizeDownEW
 
+type MoveType =
+    Nudge
+  | Push
+  | Jump
 
-type Update = Move DragEvent
+type MoveDirection =
+    Up
+  | Down
+  | Left
+  | Right
+
+
+type Update = Drop DragEvent
             | Editing Bool
             | EditingBox Model Bool
             | CancelEditingBox Model
@@ -48,6 +59,7 @@ type Update = Move DragEvent
             | NoOp
             | Resize ResizeMode
             | Update String
+            | Move MoveType MoveDirection
 
 filterKey = Model.filterKey
 isSelected = Model.isSelected
@@ -135,8 +147,22 @@ labelField channel box label =
       , on "mousedown" stopPropagation nullHandler
       ] []
 
-moveBox : DragEvent -> Model -> Model
-moveBox { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
+moveBox : Int -> MoveDirection -> Model -> Geometry.Point
+moveBox amount direction box =
+  let (x,y) = box.position
+  in
+     case direction of
+       Up ->
+         (x, y-amount)
+       Down ->
+         (x, y+amount)
+       Left ->
+         (x-amount, y)
+       Right ->
+         (x+amount, y)
+
+moveBoxDrag : DragEvent -> Model -> Model
+moveBoxDrag { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
   let offsetX = (fst box.position) - startX
       offsetY = (snd box.position) - startY
       newX = endX + offsetX
@@ -202,8 +228,8 @@ resize mode box =
 
 step : Update -> Model -> Model
 step update box = case update of
-  Move event ->
-    Debug.log "Moved a box" <| moveBox event box
+  Drop event ->
+    Debug.log "Moved a box" <| moveBoxDrag event box
   SetSelected index ->
     { box | selectedIndex <- index }
   CancelEditing ->
@@ -225,4 +251,16 @@ step update box = case update of
     let (position',size') = resize mode box
     in
        { box | size <- size', position <- position' }
+  Move mode direction ->
+    let moveBox' =
+      case mode of
+        Nudge ->
+          moveBox 10
+        Push ->
+          moveBox 100
+        Jump ->
+          moveBox 300
+    in
+       { box | position <- moveBox' direction box }
+
   NoOp -> box

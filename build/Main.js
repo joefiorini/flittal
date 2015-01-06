@@ -400,9 +400,11 @@ Elm.Board.Controller.make = function (_elm) {
          return false;
       }());
    };
-   var Drop = function (a) {
-      return {ctor: "Drop",_0: a};
-   };
+   var Drop = F2(function (a,b) {
+      return {ctor: "Drop"
+             ,_0: a
+             ,_1: b};
+   });
    var ResizeBox = function (a) {
       return {ctor: "ResizeBox"
              ,_0: a};
@@ -568,6 +570,25 @@ Elm.Board.Controller.make = function (_elm) {
                                 ,updateBoxes(state.boxes)]],
                     state));
                  }();
+               case "Drop":
+               return function () {
+                    var moveAllSelectedBoxes = function (boxes) {
+                       return A2($List.map,
+                       updateSelectedBoxes($Box$Controller.Drop(_v7._1)),
+                       boxes);
+                    };
+                    var draggingBox = $List.map(updateSelectedBoxes($Box$Controller.Dragging));
+                    var updateBoxes = function ($) {
+                       return draggingBox(moveAllSelectedBoxes($));
+                    };
+                    return A4($Debug.log,
+                    "moved box",
+                    step,
+                    ReconnectSelections,
+                    _U.replace([["boxes"
+                                ,updateBoxes(state.boxes)]],
+                    state));
+                 }();
                case "EditingBox":
                return function () {
                     var box = A2(boxForKey,
@@ -599,18 +620,10 @@ Elm.Board.Controller.make = function (_elm) {
                  }();
                case "MoveBox":
                return function () {
-                    var moveAllSelectedBoxes = function (boxes) {
-                       return A2($List.map,
-                       updateSelectedBoxes($Box$Controller.Move(_v7._1)),
-                       boxes);
-                    };
-                    var draggingBox = $List.map(updateSelectedBoxes($Box$Controller.Dragging));
-                    var updateBoxes = function ($) {
-                       return draggingBox(moveAllSelectedBoxes($));
-                    };
-                    return A4($Debug.log,
-                    "moved box",
-                    step,
+                    var updateBoxes = $List.map(updateSelectedBoxes(A2($Box$Controller.Move,
+                    _v7._0,
+                    _v7._1)));
+                    return A2(step,
                     ReconnectSelections,
                     _U.replace([["boxes"
                                 ,updateBoxes(state.boxes)]],
@@ -818,14 +831,14 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var actions = $Signal.channel(NoOp);
    var checkFocus = function () {
-      var toSelector = function (_v30) {
+      var toSelector = function (_v32) {
          return function () {
-            switch (_v30.ctor)
+            switch (_v32.ctor)
             {case "EditingBox":
                return A2($Basics._op["++"],
                  "#box-",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v30._0),
+                 $Basics.toString(_v32._0),
                  "-label"));}
             _U.badCase($moduleName,
             "on line 120, column 41 to 75");
@@ -853,7 +866,7 @@ Elm.Board.Controller.make = function (_elm) {
             switch (boxKeyM.ctor)
             {case "Err": return NoOp;
                case "Ok":
-               return event.isStart ? DraggingBox(boxKeyM._0) : A2(MoveBox,
+               return event.isStart ? DraggingBox(boxKeyM._0) : A2(Drop,
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
@@ -1076,7 +1089,7 @@ Elm.Box.Controller.make = function (_elm) {
                                                          ,_0: width
                                                          ,_1: 10 + height}};}
             _U.badCase($moduleName,
-            "between lines 158 and 200");
+            "between lines 184 and 226");
          }();
       }();
    });
@@ -1087,7 +1100,7 @@ Elm.Box.Controller.make = function (_elm) {
       $Basics.toString(box.key),
       "-label"));
    };
-   var moveBox = F2(function (_v1,
+   var moveBoxDrag = F2(function (_v1,
    box) {
       return function () {
          return function () {
@@ -1100,6 +1113,36 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,_0: newX
                                 ,_1: newY}]],
             box);
+         }();
+      }();
+   });
+   var moveBox = F3(function (amount,
+   direction,
+   box) {
+      return function () {
+         var $ = box.position,
+         x = $._0,
+         y = $._1;
+         return function () {
+            switch (direction.ctor)
+            {case "Down":
+               return {ctor: "_Tuple2"
+                      ,_0: x
+                      ,_1: y + amount};
+               case "Left":
+               return {ctor: "_Tuple2"
+                      ,_0: x - amount
+                      ,_1: y};
+               case "Right":
+               return {ctor: "_Tuple2"
+                      ,_0: x + amount
+                      ,_1: y};
+               case "Up":
+               return {ctor: "_Tuple2"
+                      ,_0: x
+                      ,_1: y - amount};}
+            _U.badCase($moduleName,
+            "between lines 154 and 162");
          }();
       }();
    });
@@ -1116,6 +1159,10 @@ Elm.Box.Controller.make = function (_elm) {
             return _U.replace([["isDragging"
                                ,box.isDragging ? false : true]],
               box);
+            case "Drop":
+            return $Debug.log("Moved a box")(A2(moveBoxDrag,
+              update._0,
+              box));
             case "Editing":
             return function () {
                  var focusedBox = $Debug.log("focusing box")(A2($DomUtils.setFocus,
@@ -1127,9 +1174,22 @@ Elm.Box.Controller.make = function (_elm) {
                  focusedBox);
               }();
             case "Move":
-            return $Debug.log("Moved a box")(A2(moveBox,
-              update._0,
-              box));
+            return function () {
+                 var moveBox$ = function () {
+                    switch (update._0.ctor)
+                    {case "Jump":
+                       return moveBox(300);
+                       case "Nudge":
+                       return moveBox(10);
+                       case "Push":
+                       return moveBox(100);}
+                    _U.badCase($moduleName,
+                    "between lines 256 and 263");
+                 }();
+                 return _U.replace([["position"
+                                    ,A2(moveBox$,update._1,box)]],
+                 box);
+              }();
             case "NoOp": return box;
             case "Resize":
             return function () {
@@ -1165,7 +1225,7 @@ Elm.Box.Controller.make = function (_elm) {
                  box));
               }();}
          _U.badCase($moduleName,
-         "between lines 204 and 228");
+         "between lines 230 and 266");
       }();
    });
    var keyCodeAndValue = A3($Json$Decode.object2,
@@ -1218,7 +1278,7 @@ Elm.Box.Controller.make = function (_elm) {
             case "White":
             return "box--white";}
          _U.badCase($moduleName,
-         "between lines 77 and 87");
+         "between lines 89 and 99");
       }();
    };
    var boxClasses = function (box) {
@@ -1227,6 +1287,11 @@ Elm.Box.Controller.make = function (_elm) {
    };
    var isSelected = $Box$Model.isSelected;
    var filterKey = $Box$Model.filterKey;
+   var Move = F2(function (a,b) {
+      return {ctor: "Move"
+             ,_0: a
+             ,_1: b};
+   });
    var Update = function (a) {
       return {ctor: "Update"
              ,_0: a};
@@ -1281,16 +1346,16 @@ Elm.Box.Controller.make = function (_elm) {
              ,_0: a};
    };
    var extractLabelUpdate = F2(function (box,
-   _v15) {
+   _v19) {
       return function () {
-         switch (_v15.ctor)
+         switch (_v19.ctor)
          {case "_Tuple2":
-            return _U.eq(_v15._0,
+            return _U.eq(_v19._0,
               13) ? CancelEditingBox(box) : $Debug.log("UpdateBox")(A2(UpdateBox,
               box,
-              _v15._1));}
+              _v19._1));}
          _U.badCase($moduleName,
-         "between lines 121 and 124");
+         "between lines 133 and 136");
       }();
    });
    var EditingBox = F2(function (a,
@@ -1379,9 +1444,16 @@ Elm.Box.Controller.make = function (_elm) {
       return {ctor: "Editing"
              ,_0: a};
    };
-   var Move = function (a) {
-      return {ctor: "Move",_0: a};
+   var Drop = function (a) {
+      return {ctor: "Drop",_0: a};
    };
+   var Right = {ctor: "Right"};
+   var Left = {ctor: "Left"};
+   var Down = {ctor: "Down"};
+   var Up = {ctor: "Up"};
+   var Jump = {ctor: "Jump"};
+   var Push = {ctor: "Push"};
+   var Nudge = {ctor: "Nudge"};
    var ResizeDownEW = {ctor: "ResizeDownEW"};
    var ResizeUpEW = {ctor: "ResizeUpEW"};
    var ResizeDownNS = {ctor: "ResizeDownNS"};
@@ -1395,7 +1467,14 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,ResizeDownNS: ResizeDownNS
                                 ,ResizeUpEW: ResizeUpEW
                                 ,ResizeDownEW: ResizeDownEW
-                                ,Move: Move
+                                ,Nudge: Nudge
+                                ,Push: Push
+                                ,Jump: Jump
+                                ,Up: Up
+                                ,Down: Down
+                                ,Left: Left
+                                ,Right: Right
+                                ,Drop: Drop
                                 ,Editing: Editing
                                 ,EditingBox: EditingBox
                                 ,CancelEditingBox: CancelEditingBox
@@ -1407,6 +1486,7 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,NoOp: NoOp
                                 ,Resize: Resize
                                 ,Update: Update
+                                ,Move: Move
                                 ,filterKey: filterKey
                                 ,isSelected: isSelected
                                 ,view: view
@@ -1419,6 +1499,7 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,extractLabelUpdate: extractLabelUpdate
                                 ,labelField: labelField
                                 ,moveBox: moveBox
+                                ,moveBoxDrag: moveBoxDrag
                                 ,labelSelector: labelSelector
                                 ,resize: resize
                                 ,step: step};
@@ -6850,12 +6931,12 @@ Elm.Main.make = function (_elm) {
                                       state.currentBoard,
                                       screenHeight - 36);}
                                  _U.badCase($moduleName,
-                                 "between lines 180 and 185");
+                                 "between lines 192 and 197");
                               }()]))
                               ,$Partials$Footer.view]));
               }();}
          _U.badCase($moduleName,
-         "between lines 174 and 187");
+         "between lines 186 and 199");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -6870,7 +6951,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 98 and 100");
+         "between lines 110 and 112");
       }();
    };
    var encodeAppState = function (state) {
@@ -6885,7 +6966,7 @@ Elm.Main.make = function (_elm) {
             {case "About": return "/about";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 79 and 82");
+            "between lines 91 and 94");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -6909,7 +6990,7 @@ Elm.Main.make = function (_elm) {
          {case "-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownAll));
             case "0":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.White));
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Black));
             case "1":
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark1));
             case "2":
@@ -6918,22 +6999,28 @@ Elm.Main.make = function (_elm) {
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark3));
             case "4":
             return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark4));
-            case "5":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light1));
-            case "6":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light2));
-            case "7":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light3));
-            case "8":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light4));
-            case "9":
-            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Black));
             case "a":
             return BoardUpdate($Board$Controller.NewBox);
             case "alt+-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownEW));
             case "alt+shift+=":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpEW));
+            case "alt+shift+h":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Jump,
+              $Box$Controller.Left));
+            case "alt+shift+j":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Jump,
+              $Box$Controller.Down));
+            case "alt+shift+k":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Jump,
+              $Box$Controller.Up));
+            case "alt+shift+l":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Jump,
+              $Box$Controller.Right));
             case "c":
             return BoardUpdate($Board$Controller.ConnectSelections);
             case "ctrl+-":
@@ -6944,8 +7031,50 @@ Elm.Main.make = function (_elm) {
             return BoardUpdate($Board$Controller.DeleteSelections);
             case "enter":
             return BoardUpdate($Board$Controller.EditingSelectedBox(true));
+            case "h":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Nudge,
+              $Box$Controller.Left));
+            case "j":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Nudge,
+              $Box$Controller.Down));
+            case "k":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Nudge,
+              $Box$Controller.Up));
+            case "l":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Nudge,
+              $Box$Controller.Right));
+            case "shift+0":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.White));
+            case "shift+1":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light1));
+            case "shift+2":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light2));
+            case "shift+3":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light3));
+            case "shift+4":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light4));
             case "shift+=":
-            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpAll));}
+            return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpAll));
+            case "shift+h":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Push,
+              $Box$Controller.Left));
+            case "shift+j":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Push,
+              $Box$Controller.Down));
+            case "shift+k":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Push,
+              $Box$Controller.Up));
+            case "shift+l":
+            return BoardUpdate(A2($Board$Controller.MoveBox,
+              $Box$Controller.Push,
+              $Box$Controller.Right));}
          return NoOp;
       }();
    };

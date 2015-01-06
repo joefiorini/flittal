@@ -40,7 +40,7 @@ type Update = NoOp |
   RequestedAdd |
   UpdateBox Box.Model String |
   NewBox |
-  MoveBox Box.BoxKey DragEvent |
+  MoveBox Box.MoveType Box.MoveDirection |
   DeselectBoxes |
   EditingBox Box.BoxKey Bool |
   EditingSelectedBox Bool |
@@ -53,7 +53,7 @@ type Update = NoOp |
   DraggingBox Box.BoxKey |
   UpdateBoxColor Color |
   ResizeBox Box.ResizeMode |
-  Drop DragEvent
+  Drop Box.BoxKey DragEvent
 
 view channel model height =
   div [ style
@@ -126,7 +126,7 @@ moveBoxAction event = let boxKeyM = extractBoxId event.id in
     case boxKeyM of
       Ok key ->
        if | event.isStart -> DraggingBox key
-          | otherwise -> MoveBox key event
+          | otherwise -> Drop key event
       Err s -> NoOp
 
 startingState =
@@ -233,9 +233,9 @@ step update state =
               state
       BoxAction (Box.UpdateBox box label) ->
         Debug.log "Box.UpdateBox" { state | boxes <- replaceBox state.boxes <| Box.step (Box.Update label) box }
-      MoveBox key event ->
+      Drop key event ->
         let draggingBox = List.map (updateSelectedBoxes Box.Dragging)
-            moveAllSelectedBoxes boxes = List.map (updateSelectedBoxes (Box.Move event)) boxes
+            moveAllSelectedBoxes boxes = List.map (updateSelectedBoxes (Box.Drop event)) boxes
             updateBoxes = moveAllSelectedBoxes >> draggingBox
         in
           Debug.log "moved box"
@@ -269,5 +269,9 @@ step update state =
           step ReconnectSelections { state | boxes <- updateBoxes  state.boxes }
       UpdateBoxColor color ->
           { state | boxes <- List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }
+      MoveBox mode direction ->
+        let updateBoxes = List.map (updateSelectedBoxes (Box.Move mode direction))
+        in
+        step ReconnectSelections { state | boxes <- updateBoxes state.boxes }
       _ -> state
       NoOp -> Debug.log "NoOp" state

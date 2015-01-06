@@ -53,12 +53,12 @@ globalKeyboardShortcuts keyCommand =
     "2"     -> BoardUpdate <| Board.UpdateBoxColor Dark2
     "3"     -> BoardUpdate <| Board.UpdateBoxColor Dark3
     "4"     -> BoardUpdate <| Board.UpdateBoxColor Dark4
-    "5"     -> BoardUpdate <| Board.UpdateBoxColor Light1
-    "6"     -> BoardUpdate <| Board.UpdateBoxColor Light2
-    "7"     -> BoardUpdate <| Board.UpdateBoxColor Light3
-    "8"     -> BoardUpdate <| Board.UpdateBoxColor Light4
-    "9"     -> BoardUpdate <| Board.UpdateBoxColor Black
-    "0"     -> BoardUpdate <| Board.UpdateBoxColor White
+    "shift+1"     -> BoardUpdate <| Board.UpdateBoxColor Light1
+    "shift+2"     -> BoardUpdate <| Board.UpdateBoxColor Light2
+    "shift+3"     -> BoardUpdate <| Board.UpdateBoxColor Light3
+    "shift+4"     -> BoardUpdate <| Board.UpdateBoxColor Light4
+    "0"     -> BoardUpdate <| Board.UpdateBoxColor Black
+    "shift+0"     -> BoardUpdate <| Board.UpdateBoxColor White
     "shift+="       -> BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
     "-"             -> BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
     "ctrl+shift+="  -> BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
@@ -66,6 +66,18 @@ globalKeyboardShortcuts keyCommand =
     "alt+shift+="   -> BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
     "alt+-"         -> BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
     "enter" -> BoardUpdate (Board.EditingSelectedBox True)
+    "h"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
+    "j"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
+    "k"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
+    "l"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
+    "shift+h"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Left
+    "shift+j"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Down
+    "shift+k"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Up
+    "shift+l"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Right
+    "alt+shift+h"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Left
+    "alt+shift+j"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Down
+    "alt+shift+k"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Up
+    "alt+shift+l"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Right
     _       -> NoOp
 
 
