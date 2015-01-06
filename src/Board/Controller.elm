@@ -118,13 +118,6 @@ checkFocus =
     in
         toSelector <~ Signal.keepIf needsFocus (EditingBox 0 True) (Signal.subscribe actions)
 
-keyboardRequest keyCode = case keyCode of
-  65 -> NewBox
-  67 -> ConnectSelections
-  68 -> DeleteSelections
-  13 -> EditingSelectedBox True
-  _ -> NoOp
-
 moveBoxAction : DragEvent -> Update
 moveBoxAction event = let boxKeyM = extractBoxId event.id in
     case boxKeyM of

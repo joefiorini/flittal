@@ -112,7 +112,7 @@ Elm.Basics.make = function (_elm) {
               _v0._0,
               _v0._1);}
          _U.badCase($moduleName,
-         "on line 460, column 19 to 24");
+         "on line 458, column 19 to 24");
       }();
    });
    var curry = F3(function (f,
@@ -130,7 +130,7 @@ Elm.Basics.make = function (_elm) {
          switch (_v4.ctor)
          {case "_Tuple2": return _v4._1;}
          _U.badCase($moduleName,
-         "on line 444, column 13 to 14");
+         "on line 442, column 13 to 14");
       }();
    };
    var fst = function (_v8) {
@@ -138,7 +138,7 @@ Elm.Basics.make = function (_elm) {
          switch (_v8.ctor)
          {case "_Tuple2": return _v8._0;}
          _U.badCase($moduleName,
-         "on line 440, column 13 to 14");
+         "on line 438, column 13 to 14");
       }();
    };
    var always = F2(function (a,
@@ -818,19 +818,6 @@ Elm.Board.Controller.make = function (_elm) {
       A2(EditingBox,0,true),
       $Signal.subscribe(actions)));
    }();
-   var keyboardRequest = function (keyCode) {
-      return function () {
-         switch (keyCode)
-         {case 13:
-            return EditingSelectedBox(true);
-            case 65: return NewBox;
-            case 67:
-            return ConnectSelections;
-            case 68:
-            return DeleteSelections;}
-         return NoOp;
-      }();
-   };
    var moveBoxAction = function (event) {
       return function () {
          var boxKeyM = $DomUtils.extractBoxId(event.id);
@@ -842,7 +829,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 130 and 134");
+            "between lines 123 and 127");
          }();
       }();
    };
@@ -874,7 +861,6 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,widgets: widgets
                                   ,actions: actions
                                   ,checkFocus: checkFocus
-                                  ,keyboardRequest: keyboardRequest
                                   ,moveBoxAction: moveBoxAction
                                   ,startingState: startingState
                                   ,isEditing: isEditing
@@ -1911,7 +1897,8 @@ Elm.Connection.Controller.make = function (_elm) {
    $Geometry$Types = Elm.Geometry.Types.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
-   $List = Elm.List.make(_elm);
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm);
    var boxMap = F3(function (f,
    boxes,
    connections) {
@@ -2008,24 +1995,104 @@ Elm.Connection.Controller.make = function (_elm) {
          }();
       }();
    };
-   var leftOf = F2(function (_v8,
-   _v9) {
+   var within = F2(function (calculation,
+   threshold) {
+      return _U.replace([["lowerClamp"
+                         ,$Maybe.Just(A2($Debug.log,
+                         "lowerClamp",
+                         calculation.location1 - threshold))]
+                        ,["upperClamp"
+                         ,$Maybe.Just(A2($Debug.log,
+                         "upperClamp",
+                         calculation.location2 + threshold))]],
+      calculation);
+   });
+   var map2 = F3(function (f,
+   ma,
+   mb) {
       return function () {
-         switch (_v9.ctor)
-         {case "_Tuple2":
+         switch (ma.ctor)
+         {case "Just":
             return function () {
-                 switch (_v8.ctor)
-                 {case "_Tuple2":
-                    return _U.cmp(_v8._0,
-                      _v9._0) < 0;}
+                 switch (mb.ctor)
+                 {case "Just":
+                    return $Maybe.Just(A2(f,
+                      ma._0,
+                      mb._0));
+                    case "Nothing":
+                    return $Maybe.Nothing;}
                  _U.badCase($moduleName,
-                 "on line 76, column 28 to 35");
-              }();}
+                 "between lines 103 and 108");
+              }();
+            case "Nothing":
+            return $Maybe.Nothing;}
          _U.badCase($moduleName,
-         "on line 76, column 28 to 35");
+         "between lines 101 and 109");
       }();
    });
-   var below = F2(function (_v16,
+   var mlt = F2(function (a,b) {
+      return A3(map2,
+      F2(function (n1,n2) {
+         return _U.cmp(n1,n2) < 0;
+      }),
+      a,
+      b);
+   });
+   var isPort = function (_v12) {
+      return function () {
+         return function () {
+            var result$ = A3(map2,
+            A2(_v12.clampedResult,
+            _v12.location1,
+            _v12.location2),
+            _v12.lowerClamp,
+            _v12.upperClamp);
+            return function () {
+               switch (result$.ctor)
+               {case "Just": return result$._0;
+                  case "Nothing":
+                  return A2(_v12.result,
+                    _v12.location1,
+                    _v12.location2);}
+               _U.badCase($moduleName,
+               "between lines 127 and 129");
+            }();
+         }();
+      }();
+   };
+   var leftOf2 = F2(function (p1,
+   p2) {
+      return {_: {}
+             ,clampedResult: F4(function (x1,
+             x2,
+             c1,
+             c2) {
+                return _U.cmp(x1,
+                c1) < 1 && _U.cmp(x2,c2) > 0;
+             })
+             ,location1: $Basics.fst(p1.position)
+             ,location2: $Basics.fst(p2.position)
+             ,lowerClamp: $Maybe.Nothing
+             ,result: F2(function (x,y) {
+                return _U.cmp(x,y) < 0;
+             })
+             ,upperClamp: $Maybe.Nothing};
+   });
+   var Calculation = F6(function (a,
+   b,
+   c,
+   d,
+   e,
+   f) {
+      return {_: {}
+             ,clampedResult: b
+             ,location1: c
+             ,location2: d
+             ,lowerClamp: e
+             ,result: a
+             ,upperClamp: f};
+   });
+   var leftOf = F2(function (_v16,
    _v17) {
       return function () {
          switch (_v17.ctor)
@@ -2033,8 +2100,25 @@ Elm.Connection.Controller.make = function (_elm) {
             return function () {
                  switch (_v16.ctor)
                  {case "_Tuple2":
-                    return _U.cmp(_v16._1,
-                      _v17._1) > 0;}
+                    return _U.cmp(_v16._0,
+                      _v17._0) < 0;}
+                 _U.badCase($moduleName,
+                 "on line 76, column 28 to 35");
+              }();}
+         _U.badCase($moduleName,
+         "on line 76, column 28 to 35");
+      }();
+   });
+   var below = F2(function (_v24,
+   _v25) {
+      return function () {
+         switch (_v25.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (_v24.ctor)
+                 {case "_Tuple2":
+                    return _U.cmp(_v24._1,
+                      _v25._1) > 0;}
                  _U.badCase($moduleName,
                  "on line 73, column 27 to 34");
               }();}
@@ -2045,103 +2129,137 @@ Elm.Connection.Controller.make = function (_elm) {
    var portLocations = F2(function (leftBox,
    rightBox) {
       return function () {
+         var threshold = 25;
          var $ = rightBox.size,
          w2 = $._0,
          h2 = $._1;
          var $ = leftBox.size,
          w1 = $._0,
          h1 = $._1;
+         var maxHeight = A2($Basics.max,
+         h1,
+         h2);
+         var maxWidth = A2($Basics.max,
+         w1,
+         w2);
+         var rightWidth = $Basics.fst(rightBox.size);
+         var leftWidth = $Basics.fst(leftBox.size);
+         var widthThreshold = _U.cmp(leftWidth,
+         rightWidth) > 0 ? leftWidth : rightWidth;
+         var rightHeight = $Basics.snd(rightBox.size);
+         var leftHeight = $Basics.snd(leftBox.size);
+         var heightThreshold = _U.cmp(leftHeight,
+         rightHeight) > 0 ? leftHeight : rightHeight;
          var p2 = rightBox.position;
          var $ = p2,x2 = $._0,y2 = $._1;
          var p1 = leftBox.position;
          var $ = p1,x1 = $._0,y1 = $._1;
-         var output = A2($Debug.log,
-         "p1,p2",
-         {ctor: "_Tuple2"
-         ,_0: p1
-         ,_1: p2});
+         var heightDiff = $Basics.abs(y1 - y2);
+         var widthDiff = $Basics.abs(x1 - x2);
+         var output = {ctor: "_Tuple2"
+                      ,_0: p1
+                      ,_1: p2};
          return A2(below,
          p1,
-         p2) && A2(leftOf,p1,p2) ? {_: {}
-                                   ,end: bottomPort(rightBox)
-                                   ,order: $Connection$Model.StartEnd
-                                   ,start: rightPort(leftBox)} : A2(below,
+         p2) && A2(leftOf,
          p1,
-         p2) && A2(leftOf,p2,p1) ? {_: {}
-                                   ,end: bottomPort(rightBox)
-                                   ,order: $Connection$Model.EndStart
-                                   ,start: leftPort(leftBox)} : A2(below,
-         p2,
-         p1) && A2(leftOf,p1,p2) ? {_: {}
-                                   ,end: leftPort(rightBox)
-                                   ,order: $Connection$Model.StartEnd
-                                   ,start: bottomPort(leftBox)} : A2(below,
-         p2,
-         p1) && A2(leftOf,p2,p1) ? {_: {}
-                                   ,end: rightPort(rightBox)
-                                   ,order: $Connection$Model.EndStart
-                                   ,start: bottomPort(leftBox)} : A2(leftOf,
+         p2) ? $Debug.log("p1 below p2 && p1 leftOf p2")(_U.cmp(widthDiff,
+         maxWidth) < 1 ? {_: {}
+                         ,end: bottomPort(rightBox)
+                         ,order: $Connection$Model.StartEnd
+                         ,start: topPort(leftBox)} : _U.cmp(heightDiff,
+         maxHeight) > 0 ? {_: {}
+                          ,end: bottomPort(rightBox)
+                          ,order: $Connection$Model.StartEnd
+                          ,start: rightPort(leftBox)} : {_: {}
+                                                        ,end: leftPort(rightBox)
+                                                        ,order: $Connection$Model.StartEnd
+                                                        ,start: rightPort(leftBox)}) : A2(below,
          p1,
-         p2) ? {_: {}
-               ,end: leftPort(rightBox)
-               ,order: $Connection$Model.StartEnd
-               ,start: rightPort(leftBox)} : A2(below,
-         p1,
-         p2) ? {_: {}
-               ,end: bottomPort(rightBox)
-               ,order: $Connection$Model.EndStart
-               ,start: topPort(leftBox)} : A2(below,
+         p2) && A2(leftOf,
          p2,
-         p1) ? {_: {}
-               ,end: topPort(rightBox)
-               ,order: $Connection$Model.StartEnd
-               ,start: bottomPort(leftBox)} : _U.badIf($moduleName,
-         "between lines 120 and 133");
+         p1) ? $Debug.log("p1 below p2 && p2 leftOf p1")(_U.cmp(widthDiff,
+         maxWidth) < 1 ? {_: {}
+                         ,end: bottomPort(rightBox)
+                         ,order: $Connection$Model.EndStart
+                         ,start: topPort(leftBox)} : _U.cmp(heightDiff,
+         maxHeight) > 0 ? {_: {}
+                          ,end: bottomPort(rightBox)
+                          ,order: $Connection$Model.EndStart
+                          ,start: leftPort(leftBox)} : {_: {}
+                                                       ,end: leftPort(leftBox)
+                                                       ,order: $Connection$Model.EndStart
+                                                       ,start: rightPort(rightBox)}) : A2(below,
+         p2,
+         p1) && A2(leftOf,
+         p1,
+         p2) ? $Debug.log("p2 below p1 && p1 leftOf p2")(_U.cmp(widthDiff,
+         maxWidth) < 1 ? {_: {}
+                         ,end: topPort(rightBox)
+                         ,order: $Connection$Model.StartEnd
+                         ,start: bottomPort(leftBox)} : _U.cmp(heightDiff,
+         maxHeight) > 0 ? {_: {}
+                          ,end: leftPort(rightBox)
+                          ,order: $Connection$Model.StartEnd
+                          ,start: bottomPort(leftBox)} : {_: {}
+                                                         ,end: leftPort(rightBox)
+                                                         ,order: $Connection$Model.StartEnd
+                                                         ,start: rightPort(leftBox)}) : A2(below,
+         p2,
+         p1) && A2(leftOf,
+         p2,
+         p1) ? $Debug.log("p2 below p1 && p2 leftOf p1")(_U.cmp(widthDiff,
+         maxWidth) < 1 ? {_: {}
+                         ,end: topPort(rightBox)
+                         ,order: $Connection$Model.EndStart
+                         ,start: bottomPort(leftBox)} : _U.cmp(heightDiff,
+         maxHeight) > 0 ? {_: {}
+                          ,end: rightPort(rightBox)
+                          ,order: $Connection$Model.EndStart
+                          ,start: bottomPort(leftBox)} : {_: {}
+                                                         ,end: leftPort(leftBox)
+                                                         ,order: $Connection$Model.EndStart
+                                                         ,start: rightPort(rightBox)}) : A2(leftOf,
+         p1,
+         p2) ? A2($Debug.log,
+         "p1 leftOf p2",
+         {_: {}
+         ,end: leftPort(rightBox)
+         ,order: $Connection$Model.StartEnd
+         ,start: rightPort(leftBox)}) : A2(leftOf,
+         p2,
+         p1) ? A2($Debug.log,
+         "p2 leftOf p1",
+         {_: {}
+         ,end: leftPort(leftBox)
+         ,order: $Connection$Model.EndStart
+         ,start: rightPort(rightBox)}) : A2(below,
+         p1,
+         p2) ? A2($Debug.log,
+         "p1 below p2",
+         {_: {}
+         ,end: bottomPort(rightBox)
+         ,order: $Connection$Model.EndStart
+         ,start: topPort(leftBox)}) : A2(below,
+         p2,
+         p1) ? A2($Debug.log,
+         "p2 below p1",
+         {_: {}
+         ,end: topPort(rightBox)
+         ,order: $Connection$Model.StartEnd
+         ,start: bottomPort(leftBox)}) : $Debug.crash(A2($Basics._op["++"],
+         "cases exhausted in portLocations:\np1:",
+         A2($Basics._op["++"],
+         $Basics.toString(p1),
+         A2($Basics._op["++"],
+         "\np2:",
+         $Basics.toString(p2)))));
       }();
    });
-   var buildSegments = function (_v24) {
+   var buildSegments = function (_v32) {
       return function () {
          return function () {
-            var verticalSegment = F2(function (_v26,
-            _v27) {
-               return function () {
-                  switch (_v27.ctor)
-                  {case "_Tuple2":
-                     return function () {
-                          switch (_v26.ctor)
-                          {case "_Tuple2": return {_: {}
-                                                  ,layout: $Connection$Model.Vertical
-                                                  ,position: A2(below,
-                                                  {ctor: "_Tuple2"
-                                                  ,_0: _v26._0
-                                                  ,_1: _v26._1},
-                                                  {ctor: "_Tuple2"
-                                                  ,_0: _v27._0
-                                                  ,_1: _v27._1}) ? {ctor: "_Tuple2"
-                                                                   ,_0: _v27._0
-                                                                   ,_1: _v27._1} : {ctor: "_Tuple2"
-                                                                                   ,_0: _v26._0
-                                                                                   ,_1: _v26._1}
-                                                  ,size: {ctor: "_Tuple2"
-                                                         ,_0: lineSize
-                                                         ,_1: F2(function (x,
-                                                         y) {
-                                                            return x + y;
-                                                         })(lineSize)(A2(below,
-                                                         {ctor: "_Tuple2"
-                                                         ,_0: _v26._0
-                                                         ,_1: _v26._1},
-                                                         {ctor: "_Tuple2"
-                                                         ,_0: _v27._0
-                                                         ,_1: _v27._1}) ? _v26._1 - _v27._1 : _v27._1 - _v26._1)}};}
-                          _U.badCase($moduleName,
-                          "between lines 144 and 146");
-                       }();}
-                  _U.badCase($moduleName,
-                  "between lines 144 and 146");
-               }();
-            });
-            var horizontalSegment = F2(function (_v34,
+            var verticalSegment = F2(function (_v34,
             _v35) {
                return function () {
                   switch (_v35.ctor)
@@ -2149,59 +2267,98 @@ Elm.Connection.Controller.make = function (_elm) {
                      return function () {
                           switch (_v34.ctor)
                           {case "_Tuple2": return {_: {}
-                                                  ,layout: $Connection$Model.Horizontal
-                                                  ,position: {ctor: "_Tuple2"
-                                                             ,_0: _v34._0
-                                                             ,_1: _v34._1}
+                                                  ,layout: $Connection$Model.Vertical
+                                                  ,position: A2(below,
+                                                  {ctor: "_Tuple2"
+                                                  ,_0: _v34._0
+                                                  ,_1: _v34._1},
+                                                  {ctor: "_Tuple2"
+                                                  ,_0: _v35._0
+                                                  ,_1: _v35._1}) ? {ctor: "_Tuple2"
+                                                                   ,_0: _v35._0
+                                                                   ,_1: _v35._1} : {ctor: "_Tuple2"
+                                                                                   ,_0: _v34._0
+                                                                                   ,_1: _v34._1}
                                                   ,size: {ctor: "_Tuple2"
-                                                         ,_0: _v35._0 - _v34._0
-                                                         ,_1: lineSize}};}
+                                                         ,_0: lineSize
+                                                         ,_1: F2(function (x,
+                                                         y) {
+                                                            return x + y;
+                                                         })(lineSize)(A2(below,
+                                                         {ctor: "_Tuple2"
+                                                         ,_0: _v34._0
+                                                         ,_1: _v34._1},
+                                                         {ctor: "_Tuple2"
+                                                         ,_0: _v35._0
+                                                         ,_1: _v35._1}) ? _v34._1 - _v35._1 : _v35._1 - _v34._1)}};}
                           _U.badCase($moduleName,
-                          "between lines 140 and 142");
+                          "between lines 241 and 243");
                        }();}
                   _U.badCase($moduleName,
-                  "between lines 140 and 142");
+                  "between lines 241 and 243");
                }();
             });
-            return function () {
-               var _v42 = A2($Debug.log,
+            var horizontalSegment = F2(function (_v42,
+            _v43) {
+               return function () {
+                  switch (_v43.ctor)
+                  {case "_Tuple2":
+                     return function () {
+                          switch (_v42.ctor)
+                          {case "_Tuple2": return {_: {}
+                                                  ,layout: $Connection$Model.Horizontal
+                                                  ,position: {ctor: "_Tuple2"
+                                                             ,_0: _v42._0
+                                                             ,_1: _v42._1}
+                                                  ,size: {ctor: "_Tuple2"
+                                                         ,_0: $Basics.abs(_v43._0 - _v42._0)
+                                                         ,_1: lineSize}};}
+                          _U.badCase($moduleName,
+                          "between lines 237 and 239");
+                       }();}
+                  _U.badCase($moduleName,
+                  "between lines 237 and 239");
+               }();
+            });
+            return $Debug.log("drawing segments")(function () {
+               var _v50 = A2($Debug.log,
                "buildSegments from",
                {ctor: "_Tuple2"
-               ,_0: _v24.start
-               ,_1: _v24.end});
-               switch (_v42.ctor)
+               ,_0: _v32.start
+               ,_1: _v32.end});
+               switch (_v50.ctor)
                {case "_Tuple2":
-                  switch (_v42._0.ctor)
+                  switch (_v50._0.ctor)
                     {case "Bottom":
-                       switch (_v42._1.ctor)
+                       switch (_v50._1.ctor)
                          {case "Left":
                             return function () {
-                                 var $ = _v42._1._0,
+                                 var $ = _v50._1._0,
                                  x2 = $._0,
                                  y2 = $._1;
-                                 var $ = _v42._0._0,
+                                 var $ = _v50._0._0,
                                  x1 = $._0,
                                  y1 = $._1;
                                  return _L.fromArray([A2(verticalSegment,
-                                                     _v42._0._0,
-                                                     _v42._1._0)
+                                                     _v50._0._0,
+                                                     _v50._1._0)
                                                      ,A2(horizontalSegment,
                                                      {ctor: "_Tuple2"
                                                      ,_0: x1
                                                      ,_1: y2},
-                                                     _v42._1._0)]);
+                                                     _v50._1._0)]);
                               }();
                             case "Right":
                             return function () {
-                                 var $ = _v42._1._0,
+                                 var $ = _v50._1._0,
                                  x2 = $._0,
                                  y2 = $._1;
-                                 var $ = _v42._0._0,
+                                 var $ = _v50._0._0,
                                  x1 = $._0,
                                  y1 = $._1;
                                  return _L.fromArray([A2(verticalSegment,
-                                                     _v42._0._0,
-                                                     _v42._1._0)
+                                                     _v50._0._0,
+                                                     _v50._1._0)
                                                      ,A2(horizontalSegment,
                                                      {ctor: "_Tuple2"
                                                      ,_0: x2
@@ -2210,67 +2367,203 @@ Elm.Connection.Controller.make = function (_elm) {
                                                      ,_0: x1
                                                      ,_1: y2})]);
                               }();
-                            case "Top":
-                            return _L.fromArray([A2(verticalSegment,
-                              _v42._0._0,
-                              _v42._1._0)]);}
-                         break;
-                       case "Left":
-                       switch (_v42._1.ctor)
-                         {case "Bottom":
-                            return function () {
-                                 var $ = _v42._1._0,
+                            case "Top": return function () {
+                                 var $ = _v50._1._0,
                                  x2 = $._0,
                                  y2 = $._1;
-                                 var $ = _v42._0._0,
+                                 var $ = _v50._0._0,
+                                 x1 = $._0,
+                                 y1 = $._1;
+                                 var midy = midPoint(y2 + y1);
+                                 return _U.eq(x1,
+                                 x2) ? _L.fromArray([A2(verticalSegment,
+                                 _v50._0._0,
+                                 _v50._1._0)]) : _U.cmp(x1,
+                                 x2) > 0 ? _L.fromArray([A2(verticalSegment,
+                                                        _v50._0._0,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x1
+                                                        ,_1: midy})
+                                                        ,A2(horizontalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x2
+                                                        ,_1: midy},
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x1
+                                                        ,_1: midy})
+                                                        ,A2(verticalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x2
+                                                        ,_1: midy},
+                                                        _v50._1._0)]) : _L.fromArray([A2(verticalSegment,
+                                                                                     _v50._0._0,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x1
+                                                                                     ,_1: midy})
+                                                                                     ,A2(horizontalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x1
+                                                                                     ,_1: midy},
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x2
+                                                                                     ,_1: midy})
+                                                                                     ,A2(verticalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x2
+                                                                                     ,_1: midy},
+                                                                                     _v50._1._0)]);
+                              }();}
+                         break;
+                       case "Left":
+                       switch (_v50._1.ctor)
+                         {case "Bottom":
+                            return function () {
+                                 var $ = _v50._1._0,
+                                 x2 = $._0,
+                                 y2 = $._1;
+                                 var $ = _v50._0._0,
                                  x1 = $._0,
                                  y1 = $._1;
                                  return _L.fromArray([A2(horizontalSegment,
                                                      {ctor: "_Tuple2"
                                                      ,_0: x2
                                                      ,_1: y1},
-                                                     _v42._0._0)
+                                                     _v50._0._0)
                                                      ,A2(verticalSegment,
                                                      {ctor: "_Tuple2"
                                                      ,_0: x2
                                                      ,_1: y1},
-                                                     _v42._1._0)]);
+                                                     _v50._1._0)]);
                               }();}
                          break;
                        case "Right":
-                       switch (_v42._1.ctor)
+                       switch (_v50._1.ctor)
                          {case "Bottom":
                             return _L.fromArray([A2(horizontalSegment,
-                                                _v42._0._0,
-                                                _v42._1._0)
+                                                _v50._0._0,
+                                                _v50._1._0)
                                                 ,A2(verticalSegment,
-                                                _v42._0._0,
-                                                _v42._1._0)]);
-                            case "Left": return A2(below,
-                              _v42._0._0,
-                              _v42._1._0) ? _L.fromArray([A2(horizontalSegment,
-                                                         _v42._0._0,
-                                                         _v42._1._0)
-                                                         ,A2(verticalSegment,
-                                                         _v42._0._0,
-                                                         _v42._1._0)
-                                                         ,A2(horizontalSegment,
-                                                         _v42._0._0,
-                                                         _v42._1._0)]) : _L.fromArray([A2(horizontalSegment,
-                              _v42._0._0,
-                              _v42._1._0)]);}
+                                                _v50._0._0,
+                                                _v50._1._0)]);
+                            case "Left":
+                            return function () {
+                                 var $ = _v50._1._0,
+                                 x2 = $._0,
+                                 y2 = $._1;
+                                 var $ = _v50._0._0,
+                                 x1 = $._0,
+                                 y1 = $._1;
+                                 var midx = midPoint(x2 + x1);
+                                 var yVals = function () {
+                                    var _v64 = _v32.order;
+                                    switch (_v64.ctor)
+                                    {case "EndStart":
+                                       return {ctor: "_Tuple2"
+                                              ,_0: y2
+                                              ,_1: y1};
+                                       case "StartEnd":
+                                       return {ctor: "_Tuple2"
+                                              ,_0: y1
+                                              ,_1: y2};}
+                                    _U.badCase($moduleName,
+                                    "between lines 251 and 254");
+                                 }();
+                                 return $Debug.log("StartEnd")(_U.eq(y1,
+                                 y2) ? _L.fromArray([A2(horizontalSegment,
+                                 _v50._0._0,
+                                 _v50._1._0)]) : _U.cmp(y1,
+                                 y2) > 0 ? _L.fromArray([A2(horizontalSegment,
+                                                        _v50._0._0,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: midx
+                                                        ,_1: y1})
+                                                        ,A2(verticalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: midx
+                                                        ,_1: $Basics.fst(yVals)},
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: midx
+                                                        ,_1: $Basics.snd(yVals)})
+                                                        ,A2(horizontalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: midx
+                                                        ,_1: y2},
+                                                        _v50._1._0)]) : _L.fromArray([A2(horizontalSegment,
+                                                                                     _v50._0._0,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: midx
+                                                                                     ,_1: y1})
+                                                                                     ,A2(verticalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: midx
+                                                                                     ,_1: $Basics.snd(yVals)},
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: midx
+                                                                                     ,_1: $Basics.fst(yVals)})
+                                                                                     ,A2(horizontalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: midx
+                                                                                     ,_1: y2},
+                                                                                     _v50._1._0)]));
+                              }();}
                          break;
                        case "Top":
-                       switch (_v42._1.ctor)
+                       switch (_v50._1.ctor)
                          {case "Bottom":
-                            return _L.fromArray([A2(verticalSegment,
-                              _v42._0._0,
-                              _v42._1._0)]);}
+                            return function () {
+                                 var $ = _v50._1._0,
+                                 x2 = $._0,
+                                 y2 = $._1;
+                                 var $ = _v50._0._0,
+                                 x1 = $._0,
+                                 y1 = $._1;
+                                 var midy = midPoint(y2 + y1);
+                                 return _U.eq(x1,
+                                 x2) ? _L.fromArray([A2(verticalSegment,
+                                 _v50._0._0,
+                                 _v50._1._0)]) : _U.cmp(x1,
+                                 x2) > 0 ? _L.fromArray([A2(verticalSegment,
+                                                        _v50._0._0,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x1
+                                                        ,_1: midy})
+                                                        ,A2(horizontalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x2
+                                                        ,_1: midy},
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x1
+                                                        ,_1: midy})
+                                                        ,A2(verticalSegment,
+                                                        {ctor: "_Tuple2"
+                                                        ,_0: x2
+                                                        ,_1: midy},
+                                                        _v50._1._0)]) : _L.fromArray([A2(verticalSegment,
+                                                                                     _v50._0._0,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x1
+                                                                                     ,_1: midy})
+                                                                                     ,A2(horizontalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x1
+                                                                                     ,_1: midy},
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x2
+                                                                                     ,_1: midy})
+                                                                                     ,A2(verticalSegment,
+                                                                                     {ctor: "_Tuple2"
+                                                                                     ,_0: x2
+                                                                                     ,_1: midy},
+                                                                                     _v50._1._0)]);
+                              }();}
                          break;}
                     break;}
-               _U.badCase($moduleName,
-               "between lines 148 and 178");
-            }();
+               return $Debug.crash(A2($Basics._op["++"],
+               "cases exhausted in buildSegments",
+               $Basics.toString({ctor: "_Tuple2"
+                                ,_0: _v32.start
+                                ,_1: _v32.end})));
+            }());
          }();
       }();
    };
@@ -2294,9 +2587,9 @@ Elm.Connection.Controller.make = function (_elm) {
              endBox))};
    });
    var connectBoxesFold = F2(function (rightBox,
-   _v56) {
+   _v65) {
       return function () {
-         switch (_v56.ctor)
+         switch (_v65.ctor)
          {case "_Tuple2":
             return function () {
                  var newConnection = {_: {}
@@ -2304,25 +2597,25 @@ Elm.Connection.Controller.make = function (_elm) {
                                      ,endPort: function (_) {
                                         return _.end;
                                      }(A2(portLocations,
-                                     _v56._0,
+                                     _v65._0,
                                      rightBox))
                                      ,segments: buildSegments(A2(portLocations,
-                                     _v56._0,
+                                     _v65._0,
                                      rightBox))
-                                     ,startBox: _v56._0.key
+                                     ,startBox: _v65._0.key
                                      ,startPort: function (_) {
                                         return _.start;
                                      }(A2(portLocations,
-                                     _v56._0,
+                                     _v65._0,
                                      rightBox))};
                  return {ctor: "_Tuple2"
                         ,_0: rightBox
                         ,_1: A2($List._op["::"],
                         newConnection,
-                        _v56._1)};
+                        _v65._1)};
               }();}
          _U.badCase($moduleName,
-         "between lines 210 and 215");
+         "between lines 350 and 355");
       }();
    });
    var buildConnections = F2(function (connections,
@@ -2422,6 +2715,12 @@ Elm.Connection.Controller.make = function (_elm) {
                                        ,drawEndpoint: drawEndpoint
                                        ,below: below
                                        ,leftOf: leftOf
+                                       ,Calculation: Calculation
+                                       ,leftOf2: leftOf2
+                                       ,map2: map2
+                                       ,mlt: mlt
+                                       ,within: within
+                                       ,isPort: isPort
                                        ,midPoint: midPoint
                                        ,rightPort: rightPort
                                        ,leftPort: leftPort
@@ -5155,12 +5454,12 @@ Elm.Html.Attributes.make = function (_elm) {
    var height = function (value) {
       return A2(stringProperty,
       "height",
-      value);
+      $Basics.toString(value));
    };
    var width = function (value) {
       return A2(stringProperty,
       "width",
-      value);
+      $Basics.toString(value));
    };
    var alt = function (value) {
       return A2(stringProperty,
@@ -6081,7 +6380,7 @@ Elm.List.make = function (_elm) {
                                                   ,_0: _v3._0
                                                   ,_1: A2(_op["::"],x,_v3._1)};}
                _U.badCase($moduleName,
-               "between lines 267 and 269");
+               "between lines 270 and 272");
             }();
          });
          return A3(foldr,
@@ -6108,10 +6407,10 @@ Elm.List.make = function (_elm) {
                                  _v7._1,
                                  _v8._1)};}
                        _U.badCase($moduleName,
-                       "on line 305, column 12 to 28");
+                       "on line 308, column 12 to 28");
                     }();}
                _U.badCase($moduleName,
-               "on line 305, column 12 to 28");
+               "on line 308, column 12 to 28");
             }();
          });
          return A3(foldr,
@@ -6144,7 +6443,7 @@ Elm.List.make = function (_elm) {
             case "[]":
             return _L.fromArray([]);}
          _U.badCase($moduleName,
-         "between lines 316 and 327");
+         "between lines 319 and 330");
       }();
    });
    _elm.List.values = {_op: _op
@@ -6262,7 +6561,6 @@ Elm.Main.make = function (_elm) {
    $Html = Elm.Html.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
    $Json$Encode = Elm.Json.Encode.make(_elm),
-   $Keyboard = Elm.Keyboard.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
    $Mousetrap = Elm.Mousetrap.make(_elm),
    $Partials$Footer = Elm.Partials.Footer.make(_elm),
@@ -6307,9 +6605,6 @@ Elm.Main.make = function (_elm) {
       return {ctor: "BoardUpdate"
              ,_0: a};
    };
-   var convertKeyboardOperation = function (keyboardE) {
-      return $Debug.log("main:keydown")(BoardUpdate($Board$Controller.keyboardRequest(keyboardE)));
-   };
    var convertDragOperation = function (dragE) {
       return BoardUpdate($Board$Controller.moveBoxAction(dragE));
    };
@@ -6350,12 +6645,12 @@ Elm.Main.make = function (_elm) {
                                       state.currentBoard,
                                       screenHeight - 36);}
                                  _U.badCase($moduleName,
-                                 "between lines 167 and 172");
+                                 "between lines 162 and 167");
                               }()]))
                               ,$Partials$Footer.view]));
               }();}
          _U.badCase($moduleName,
-         "between lines 161 and 174");
+         "between lines 156 and 169");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -6370,7 +6665,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 82 and 84");
+         "between lines 80 and 82");
       }();
    };
    var encodeAppState = function (state) {
@@ -6385,7 +6680,7 @@ Elm.Main.make = function (_elm) {
             {case "About": return "/about";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 63 and 66");
+            "between lines 61 and 64");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -6414,12 +6709,6 @@ Elm.Main.make = function (_elm) {
          return NoOp;
       }();
    };
-   var keyboardRequestAction = A2($Signal.map,
-   convertKeyboardOperation,
-   A3($Signal.dropWhen,
-   inEditingMode,
-   0,
-   $Keyboard.lastPressed));
    var AppState = function (a) {
       return {_: {}
              ,currentBoard: a};
@@ -6572,7 +6861,6 @@ Elm.Main.make = function (_elm) {
    _elm.Main.values = {_op: _op
                       ,AppState: AppState
                       ,main: main
-                      ,keyboardRequestAction: keyboardRequestAction
                       ,globalKeyboardShortcuts: globalKeyboardShortcuts
                       ,startingState: startingState
                       ,routesMap: routesMap
@@ -6588,7 +6876,6 @@ Elm.Main.make = function (_elm) {
                       ,routeChannel: routeChannel
                       ,userInput: userInput
                       ,state: state
-                      ,convertKeyboardOperation: convertKeyboardOperation
                       ,entersEditMode: entersEditMode
                       ,inEditingMode: inEditingMode
                       ,convertDragOperation: convertDragOperation
@@ -6608,15 +6895,15 @@ Elm.Maybe.make = function (_elm) {
    _L = _N.List.make(_elm),
    _P = _N.Ports.make(_elm),
    $moduleName = "Maybe";
-   _op["?"] = F2(function (maybe,
-   $default) {
+   var withDefault = F2(function ($default,
+   maybe) {
       return function () {
          switch (maybe.ctor)
          {case "Just": return maybe._0;
             case "Nothing":
             return $default;}
          _U.badCase($moduleName,
-         "between lines 53 and 55");
+         "between lines 45 and 56");
       }();
    });
    var Nothing = {ctor: "Nothing"};
@@ -6629,11 +6916,11 @@ Elm.Maybe.make = function (_elm) {
                     case "Nothing":
                     return oneOf(maybes._1);}
                  _U.badCase($moduleName,
-                 "between lines 74 and 83");
+                 "between lines 64 and 73");
               }();
             case "[]": return Nothing;}
          _U.badCase($moduleName,
-         "between lines 69 and 83");
+         "between lines 59 and 73");
       }();
    };
    var andThen = F2(function (maybeValue,
@@ -6644,7 +6931,7 @@ Elm.Maybe.make = function (_elm) {
             return callback(maybeValue._0);
             case "Nothing": return Nothing;}
          _U.badCase($moduleName,
-         "between lines 120 and 122");
+         "between lines 110 and 112");
       }();
    });
    var Just = function (a) {
@@ -6658,12 +6945,13 @@ Elm.Maybe.make = function (_elm) {
             return Just(f(maybe._0));
             case "Nothing": return Nothing;}
          _U.badCase($moduleName,
-         "between lines 86 and 117");
+         "between lines 76 and 107");
       }();
    });
    _elm.Maybe.values = {_op: _op
                        ,andThen: andThen
                        ,map: map
+                       ,withDefault: withDefault
                        ,oneOf: oneOf
                        ,Just: Just
                        ,Nothing: Nothing};
@@ -8742,6 +9030,7 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
         drop.style.display = 'block';
 
         drop.elm_values = List.toArray(model.values);
+        drop.elm_handler = model.handler;
         var values = drop.elm_values;
 
         for (var i = 0; i < values.length; ++i) {
@@ -8752,7 +9041,7 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
             drop.appendChild(option);
         }
         drop.addEventListener('change', function() {
-            drop.elm_values[drop.selectedIndex]._1();
+            drop.elm_handler(drop.elm_values[drop.selectedIndex]._1)();
         });
 
         return drop;
@@ -8760,6 +9049,7 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
 
     function updateDropDown(node, oldModel, newModel) {
         node.elm_values = List.toArray(newModel.values);
+        node.elm_handler = newModel.handler;
 
         var values = node.elm_values;
         var kids = node.childNodes;
@@ -8785,14 +9075,15 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
         return node;
     }
 
-    function dropDown(values) {
+    function dropDown(handler, values) {
         return A3(Element.newElement, 100, 24, {
             ctor: 'Custom',
             type: 'DropDown',
             render: renderDropDown,
             update: updateDropDown,
             model: {
-                values: values
+                values: values,
+                handler: handler
             }
         });
     }
@@ -9115,7 +9406,7 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
         button: F2(button),
         customButton: F4(customButton),
         checkbox: F2(checkbox),
-        dropDown: dropDown,
+        dropDown: F2(dropDown),
         field: mkField('text'),
         email: mkField('email'),
         password: mkField('password'),
@@ -9505,13 +9796,14 @@ Elm.Native.Json.make = function(localRuntime) {
     function oneOf(decoders) {
         return function(value) {
             var errors = [];
-            while (decoders.ctor !== '[]') {
+            var temp = decoders;
+            while (temp.ctor !== '[]') {
                 try {
-                    return decoders._0(value);
+                    return temp._0(value);
                 } catch(e) {
                     errors.push(e.message);
                 }
-                decoders = decoders._1;
+                temp = temp._1;
             }
             throw new Error('expecting one of the following:\n    ' + errors.join('\n    '));
         }
@@ -11295,138 +11587,139 @@ if (!Elm.fullscreen) {
         };
 
         function init(display, container, module, ports, moduleToReplace) {
-          // defining state needed for an instance of the Elm RTS
-          var inputs = [];
+            // defining state needed for an instance of the Elm RTS
+            var inputs = [];
 
-          /* OFFSET
-           * Elm's time traveling debugger lets you interrupt the smooth flow of time
-           * by pausing and continuing program execution. To ensure the user sees a
-           * program that moves smoothly through the pause/continue time gap,
-           * we need to adjsut the value of Date.now().
-           */
-          var timer = function() {
-            var inducedDelay = 0;
+            /* OFFSET
+             * Elm's time traveling debugger lets you interrupt the smooth flow of time
+             * by pausing and continuing program execution. To ensure the user sees a
+             * program that moves smoothly through the pause/continue time gap,
+             * we need to adjsut the value of Date.now().
+             */
+            var timer = function() {
+                var inducedDelay = 0;
 
-            var now = function() {
-              return Date.now() - inducedDelay;
+                var now = function() {
+                    return Date.now() - inducedDelay;
+                };
+
+                var addDelay = function(d) {
+                    inducedDelay += d;
+                    return inducedDelay;
+                };
+
+                return {
+                    now : now,
+                    addDelay : addDelay
+                }
+            }();
+
+            var updateInProgress = false;
+            function notify(id, v) {
+                if (updateInProgress) {
+                    throw new Error(
+                        'The notify function has been called synchronously!\n' +
+                        'This can lead to frames being dropped.\n' +
+                        'Definitely report this to <https://github.com/elm-lang/Elm/issues>\n');
+                }
+                updateInProgress = true;
+                var timestep = timer.now();
+                for (var i = inputs.length; i--; ) {
+                    inputs[i].recv(timestep, id, v);
+                }
+                updateInProgress = false;
+            }
+            function setTimeout(func, delay) {
+                window.setTimeout(func, delay);
+            }
+
+            var listeners = [];
+            function addListener(relevantInputs, domNode, eventName, func) {
+                domNode.addEventListener(eventName, func);
+                var listener = {
+                    relevantInputs: relevantInputs,
+                    domNode: domNode,
+                    eventName: eventName,
+                    func: func
+                };
+                listeners.push(listener);
+            }
+
+            var portUses = {}
+            for (var key in ports) {
+                portUses[key] = 0;
+            }
+            // create the actual RTS. Any impure modules will attach themselves to this
+            // object. This permits many Elm programs to be embedded per document.
+            var elm = {
+                notify: notify,
+                setTimeout: setTimeout,
+                node: container,
+                addListener: addListener,
+                inputs: inputs,
+                timer: timer,
+                ports: { incoming:ports, outgoing:{}, uses:portUses },
+
+                isFullscreen: function() { return display === Display.FULLSCREEN; },
+                isEmbed: function() { return display === Display.COMPONENT; },
+                isWorker: function() { return display === Display.NONE; }
             };
 
-            var addDelay = function(d) {
-              inducedDelay += d;
-              return inducedDelay;
+            function swap(newModule) {
+                removeListeners(listeners);
+                var div = document.createElement('div');
+                var newElm = init(display, div, newModule, ports, elm);
+                inputs = [];
+                // elm.swap = newElm.swap;
+                return newElm;
+            }
+
+            function dispose() {
+                removeListeners(listeners);
+                inputs = [];
+            }
+
+            var Module = {};
+            try {
+                Module = module.make(elm);
+                checkPorts(elm);
+            } catch(e) {
+                var code = document.createElement('code');
+
+                var lines = e.message.split('\n');
+                code.appendChild(document.createTextNode(lines[0]));
+                code.appendChild(document.createElement('br'));
+                code.appendChild(document.createElement('br'));
+                for (var i = 1; i < lines.length; ++i) {
+                    code.appendChild(document.createTextNode('\u00A0 \u00A0 ' + lines[i]));
+                    code.appendChild(document.createElement('br'));
+                }
+                code.appendChild(document.createElement('br'));
+                code.appendChild(document.createTextNode("Open the developer console for more details."));
+
+                container.appendChild(code);
+                throw e;
+            }
+            inputs = filterDeadInputs(inputs);
+            filterListeners(inputs, listeners);
+            addReceivers(elm.ports.outgoing);
+            if (display !== Display.NONE) {
+                var graphicsNode = initGraphics(elm, Module);
+            }
+            if (typeof moduleToReplace !== 'undefined') {
+                hotSwap(moduleToReplace, elm);
+
+                // rerender scene if graphics are enabled.
+                if (typeof graphicsNode !== 'undefined') {
+                    graphicsNode.recv(0, true, 0);
+                }
+            }
+
+            return {
+                swap:swap,
+                ports:elm.ports.outgoing,
+                dispose:dispose
             };
-
-            return { now : now
-                   , addDelay : addDelay
-                   }
-          }();
-
-          var updateInProgress = false;
-          function notify(id, v) {
-              if (updateInProgress) {
-                  throw new Error(
-                      'The notify function has been called synchronously!\n' +
-                      'This can lead to frames being dropped.\n' +
-                      'Definitely report this to <https://github.com/elm-lang/Elm/issues>\n');
-              }
-              updateInProgress = true;
-              var timestep = timer.now();
-              for (var i = inputs.length; i--; ) {
-                  inputs[i].recv(timestep, id, v);
-              }
-              updateInProgress = false;
-          }
-          function setTimeout(func, delay) {
-            window.setTimeout(func, delay);
-          }
-
-          var listeners = [];
-          function addListener(relevantInputs, domNode, eventName, func) {
-              domNode.addEventListener(eventName, func);
-              var listener = {
-                  relevantInputs: relevantInputs,
-                  domNode: domNode,
-                  eventName: eventName,
-                  func: func
-              };
-              listeners.push(listener);
-          }
-
-          var portUses = {}
-          for (var key in ports) {
-              portUses[key] = 0;
-          }
-          // create the actual RTS. Any impure modules will attach themselves to this
-          // object. This permits many Elm programs to be embedded per document.
-          var elm = {
-              notify: notify,
-              setTimeout: setTimeout,
-              node: container,
-              addListener: addListener,
-              inputs: inputs,
-              timer: timer,
-              ports: { incoming:ports, outgoing:{}, uses:portUses },
-
-              isFullscreen: function() { return display === Display.FULLSCREEN; },
-              isEmbed: function() { return display === Display.COMPONENT; },
-              isWorker: function() { return display === Display.NONE; }
-          };
-
-          function swap(newModule) {
-              removeListeners(listeners);
-              var div = document.createElement('div');
-              var newElm = init(display, div, newModule, ports, elm);
-              inputs = [];
-              // elm.swap = newElm.swap;
-              return newElm;
-          }
-
-          function dispose() {
-            removeListeners(listeners);
-            inputs = [];
-          }
-
-          var Module = {};
-          try {
-              Module = module.make(elm);
-              checkPorts(elm);
-          } catch(e) {
-              var code = document.createElement('code');
-
-              var lines = e.message.split('\n');
-              code.appendChild(document.createTextNode(lines[0]));
-              code.appendChild(document.createElement('br'));
-              code.appendChild(document.createElement('br'));
-              for (var i = 1; i < lines.length; ++i) {
-                  code.appendChild(document.createTextNode('\u00A0 \u00A0 ' + lines[i]));
-                  code.appendChild(document.createElement('br'));
-              }
-              code.appendChild(document.createElement('br'));
-              code.appendChild(document.createTextNode("Open the developer console for more details."));
-
-              container.appendChild(code);
-              throw e;
-          }
-          inputs = filterDeadInputs(inputs);
-          filterListeners(inputs, listeners);
-          addReceivers(elm.ports.outgoing);
-          if (display !== Display.NONE) {
-              var graphicsNode = initGraphics(elm, Module);
-          }
-          if (typeof moduleToReplace !== 'undefined') {
-              hotSwap(moduleToReplace, elm);
-
-              // rerender scene if graphics are enabled.
-              if (typeof graphicsNode !== 'undefined') {
-                  graphicsNode.recv(0, true, 0);
-              }
-          }
-
-          return {
-            swap:swap,
-            ports:elm.ports.outgoing,
-            dispose:dispose
-          };
         };
 
         function checkPorts(elm) {
@@ -11550,73 +11843,118 @@ if (!Elm.fullscreen) {
         ////  RENDERING  ////
 
         function initGraphics(elm, Module) {
-          if (!('main' in Module)) {
-              throw new Error("'main' is missing! What do I display?!");
-          }
+            if (!('main' in Module)) {
+                throw new Error("'main' is missing! What do I display?!");
+            }
 
-          var signalGraph = Module.main;
+            var signalGraph = Module.main;
 
-          // make sure the signal graph is actually a signal & extract the visual model
-          var Signal = Elm.Signal.make(elm);
-          if (!('recv' in signalGraph)) {
-              signalGraph = Signal.constant(signalGraph);
-          }
-          var currentScene = signalGraph.value;
+            // make sure the signal graph is actually a signal & extract the visual model
+            var Signal = Elm.Signal.make(elm);
+            if (!('recv' in signalGraph)) {
+                signalGraph = Signal.constant(signalGraph);
+            }
+            var initialScene = signalGraph.value;
 
-         // Add the currentScene to the DOM
-          var Element = Elm.Native.Graphics.Element.make(elm);
-          elm.node.appendChild(Element.render(currentScene));
+            // Add the initialScene to the DOM
+            var Element = Elm.Native.Graphics.Element.make(elm);
+            elm.node.appendChild(Element.render(initialScene));
 
-          // set up updates so that the DOM is adjusted as necessary.
-          var savedScene = currentScene;
-          var previousDrawId = 0;
-          function domUpdate(newScene) {
-              previousDrawId = draw(previousDrawId, function(_) {
-                  Element.updateAndReplace(elm.node.firstChild, savedScene, newScene);
-                  if (elm.Native.Window) {
-                      elm.Native.Window.values.resizeIfNeeded();
-                  }
-                  savedScene = newScene;
-              });
-          }
-          var renderer = A2(Signal.map, domUpdate, signalGraph);
+            var _requestAnimationFrame =
+                typeof requestAnimationFrame !== 'undefined'
+                    ? requestAnimationFrame
+                    : function(cb) { setTimeout(cb, 1000/60); }
+                    ;
 
-          // must check for resize after 'renderer' is created so
-          // that changes show up.
-          if (elm.Native.Window) {
-              elm.Native.Window.values.resizeIfNeeded();
-          }
+            // domUpdate is called whenever the main Signal changes.
+            //
+            // domUpdate and drawCallback implement a small state machine in order
+            // to schedule only 1 draw per animation frame. This enforces that
+            // once draw has been called, it will not be called again until the
+            // next frame.
+            //
+            // drawCallback is scheduled whenever
+            // 1. The state transitions from PENDING_REQUEST to EXTRA_REQUEST, or
+            // 2. The state transitions from NO_REQUEST to PENDING_REQUEST
+            //
+            // Invariants:
+            // 1. In the NO_REQUEST state, there is never a scheduled drawCallback.
+            // 2. In the PENDING_REQUEST and EXTRA_REQUEST states, there is always exactly 1
+            //    scheduled drawCallback.
+            var NO_REQUEST = 0;
+            var PENDING_REQUEST = 1;
+            var EXTRA_REQUEST = 2;
+            var state = NO_REQUEST;
+            var savedScene = initialScene;
+            var scheduledScene = initialScene;
 
-          return renderer;
+            function domUpdate(newScene) {
+                scheduledScene = newScene;
+
+                switch (state) {
+                    case NO_REQUEST:
+                        _requestAnimationFrame(drawCallback);
+                        state = PENDING_REQUEST;
+                        return;
+                    case PENDING_REQUEST:
+                        state = PENDING_REQUEST;
+                        return;
+                    case EXTRA_REQUEST:
+                        state = PENDING_REQUEST;
+                        return;
+                }
+            }
+
+            function drawCallback() {
+                switch (state) {
+                    case NO_REQUEST:
+                        // This state should not be possible. How can there be no
+                        // request, yet somehow we are actively fulfilling a
+                        // request?
+                        throw new Error(
+                            "Unexpected draw callback.\n" +
+                            "Please report this to <https://github.com/elm-lang/core/issues>."
+                        );
+
+                    case PENDING_REQUEST:
+                        // At this point, we do not *know* that another frame is
+                        // needed, but we make an extra request to rAF just in
+                        // case. It's possible to drop a frame if rAF is called
+                        // too late, so we just do it preemptively.
+                        _requestAnimationFrame(drawCallback);
+                        state = EXTRA_REQUEST;
+
+                        // There's also stuff we definitely need to draw.
+                        draw();
+                        return;
+
+                    case EXTRA_REQUEST:
+                        // Turns out the extra request was not needed, so we will
+                        // stop calling rAF. No reason to call it all the time if
+                        // no one needs it.
+                        state = NO_REQUEST;
+                        return;
+                }
+            }
+
+            function draw() {
+                Element.updateAndReplace(elm.node.firstChild, savedScene, scheduledScene);
+                if (elm.Native.Window) {
+                    elm.Native.Window.values.resizeIfNeeded();
+                }
+                savedScene = scheduledScene;
+            }
+
+            var renderer = A2(Signal.map, domUpdate, signalGraph);
+
+            // must check for resize after 'renderer' is created so
+            // that changes show up.
+            if (elm.Native.Window) {
+                elm.Native.Window.values.resizeIfNeeded();
+            }
+
+            return renderer;
         }
-
-
-        // define function for drawing efficiently
-        //
-        //   draw : RequestID -> (() -> ()) -> RequestID
-        //
-        // Takes a "RequestID" allowing you to cancel old requests if possible.
-        // Returns a "RequestID" so you can refer to past requests.
-        //
-        function draw(previousRequestID, callback) {
-            callback();
-            return previousRequestID;
-        }
-
-        var vendors = ['ms', 'moz', 'webkit', 'o'];
-        var win = typeof window !== 'undefined' ? window : {};
-        for (var i = 0; i < vendors.length && !win.requestAnimationFrame; ++i) {
-            win.requestAnimationFrame = win[vendors[i]+'RequestAnimationFrame'];
-            win.cancelAnimationFrame  = win[vendors[i]+'CancelAnimationFrame'] ||
-                                        win[vendors[i]+'CancelRequestAnimationFrame'];
-        }
-        if (win.requestAnimationFrame && win.cancelAnimationFrame) {
-            draw = function(previousRequestID, callback) {
-                win.cancelAnimationFrame(previousRequestID);
-                return win.requestAnimationFrame(callback);
-            };
-        }
-
 
         //// HOT SWAPPING ////
 
@@ -11664,78 +12002,79 @@ if (!Elm.fullscreen) {
     }());
 
     function F2(fun) {
-      function wrapper(a) { return function(b) { return fun(a,b) } }
-      wrapper.arity = 2;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return fun(a,b) } }
+        wrapper.arity = 2;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F3(fun) {
-      function wrapper(a) {
-        return function(b) { return function(c) { return fun(a,b,c) }}
-      }
-      wrapper.arity = 3;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) {
+            return function(b) { return function(c) { return fun(a,b,c) }}
+        }
+        wrapper.arity = 3;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F4(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return fun(a,b,c,d) }}}
-      }
-      wrapper.arity = 4;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return fun(a,b,c,d) }}}
+        }
+        wrapper.arity = 4;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F5(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return function(e) { return fun(a,b,c,d,e) }}}}
-      }
-      wrapper.arity = 5;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return function(e) { return fun(a,b,c,d,e) }}}}
+        }
+        wrapper.arity = 5;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F6(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return function(e) { return function(f) {
-          return fun(a,b,c,d,e,f) }}}}}
-      }
-      wrapper.arity = 6;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return function(e) { return function(f) {
+            return fun(a,b,c,d,e,f) }}}}}
+        }
+        wrapper.arity = 6;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F7(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return function(e) { return function(f) {
-          return function(g) { return fun(a,b,c,d,e,f,g) }}}}}}
-      }
-      wrapper.arity = 7;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return function(e) { return function(f) {
+            return function(g) { return fun(a,b,c,d,e,f,g) }}}}}}
+        }
+        wrapper.arity = 7;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F8(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return function(e) { return function(f) {
-      return function(g) { return function(h) {return fun(a,b,c,d,e,f,g,h)}}}}}}}
-      }
-      wrapper.arity = 8;
-      wrapper.func = fun;
-      return wrapper;
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return function(e) { return function(f) {
+            return function(g) { return function(h) {
+            return fun(a,b,c,d,e,f,g,h)}}}}}}}
+        }
+        wrapper.arity = 8;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function F9(fun) {
-      function wrapper(a) { return function(b) { return function(c) {
-        return function(d) { return function(e) { return function(f) {
-      return function(g) { return function(h) { return function(i) {
+        function wrapper(a) { return function(b) { return function(c) {
+            return function(d) { return function(e) { return function(f) {
+            return function(g) { return function(h) { return function(i) {
             return fun(a,b,c,d,e,f,g,h,i) }}}}}}}}
-      }
-      wrapper.arity = 9;
-      wrapper.func = fun;
-      return wrapper;
+        }
+        wrapper.arity = 9;
+        wrapper.func = fun;
+        return wrapper;
     }
 
     function A2(fun,a,b) {
@@ -11835,7 +12174,7 @@ Elm.Native.Show.make = function(elm) {
             }
             else if (v.ctor === "_Array") {
                 if (!_Array) {
-                    _Array = Elm.Dict.make(elm);
+                    _Array = Elm.Array.make(elm);
                 }
                 var list = _Array.toList(v);
                 return "Array.fromList " + toString(list);

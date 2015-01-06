@@ -11,7 +11,7 @@ SASSC_LOAD_PATH = bower_components/foundation/scss
 VENDOR_FILES = $(addprefix $(VENDOR)/,router.js route-recognizer.js rsvp.js)
 DIST_FILES = $(ELM_MAKE_OUTPUT) index.html $(CSS_OUTPUT)
 
-.PHONY: deps_osx db db_migrate db_setup db_clean deploy deploy_alpha serve dist
+.PHONY: deps_osx db db_migrate db_setup db_clean deploy deploy_alpha serve dist watch
 
 $(DIST)/index.html: $(ELM_HTML_FILE)
 	cp $< $@
@@ -34,11 +34,13 @@ deploy: dist
 serve: $(DIST)/index.html $(DIST)/Main.js $(DIST)/main.css
 	cd build && pushstate-server . 8000
 
+watch:
+	supervise .
+
 deps_osx:
-	brew install sqitch
-	brew install sqitch_pg
 	brew install sassc
 	brew install entr
+	brew install daemontools
 
 db_migrate:
 	sqitch deploy

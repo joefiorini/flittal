@@ -41,8 +41,6 @@ main = (\s r (w,h) -> toElement w h  <| container s r h)
          ~ routeHandler
          ~ Window.dimensions
 
-keyboardRequestAction = Signal.map convertKeyboardOperation (Signal.dropWhen inEditingMode 0 Keyboard.lastPressed)
-
 globalKeyboardShortcuts : String -> Update
 globalKeyboardShortcuts keyCommand =
   case keyCommand of
@@ -129,9 +127,6 @@ state =
       , Signal.map globalKeyboardShortcuts Mousetrap.keydown
       , convertDragOperation <~ Signal.mergeMany [drop, dragstart]
       ])
-
-convertKeyboardOperation keyboardE =
-  Debug.log "main:keydown" <| BoardUpdate <| Board.keyboardRequest keyboardE
 
 entersEditMode update =
   case update of
