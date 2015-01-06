@@ -81,7 +81,7 @@ decode =
 
 isSelected : Model -> Bool
 isSelected box =
-  box.selectedIndex == -1
+  box.selectedIndex /= -1
 
 filterKey : (Model -> Bool) -> BoxKey -> List Model -> List Model
 filterKey pred key boxes =

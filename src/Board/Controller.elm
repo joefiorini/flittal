@@ -16,6 +16,7 @@ import Style.Color (Color(..))
 import Box.Controller as Box
 
 import Connection.Controller as Connection
+import Connection.Controller (leftOf)
 import Connection.Model
 
 import DomUtils (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent, DnDPort)
@@ -50,6 +51,8 @@ type Update = NoOp |
   ConnectSelections |
   ReconnectSelections |
   DeleteSelections |
+  SelectNextBox |
+  SelectPreviousBox |
   DraggingBox Box.BoxKey |
   UpdateBoxColor Color |
   ResizeBox Box.ResizeMode |
@@ -144,8 +147,12 @@ updateStateSelections box state =
 contains obj = List.any (\b -> b == obj)
 containsEither obj1 obj2 = List.any (\b -> b == obj1 || b == obj2)
 
+sortRightToLeft = List.reverse << sortLeftToRight
+
 sortLeftToRight : List Box.Model -> List Box.Model
-sortLeftToRight boxes = List.sortBy (snd << (.position)) <| List.sortBy (fst << (.position)) boxes
+sortLeftToRight boxes =
+  List.sortBy (fst << (.position))
+    <| List.sortBy (snd << (.position)) boxes
 
 boxForKey : Box.BoxKey -> List Box.Model -> Box.Model
 boxForKey key boxes = List.head (List.filter (\b -> b.key == key) boxes)
@@ -213,6 +220,48 @@ step update state =
           if | box.selectedIndex > -1 -> state
              | otherwise ->
           Debug.log "selecting box" { state | boxes <- updateBoxes state.boxes }
+
+      SelectNextBox ->
+        let selections  = List.filter Box.isSelected <| sortLeftToRight state.boxes
+            next boxes =
+              case Debug.log "selections" selections of
+                [] -> List.head <| Debug.log "all sorted" boxes
+                current :: remaining ->
+                    let rightBoxes =
+                      List.filter (\box -> current.position `leftOf` box.position) boxes
+                    in
+                       case rightBoxes of
+                         [] -> List.head boxes
+                         current :: remaining -> current
+
+        in
+          { state | boxes <- List.map
+                (updateBoxInState (Box.SetSelected 0)
+                <| Debug.log "next selection" next
+                <| sortLeftToRight state.boxes)
+                <| deselectBoxes state.boxes }
+
+      SelectPreviousBox ->
+
+        let selections  = List.filter Box.isSelected <| sortRightToLeft state.boxes
+            next boxes =
+              case Debug.log "selections" selections of
+                [] -> List.head <| Debug.log "all sorted" boxes
+                current :: remaining ->
+                    let rightBoxes =
+                      List.filter (\box -> box.position `leftOf` current.position) boxes
+                    in
+                       case rightBoxes of
+                         [] -> List.head boxes
+                         current :: remaining -> current
+
+        in
+          { state | boxes <- List.map
+                (updateBoxInState (Box.SetSelected 0)
+                <| Debug.log "next selection" next
+                <| sortRightToLeft state.boxes)
+                <| deselectBoxes state.boxes }
+
       EditingBox boxKey toggle ->
         let box = boxForKey boxKey state.boxes
             box' = Box.step (Box.Editing toggle) box

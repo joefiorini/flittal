@@ -46,6 +46,8 @@ main = (\s r (w,h) -> toElement w h  <| container s r h)
 globalKeyboardShortcuts : String -> Update
 globalKeyboardShortcuts keyCommand =
   case Debug.log "keyCommand" keyCommand of
+    "tab"       -> BoardUpdate Board.SelectNextBox
+    "shift+tab" -> BoardUpdate Board.SelectPreviousBox
     "a"     -> BoardUpdate Board.NewBox
     "c"     -> BoardUpdate Board.ConnectSelections
     "d"     -> BoardUpdate Board.DeleteSelections

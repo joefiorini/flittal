@@ -337,16 +337,19 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var sortLeftToRight = function (boxes) {
       return $List.sortBy(function ($) {
-         return $Basics.snd(function (_) {
+         return $Basics.fst(function (_) {
             return _.position;
          }($));
       })(A2($List.sortBy,
       function ($) {
-         return $Basics.fst(function (_) {
+         return $Basics.snd(function (_) {
             return _.position;
          }($));
       },
       boxes));
+   };
+   var sortRightToLeft = function ($) {
+      return $List.reverse(sortLeftToRight($));
    };
    var containsEither = F2(function (obj1,
    obj2) {
@@ -417,6 +420,8 @@ Elm.Board.Controller.make = function (_elm) {
       return {ctor: "DraggingBox"
              ,_0: a};
    };
+   var SelectPreviousBox = {ctor: "SelectPreviousBox"};
+   var SelectNextBox = {ctor: "SelectNextBox"};
    var DeleteSelections = {ctor: "DeleteSelections"};
    var ReconnectSelections = {ctor: "ReconnectSelections"};
    var step = F2(function (update,
@@ -698,6 +703,88 @@ Elm.Board.Controller.make = function (_elm) {
                                 ,updateBoxes(state.boxes)]],
                     state));
                  }();
+               case "SelectNextBox":
+               return function () {
+                    var selections = $List.filter($Box$Controller.isSelected)(sortLeftToRight(state.boxes));
+                    var next = function (boxes) {
+                       return function () {
+                          var _v26 = A2($Debug.log,
+                          "selections",
+                          selections);
+                          switch (_v26.ctor)
+                          {case "::": return function () {
+                                  var rightBoxes = A2($List.filter,
+                                  function (box) {
+                                     return A2($Connection$Controller.leftOf,
+                                     _v26._0.position,
+                                     box.position);
+                                  },
+                                  boxes);
+                                  return function () {
+                                     switch (rightBoxes.ctor)
+                                     {case "::":
+                                        return rightBoxes._0;
+                                        case "[]":
+                                        return $List.head(boxes);}
+                                     _U.badCase($moduleName,
+                                     "between lines 233 and 237");
+                                  }();
+                               }();
+                             case "[]":
+                             return $List.head(A2($Debug.log,
+                               "all sorted",
+                               boxes));}
+                          _U.badCase($moduleName,
+                          "between lines 227 and 237");
+                       }();
+                    };
+                    return _U.replace([["boxes"
+                                       ,$List.map(updateBoxInState($Box$Controller.SetSelected(0))(A2($Debug.log,
+                                       "next selection",
+                                       next)(sortLeftToRight(state.boxes))))(deselectBoxes(state.boxes))]],
+                    state);
+                 }();
+               case "SelectPreviousBox":
+               return function () {
+                    var selections = $List.filter($Box$Controller.isSelected)(sortRightToLeft(state.boxes));
+                    var next = function (boxes) {
+                       return function () {
+                          var _v32 = A2($Debug.log,
+                          "selections",
+                          selections);
+                          switch (_v32.ctor)
+                          {case "::": return function () {
+                                  var rightBoxes = A2($List.filter,
+                                  function (box) {
+                                     return A2($Connection$Controller.leftOf,
+                                     box.position,
+                                     _v32._0.position);
+                                  },
+                                  boxes);
+                                  return function () {
+                                     switch (rightBoxes.ctor)
+                                     {case "::":
+                                        return rightBoxes._0;
+                                        case "[]":
+                                        return $List.head(boxes);}
+                                     _U.badCase($moduleName,
+                                     "between lines 254 and 258");
+                                  }();
+                               }();
+                             case "[]":
+                             return $List.head(A2($Debug.log,
+                               "all sorted",
+                               boxes));}
+                          _U.badCase($moduleName,
+                          "between lines 248 and 258");
+                       }();
+                    };
+                    return _U.replace([["boxes"
+                                       ,$List.map(updateBoxInState($Box$Controller.SetSelected(0))(A2($Debug.log,
+                                       "next selection",
+                                       next)(sortRightToLeft(state.boxes))))(deselectBoxes(state.boxes))]],
+                    state);
+                 }();
                case "UpdateBoxColor":
                return _U.replace([["boxes"
                                   ,A2($List.map,
@@ -744,7 +831,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.metaKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 89 and 93");
+            "between lines 92 and 96");
          }();
       }();
    };
@@ -793,7 +880,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 97 and 100");
+            "between lines 100 and 103");
          }();
       }();
    };
@@ -831,17 +918,17 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var actions = $Signal.channel(NoOp);
    var checkFocus = function () {
-      var toSelector = function (_v32) {
+      var toSelector = function (_v44) {
          return function () {
-            switch (_v32.ctor)
+            switch (_v44.ctor)
             {case "EditingBox":
                return A2($Basics._op["++"],
                  "#box-",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v32._0),
+                 $Basics.toString(_v44._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 120, column 41 to 75");
+            "on line 123, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -870,7 +957,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 126 and 130");
+            "between lines 129 and 133");
          }();
       }();
    };
@@ -890,6 +977,8 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,ConnectSelections: ConnectSelections
                                   ,ReconnectSelections: ReconnectSelections
                                   ,DeleteSelections: DeleteSelections
+                                  ,SelectNextBox: SelectNextBox
+                                  ,SelectPreviousBox: SelectPreviousBox
                                   ,DraggingBox: DraggingBox
                                   ,UpdateBoxColor: UpdateBoxColor
                                   ,ResizeBox: ResizeBox
@@ -910,6 +999,7 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,updateStateSelections: updateStateSelections
                                   ,contains: contains
                                   ,containsEither: containsEither
+                                  ,sortRightToLeft: sortRightToLeft
                                   ,sortLeftToRight: sortLeftToRight
                                   ,boxForKey: boxForKey
                                   ,makeBox: makeBox
@@ -1537,7 +1627,7 @@ Elm.Box.Model.make = function (_elm) {
       boxes);
    });
    var isSelected = function (box) {
-      return _U.eq(box.selectedIndex,
+      return !_U.eq(box.selectedIndex,
       -1);
    };
    var apply = F2(function (func,
@@ -6931,12 +7021,12 @@ Elm.Main.make = function (_elm) {
                                       state.currentBoard,
                                       screenHeight - 36);}
                                  _U.badCase($moduleName,
-                                 "between lines 192 and 197");
+                                 "between lines 194 and 199");
                               }()]))
                               ,$Partials$Footer.view]));
               }();}
          _U.badCase($moduleName,
-         "between lines 186 and 199");
+         "between lines 188 and 201");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -6951,7 +7041,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 110 and 112");
+         "between lines 112 and 114");
       }();
    };
    var encodeAppState = function (state) {
@@ -6966,7 +7056,7 @@ Elm.Main.make = function (_elm) {
             {case "About": return "/about";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 91 and 94");
+            "between lines 93 and 96");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7074,7 +7164,11 @@ Elm.Main.make = function (_elm) {
             case "shift+l":
             return BoardUpdate(A2($Board$Controller.MoveBox,
               $Box$Controller.Push,
-              $Box$Controller.Right));}
+              $Box$Controller.Right));
+            case "shift+tab":
+            return BoardUpdate($Board$Controller.SelectPreviousBox);
+            case "tab":
+            return BoardUpdate($Board$Controller.SelectNextBox);}
          return NoOp;
       }();
    };

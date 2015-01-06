@@ -38,6 +38,17 @@
         };
       }
 
+      Mousetrap.bind("tab", function(e) {
+          console.log("tabkey pressed");
+      });
+
+      document.onkeydown = function(e) {
+        if (e.keyCode == 9) {
+          console.log("tab caught in onkeydown");
+          e.preventDefault();
+        }
+      };
+
       function adapt(state) {
         var adapters = [StyleWithColor()];
         return adapters.reduce(function(updated, adapter) {
