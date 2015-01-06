@@ -11,6 +11,7 @@ import Html.Events (on)
 import Html.Attributes (id, style, property)
 
 import Board.Model
+import Style.Color (Color(..))
 
 import Box.Controller as Box
 
@@ -50,6 +51,7 @@ type Update = NoOp |
   ReconnectSelections |
   DeleteSelections |
   DraggingBox Box.BoxKey |
+  UpdateBoxColor Color |
   Drop DragEvent
 
 view channel model height =
@@ -149,6 +151,8 @@ boxForKey key boxes = List.head (List.filter (\b -> b.key == key) boxes)
 
 makeBox : Box.BoxKey -> Box.Model
 makeBox identifier =
+  let style = { color = White }
+  in
   { position = (0,0)
   , size = (100, 50)
   , label = "New Box"
@@ -158,6 +162,7 @@ makeBox identifier =
   , isDragging = False
   , selectedIndex = 1
   , borderSize = 2
+  , style = style
   }
 
 replaceBox : List Box.Model -> Box.Model -> List Box.Model
@@ -258,5 +263,7 @@ step update state =
                         (isSelected c.startBox) &&
                         (isSelected c.endBox))
                       state.connections }
+      UpdateBoxColor color ->
+          { state | boxes <- List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }
       _ -> state
       NoOp -> Debug.log "NoOp" state

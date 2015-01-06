@@ -1,7 +1,7 @@
 module Box.Controller where
 
 import DomUtils
-import DomUtils (DragEvent, stopPropagation, styleProperty)
+import DomUtils (DragEvent, stopPropagation, styleProperty, class')
 import Geometry.Types (toPxPoint)
 
 import Html (..)
@@ -22,6 +22,8 @@ import LocalChannel as LC
 import Json.Decode ((:=))
 import Json.Decode as Json
 
+import Style.Color (..)
+
 type alias Model = Model.Model
 type alias BoxKey = Model.BoxKey
 
@@ -34,6 +36,7 @@ type Update = Move DragEvent
             | SetSelected Int
             | Dragging
             | UpdateBox Model String
+            | UpdateColor Color
             | NoOp
             | Update String
 
@@ -46,7 +49,7 @@ view channel box =
     [ styleProperty "position" "absolute"
     , styleProperty "width" (fst <| toPxPoint box.size)
     , styleProperty "height" (snd <| toPxPoint box.size)
-    , if box.selectedIndex > -1 && not box.isDragging then styleProperty "border" "dashed 2px green" else styleProperty "border" "solid 2px black"
+    , if box.selectedIndex > -1 && not box.isDragging then styleProperty "border" "dashed 2px" else styleProperty "border" "solid 2px"
     , styleProperty "left" (fst <| toPxPoint box.position)
     , styleProperty "top" (snd <| toPxPoint box.position)
     , styleProperty "text-align" "center"
@@ -56,10 +59,28 @@ view channel box =
     , boolProperty "draggable" True
     , id <| "box-" ++ (toString box.key)
     , on "input" targetValue (\v -> LC.send channel (UpdateBox box v))
-    , class "box"
+    , class' <| boxClasses box
     , onKeyDown channel box
   ]
   [ if box.isEditing then labelField channel box box.label else text box.label ]
+
+boxClassForColor color =
+  case color of
+    Dark1 -> "box--dark1"
+    Dark2 -> "box--dark2"
+    Dark3 -> "box--dark3"
+    Dark4 -> "box--dark4"
+    Light1 -> "box--light1"
+    Light2 -> "box--light2"
+    Light3 -> "box--light3"
+    Light4 -> "box--light4"
+    Black -> "box--black"
+    White -> "box--white"
+
+boxClasses box =
+  [ "box"
+  , boxClassForColor box.style.color
+  ]
 
 entersEditMode update =
   case update of
@@ -132,4 +153,9 @@ step update box = case update of
     { box | label <- Debug.log "got new label" newLabel }
   Dragging ->
     { box | isDragging <- if box.isDragging then False else True }
+  UpdateColor color ->
+    let style = box.style
+        style' = { style | color <- color }
+    in
+       Debug.log "updated color" { box | style <- style' }
   NoOp -> box

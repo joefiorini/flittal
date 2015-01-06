@@ -21,6 +21,7 @@ import Signal (Signal, (<~), (~))
 import Keyboard
 import Window
 import Debug
+import Style.Color (Color(..))
 
 port drop : Signal DragEvent
 port dragstart : Signal DragEvent
@@ -47,6 +48,16 @@ globalKeyboardShortcuts keyCommand =
     "a"     -> BoardUpdate Board.NewBox
     "c"     -> BoardUpdate Board.ConnectSelections
     "d"     -> BoardUpdate Board.DeleteSelections
+    "1"     -> BoardUpdate <| Board.UpdateBoxColor Dark1
+    "2"     -> BoardUpdate <| Board.UpdateBoxColor Dark2
+    "3"     -> BoardUpdate <| Board.UpdateBoxColor Dark3
+    "4"     -> BoardUpdate <| Board.UpdateBoxColor Dark4
+    "5"     -> BoardUpdate <| Board.UpdateBoxColor Light1
+    "6"     -> BoardUpdate <| Board.UpdateBoxColor Light2
+    "7"     -> BoardUpdate <| Board.UpdateBoxColor Light3
+    "8"     -> BoardUpdate <| Board.UpdateBoxColor Light4
+    "9"     -> BoardUpdate <| Board.UpdateBoxColor Black
+    "0"     -> BoardUpdate <| Board.UpdateBoxColor White
     "enter" -> BoardUpdate (Board.EditingSelectedBox True)
     _       -> NoOp
 

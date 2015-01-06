@@ -10,6 +10,8 @@ import Result
 import Result (andThen)
 import List
 
+import Style
+
 type alias BoxKey = Int
 
 type alias Model = Geometric
@@ -20,9 +22,10 @@ type alias Model = Geometric
   , isDragging: Bool
   , selectedIndex: Int
   , borderSize: Int
+  , style: Style.Model
   }
 
-mkBox position size label originalLabel key isEditing isDragging selectedIndex borderSize =
+mkBox position size label originalLabel key isEditing isDragging selectedIndex borderSize style =
   { position = position
   , size = size
   , label = label
@@ -32,6 +35,7 @@ mkBox position size label originalLabel key isEditing isDragging selectedIndex b
   , isDragging = isDragging
   , selectedIndex = selectedIndex
   , borderSize = borderSize
+  , style = style
   }
 
 encode : Model -> Encode.Value
@@ -46,6 +50,7 @@ encode box =
     , ("isDragging", Encode.bool box.isDragging)
     , ("selectedIndex", Encode.int box.selectedIndex)
     , ("borderSize", Encode.int box.borderSize)
+    , ("style", Style.encode box.style)
     ]
 
 
@@ -76,6 +81,8 @@ decode =
     (extract "selectedIndex" Decode.int)
     `apply`
     (extract "borderSize" Decode.int)
+    `apply`
+    ("style" := Style.decode)
 
 isSelected : Model -> Bool
 isSelected box =

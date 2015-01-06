@@ -1,7 +1,7 @@
 module DomUtils where
 
 import Html (..)
-import Html.Attributes (href)
+import Html.Attributes (href, class)
 import Html.Events (onClick)
 import Native.Custom.Html
 
@@ -11,7 +11,7 @@ import Json.Decode as Json
 import Json.Decode (string, Decoder, at, (:=), object5, bool)
 import List (head, reverse)
 
-import String (split, toInt)
+import String (split, toInt, join)
 
 type alias DragEvent =
   { id: String
@@ -65,3 +65,7 @@ linkTo title url handle =
     , onClick handle
     ]
     [ text title ]
+
+class' : List String -> Attribute
+class' names =
+  class <| join " " names

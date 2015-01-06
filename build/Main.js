@@ -296,7 +296,8 @@ Elm.Board.Controller.make = function (_elm) {
    $List = Elm.List.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $Style$Color = Elm.Style.Color.make(_elm);
    var replaceBox = F2(function (boxes,
    withBox) {
       return A2($List.map,
@@ -307,20 +308,25 @@ Elm.Board.Controller.make = function (_elm) {
       boxes);
    });
    var makeBox = function (identifier) {
-      return {_: {}
-             ,borderSize: 2
-             ,isDragging: false
-             ,isEditing: false
-             ,key: identifier
-             ,label: "New Box"
-             ,originalLabel: "New Box"
-             ,position: {ctor: "_Tuple2"
-                        ,_0: 0
-                        ,_1: 0}
-             ,selectedIndex: 1
-             ,size: {ctor: "_Tuple2"
-                    ,_0: 100
-                    ,_1: 50}};
+      return function () {
+         var style = {_: {}
+                     ,color: $Style$Color.White};
+         return {_: {}
+                ,borderSize: 2
+                ,isDragging: false
+                ,isEditing: false
+                ,key: identifier
+                ,label: "New Box"
+                ,originalLabel: "New Box"
+                ,position: {ctor: "_Tuple2"
+                           ,_0: 0
+                           ,_1: 0}
+                ,selectedIndex: 1
+                ,size: {ctor: "_Tuple2"
+                       ,_0: 100
+                       ,_1: 50}
+                ,style: style};
+      }();
    };
    var boxForKey = F2(function (key,
    boxes) {
@@ -397,6 +403,10 @@ Elm.Board.Controller.make = function (_elm) {
    };
    var Drop = function (a) {
       return {ctor: "Drop",_0: a};
+   };
+   var UpdateBoxColor = function (a) {
+      return {ctor: "UpdateBoxColor"
+             ,_0: a};
    };
    var DraggingBox = function (a) {
       return {ctor: "DraggingBox"
@@ -662,7 +672,13 @@ Elm.Board.Controller.make = function (_elm) {
                     _U.replace([["boxes"
                                 ,updateBoxes(state.boxes)]],
                     state));
-                 }();}
+                 }();
+               case "UpdateBoxColor":
+               return _U.replace([["boxes"
+                                  ,A2($List.map,
+                                  updateSelectedBoxes($Box$Controller.UpdateColor(_v7._0)),
+                                  state.boxes)]],
+                 state);}
             return state;
          }();
       }();
@@ -703,7 +719,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.metaKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 86 and 90");
+            "between lines 88 and 92");
          }();
       }();
    };
@@ -752,7 +768,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 94 and 97");
+            "between lines 96 and 99");
          }();
       }();
    };
@@ -790,17 +806,17 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var actions = $Signal.channel(NoOp);
    var checkFocus = function () {
-      var toSelector = function (_v28) {
+      var toSelector = function (_v29) {
          return function () {
-            switch (_v28.ctor)
+            switch (_v29.ctor)
             {case "EditingBox":
                return A2($Basics._op["++"],
                  "#box-",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v28._0),
+                 $Basics.toString(_v29._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 117, column 41 to 75");
+            "on line 119, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -829,7 +845,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 123 and 127");
+            "between lines 125 and 129");
          }();
       }();
    };
@@ -850,6 +866,7 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,ReconnectSelections: ReconnectSelections
                                   ,DeleteSelections: DeleteSelections
                                   ,DraggingBox: DraggingBox
+                                  ,UpdateBoxColor: UpdateBoxColor
                                   ,Drop: Drop
                                   ,view: view
                                   ,entersEditMode: entersEditMode
@@ -960,7 +977,8 @@ Elm.Box.Controller.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
-   $LocalChannel = Elm.LocalChannel.make(_elm);
+   $LocalChannel = Elm.LocalChannel.make(_elm),
+   $Style$Color = Elm.Style.Color.make(_elm);
    var labelSelector = function (box) {
       return A2($Basics._op["++"],
       "#box-",
@@ -1021,9 +1039,20 @@ Elm.Box.Controller.make = function (_elm) {
                                ,A2($Debug.log,
                                "got new label",
                                update._0)]],
-              box);}
+              box);
+            case "UpdateColor":
+            return function () {
+                 var style = box.style;
+                 var style$ = _U.replace([["color"
+                                          ,update._0]],
+                 style);
+                 return A2($Debug.log,
+                 "updated color",
+                 _U.replace([["style",style$]],
+                 box));
+              }();}
          _U.badCase($moduleName,
-         "between lines 120 and 135");
+         "between lines 141 and 161");
       }();
    });
    var keyCodeAndValue = A3($Json$Decode.object2,
@@ -1051,6 +1080,37 @@ Elm.Box.Controller.make = function (_elm) {
             return update._1;}
          return false;
       }();
+   };
+   var boxClassForColor = function (color) {
+      return function () {
+         switch (color.ctor)
+         {case "Black":
+            return "box--black";
+            case "Dark1":
+            return "box--dark1";
+            case "Dark2":
+            return "box--dark2";
+            case "Dark3":
+            return "box--dark3";
+            case "Dark4":
+            return "box--dark4";
+            case "Light1":
+            return "box--light1";
+            case "Light2":
+            return "box--light2";
+            case "Light3":
+            return "box--light3";
+            case "Light4":
+            return "box--light4";
+            case "White":
+            return "box--white";}
+         _U.badCase($moduleName,
+         "between lines 68 and 78");
+      }();
+   };
+   var boxClasses = function (box) {
+      return _L.fromArray(["box"
+                          ,boxClassForColor(box.style.color)]);
    };
    var isSelected = $Box$Model.isSelected;
    var filterKey = $Box$Model.filterKey;
@@ -1083,6 +1143,10 @@ Elm.Box.Controller.make = function (_elm) {
          _L.fromArray([]));
       }();
    });
+   var UpdateColor = function (a) {
+      return {ctor: "UpdateColor"
+             ,_0: a};
+   };
    var UpdateBox = F2(function (a,
    b) {
       return {ctor: "UpdateBox"
@@ -1100,16 +1164,16 @@ Elm.Box.Controller.make = function (_elm) {
              ,_0: a};
    };
    var extractLabelUpdate = F2(function (box,
-   _v11) {
+   _v13) {
       return function () {
-         switch (_v11.ctor)
+         switch (_v13.ctor)
          {case "_Tuple2":
-            return _U.eq(_v11._0,
+            return _U.eq(_v13._0,
               13) ? CancelEditingBox(box) : $Debug.log("UpdateBox")(A2(UpdateBox,
               box,
-              _v11._1));}
+              _v13._1));}
          _U.badCase($moduleName,
-         "between lines 91 and 94");
+         "between lines 112 and 115");
       }();
    });
    var EditingBox = F2(function (a,
@@ -1155,9 +1219,9 @@ Elm.Box.Controller.make = function (_elm) {
                                                         ,_U.cmp(box.selectedIndex,
                                                         -1) > 0 && $Basics.not(box.isDragging) ? A2($DomUtils.styleProperty,
                                                         "border",
-                                                        "dashed 2px green") : A2($DomUtils.styleProperty,
+                                                        "dashed 2px") : A2($DomUtils.styleProperty,
                                                         "border",
-                                                        "solid 2px black")
+                                                        "solid 2px")
                                                         ,A2($DomUtils.styleProperty,
                                                         "left",
                                                         $Basics.fst($Geometry$Types.toPxPoint(box.position)))
@@ -1187,7 +1251,7 @@ Elm.Box.Controller.make = function (_elm) {
                       channel,
                       A2(UpdateBox,box,v));
                    })
-                   ,$Html$Attributes.$class("box")
+                   ,$DomUtils.class$(boxClasses(box))
                    ,A2(onKeyDown,channel,box)]),
       _L.fromArray([box.isEditing ? A3(labelField,
       channel,
@@ -1210,11 +1274,14 @@ Elm.Box.Controller.make = function (_elm) {
                                 ,SetSelected: SetSelected
                                 ,Dragging: Dragging
                                 ,UpdateBox: UpdateBox
+                                ,UpdateColor: UpdateColor
                                 ,NoOp: NoOp
                                 ,Update: Update
                                 ,filterKey: filterKey
                                 ,isSelected: isSelected
                                 ,view: view
+                                ,boxClassForColor: boxClassForColor
+                                ,boxClasses: boxClasses
                                 ,entersEditMode: entersEditMode
                                 ,encode: encode
                                 ,onKeyDown: onKeyDown
@@ -1245,7 +1312,8 @@ Elm.Box.Model.make = function (_elm) {
    $Json$Decode = Elm.Json.Decode.make(_elm),
    $Json$Encode = Elm.Json.Encode.make(_elm),
    $Json$Ext = Elm.Json.Ext.make(_elm),
-   $List = Elm.List.make(_elm);
+   $List = Elm.List.make(_elm),
+   $Style = Elm.Style.make(_elm);
    var filterKey = F3(function (pred,
    key,
    boxes) {
@@ -1296,28 +1364,42 @@ Elm.Box.Model.make = function (_elm) {
                                                ,_1: $Json$Encode.$int(box.selectedIndex)}
                                               ,{ctor: "_Tuple2"
                                                ,_0: "borderSize"
-                                               ,_1: $Json$Encode.$int(box.borderSize)}]));
+                                               ,_1: $Json$Encode.$int(box.borderSize)}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: "style"
+                                               ,_1: $Style.encode(box.style)}]));
    };
-   var mkBox = F9(function (position,
-   size,
-   label,
-   originalLabel,
-   key,
-   isEditing,
-   isDragging,
-   selectedIndex,
-   borderSize) {
-      return {_: {}
-             ,borderSize: borderSize
-             ,isDragging: isDragging
-             ,isEditing: isEditing
-             ,key: key
-             ,label: label
-             ,originalLabel: originalLabel
-             ,position: position
-             ,selectedIndex: selectedIndex
-             ,size: size};
-   });
+   var mkBox = function (position) {
+      return function (size) {
+         return function (label) {
+            return function (originalLabel) {
+               return function (key) {
+                  return function (isEditing) {
+                     return function (isDragging) {
+                        return function (selectedIndex) {
+                           return function (borderSize) {
+                              return function (style) {
+                                 return {_: {}
+                                        ,borderSize: borderSize
+                                        ,isDragging: isDragging
+                                        ,isEditing: isEditing
+                                        ,key: key
+                                        ,label: label
+                                        ,originalLabel: originalLabel
+                                        ,position: position
+                                        ,selectedIndex: selectedIndex
+                                        ,size: size
+                                        ,style: style};
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
    var decode = function () {
       var extract = F2(function (property,
       decoder) {
@@ -1332,6 +1414,7 @@ Elm.Box.Model.make = function (_elm) {
          decoder));
       });
       return A2(apply,
+      A2(apply,
       A2(apply,
       A2(apply,
       A2(apply,
@@ -1367,7 +1450,10 @@ Elm.Box.Model.make = function (_elm) {
       $Json$Decode.$int)),
       A2(extract,
       "borderSize",
-      $Json$Decode.$int));
+      $Json$Decode.$int)),
+      A2($Json$Decode._op[":="],
+      "style",
+      $Style.decode));
    }();
    _elm.Box.Model.values = {_op: _op
                            ,mkBox: mkBox
@@ -4016,6 +4102,11 @@ Elm.DomUtils.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $String = Elm.String.make(_elm);
+   var class$ = function (names) {
+      return $Html$Attributes.$class(A2($String.join,
+      " ",
+      names));
+   };
    var linkTo = F3(function (title,
    url,
    handle) {
@@ -4100,7 +4191,8 @@ Elm.DomUtils.make = function (_elm) {
                           ,setFocus: setFocus
                           ,on: on
                           ,extractBoxId: extractBoxId
-                          ,linkTo: linkTo};
+                          ,linkTo: linkTo
+                          ,class$: class$};
    return _elm.DomUtils.values;
 };
 Elm.Geometry = Elm.Geometry || {};
@@ -6568,6 +6660,7 @@ Elm.Main.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Routes = Elm.Routes.make(_elm),
    $Signal = Elm.Signal.make(_elm),
+   $Style$Color = Elm.Style.Color.make(_elm),
    $Window = Elm.Window.make(_elm);
    var step = F2(function (update,
    state) {
@@ -6645,12 +6738,12 @@ Elm.Main.make = function (_elm) {
                                       state.currentBoard,
                                       screenHeight - 36);}
                                  _U.badCase($moduleName,
-                                 "between lines 162 and 167");
+                                 "between lines 173 and 178");
                               }()]))
                               ,$Partials$Footer.view]));
               }();}
          _U.badCase($moduleName,
-         "between lines 156 and 169");
+         "between lines 167 and 180");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -6665,7 +6758,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 80 and 82");
+         "between lines 91 and 93");
       }();
    };
    var encodeAppState = function (state) {
@@ -6680,7 +6773,7 @@ Elm.Main.make = function (_elm) {
             {case "About": return "/about";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 61 and 64");
+            "between lines 72 and 75");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -6698,7 +6791,27 @@ Elm.Main.make = function (_elm) {
    var globalKeyboardShortcuts = function (keyCommand) {
       return function () {
          switch (keyCommand)
-         {case "a":
+         {case "0":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.White));
+            case "1":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark1));
+            case "2":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark2));
+            case "3":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark3));
+            case "4":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Dark4));
+            case "5":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light1));
+            case "6":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light2));
+            case "7":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light3));
+            case "8":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Light4));
+            case "9":
+            return BoardUpdate($Board$Controller.UpdateBoxColor($Style$Color.Black));
+            case "a":
             return BoardUpdate($Board$Controller.NewBox);
             case "c":
             return BoardUpdate($Board$Controller.ConnectSelections);
@@ -6840,7 +6953,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v15._1));}
          _U.badCase($moduleName,
-         "on line 39, column 23 to 56");
+         "on line 40, column 23 to 56");
       }();
    }),
    state),
@@ -15544,6 +15657,132 @@ Elm.String.make = function (_elm) {
                         ,toList: toList
                         ,fromList: fromList};
    return _elm.String.values;
+};
+Elm.Style = Elm.Style || {};
+Elm.Style.make = function (_elm) {
+   "use strict";
+   _elm.Style = _elm.Style || {};
+   if (_elm.Style.values)
+   return _elm.Style.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Style",
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
+   $Style$Color = Elm.Style.Color.make(_elm);
+   var encode = function (style) {
+      return $Json$Encode.object(_L.fromArray([{ctor: "_Tuple2"
+                                               ,_0: "color"
+                                               ,_1: $Style$Color.encode(style.color)}]));
+   };
+   var Model = function (a) {
+      return {_: {},color: a};
+   };
+   var decode = A2($Json$Decode.object1,
+   Model,
+   A2($Json$Decode._op[":="],
+   "color",
+   $Style$Color.decode));
+   _elm.Style.values = {_op: _op
+                       ,Model: Model
+                       ,decode: decode
+                       ,encode: encode};
+   return _elm.Style.values;
+};
+Elm.Style = Elm.Style || {};
+Elm.Style.Color = Elm.Style.Color || {};
+Elm.Style.Color.make = function (_elm) {
+   "use strict";
+   _elm.Style = _elm.Style || {};
+   _elm.Style.Color = _elm.Style.Color || {};
+   if (_elm.Style.Color.values)
+   return _elm.Style.Color.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Style.Color",
+   $Basics = Elm.Basics.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $Json$Encode = Elm.Json.Encode.make(_elm),
+   $Result = Elm.Result.make(_elm);
+   var encode = function (color) {
+      return $Json$Encode.string(function () {
+         switch (color.ctor)
+         {case "Black": return "black";
+            case "Dark1": return "dark1";
+            case "Dark2": return "dark2";
+            case "Dark3": return "dark3";
+            case "Dark4": return "dark4";
+            case "Light1": return "light1";
+            case "Light2": return "light2";
+            case "Light3": return "light3";
+            case "Light4": return "light4";
+            case "White": return "white";}
+         _U.badCase($moduleName,
+         "between lines 21 and 31");
+      }());
+   };
+   var White = {ctor: "White"};
+   var Black = {ctor: "Black"};
+   var Light4 = {ctor: "Light4"};
+   var Light3 = {ctor: "Light3"};
+   var Light2 = {ctor: "Light2"};
+   var Light1 = {ctor: "Light1"};
+   var Dark4 = {ctor: "Dark4"};
+   var Dark3 = {ctor: "Dark3"};
+   var Dark2 = {ctor: "Dark2"};
+   var Dark1 = {ctor: "Dark1"};
+   var decode = A2($Json$Decode.customDecoder,
+   $Json$Decode.string,
+   function (color) {
+      return function () {
+         switch (color)
+         {case "black":
+            return $Result.Ok(Black);
+            case "dark1":
+            return $Result.Ok(Dark1);
+            case "dark2":
+            return $Result.Ok(Dark2);
+            case "dark3":
+            return $Result.Ok(Dark3);
+            case "dark4":
+            return $Result.Ok(Dark4);
+            case "light1":
+            return $Result.Ok(Light1);
+            case "light2":
+            return $Result.Ok(Light2);
+            case "light3":
+            return $Result.Ok(Light3);
+            case "light4":
+            return $Result.Ok(Light4);
+            case "white":
+            return $Result.Ok(White);}
+         return $Result.Err(A2($Basics._op["++"],
+         "color value of \"",
+         A2($Basics._op["++"],
+         color,
+         "\" is invalid.")));
+      }();
+   });
+   _elm.Style.Color.values = {_op: _op
+                             ,Dark1: Dark1
+                             ,Dark2: Dark2
+                             ,Dark3: Dark3
+                             ,Dark4: Dark4
+                             ,Light1: Light1
+                             ,Light2: Light2
+                             ,Light3: Light3
+                             ,Light4: Light4
+                             ,Black: Black
+                             ,White: White
+                             ,encode: encode
+                             ,decode: decode};
+   return _elm.Style.Color.values;
 };
 Elm.Transform2D = Elm.Transform2D || {};
 Elm.Transform2D.make = function (_elm) {
