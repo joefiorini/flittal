@@ -21,11 +21,10 @@ type alias Model = Geometric
   , isEditing: Bool
   , isDragging: Bool
   , selectedIndex: Int
-  , borderSize: Int
   , style: Style.Model
   }
 
-mkBox position size label originalLabel key isEditing isDragging selectedIndex borderSize style =
+mkBox position size label originalLabel key isEditing isDragging selectedIndex style =
   { position = position
   , size = size
   , label = label
@@ -34,7 +33,6 @@ mkBox position size label originalLabel key isEditing isDragging selectedIndex b
   , isEditing = isEditing
   , isDragging = isDragging
   , selectedIndex = selectedIndex
-  , borderSize = borderSize
   , style = style
   }
 
@@ -49,7 +47,6 @@ encode box =
     , ("isEditing", Encode.bool box.isEditing)
     , ("isDragging", Encode.bool box.isDragging)
     , ("selectedIndex", Encode.int box.selectedIndex)
-    , ("borderSize", Encode.int box.borderSize)
     , ("style", Style.encode box.style)
     ]
 
@@ -79,8 +76,6 @@ decode =
     (extract "isDragging" Decode.bool)
     `apply`
     (extract "selectedIndex" Decode.int)
-    `apply`
-    (extract "borderSize" Decode.int)
     `apply`
     ("style" := Style.decode)
 

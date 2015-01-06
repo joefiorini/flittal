@@ -312,7 +312,6 @@ Elm.Board.Controller.make = function (_elm) {
          var style = {_: {}
                      ,color: $Style$Color.White};
          return {_: {}
-                ,borderSize: 2
                 ,isDragging: false
                 ,isEditing: false
                 ,key: identifier
@@ -1363,43 +1362,29 @@ Elm.Box.Model.make = function (_elm) {
                                                ,_0: "selectedIndex"
                                                ,_1: $Json$Encode.$int(box.selectedIndex)}
                                               ,{ctor: "_Tuple2"
-                                               ,_0: "borderSize"
-                                               ,_1: $Json$Encode.$int(box.borderSize)}
-                                              ,{ctor: "_Tuple2"
                                                ,_0: "style"
                                                ,_1: $Style.encode(box.style)}]));
    };
-   var mkBox = function (position) {
-      return function (size) {
-         return function (label) {
-            return function (originalLabel) {
-               return function (key) {
-                  return function (isEditing) {
-                     return function (isDragging) {
-                        return function (selectedIndex) {
-                           return function (borderSize) {
-                              return function (style) {
-                                 return {_: {}
-                                        ,borderSize: borderSize
-                                        ,isDragging: isDragging
-                                        ,isEditing: isEditing
-                                        ,key: key
-                                        ,label: label
-                                        ,originalLabel: originalLabel
-                                        ,position: position
-                                        ,selectedIndex: selectedIndex
-                                        ,size: size
-                                        ,style: style};
-                              };
-                           };
-                        };
-                     };
-                  };
-               };
-            };
-         };
-      };
-   };
+   var mkBox = F9(function (position,
+   size,
+   label,
+   originalLabel,
+   key,
+   isEditing,
+   isDragging,
+   selectedIndex,
+   style) {
+      return {_: {}
+             ,isDragging: isDragging
+             ,isEditing: isEditing
+             ,key: key
+             ,label: label
+             ,originalLabel: originalLabel
+             ,position: position
+             ,selectedIndex: selectedIndex
+             ,size: size
+             ,style: style};
+   });
    var decode = function () {
       var extract = F2(function (property,
       decoder) {
@@ -1414,7 +1399,6 @@ Elm.Box.Model.make = function (_elm) {
          decoder));
       });
       return A2(apply,
-      A2(apply,
       A2(apply,
       A2(apply,
       A2(apply,
@@ -1447,9 +1431,6 @@ Elm.Box.Model.make = function (_elm) {
       $Json$Decode.bool)),
       A2(extract,
       "selectedIndex",
-      $Json$Decode.$int)),
-      A2(extract,
-      "borderSize",
       $Json$Decode.$int)),
       A2($Json$Decode._op[":="],
       "style",
@@ -2028,9 +2009,8 @@ Elm.Connection.Controller.make = function (_elm) {
             var $ = _v0.position,
             x = $._0,
             y = $._1;
-            var offset = _v0.borderSize * 2;
             return $Connection$Model.Right({ctor: "_Tuple2"
-                                           ,_0: w + x + offset
+                                           ,_0: w + x
                                            ,_1: y + midPoint(h)});
          }();
       }();
@@ -2059,10 +2039,9 @@ Elm.Connection.Controller.make = function (_elm) {
             var $ = _v4.position,
             x = $._0,
             y = $._1;
-            var offset = _v4.borderSize * 2;
             return $Connection$Model.Bottom({ctor: "_Tuple2"
                                             ,_0: x + midPoint(w)
-                                            ,_1: y + h + offset});
+                                            ,_1: y + h});
          }();
       }();
    };
@@ -2378,10 +2357,10 @@ Elm.Connection.Controller.make = function (_elm) {
                                                          ,_0: _v35._0
                                                          ,_1: _v35._1}) ? _v34._1 - _v35._1 : _v35._1 - _v34._1)}};}
                           _U.badCase($moduleName,
-                          "between lines 241 and 243");
+                          "between lines 239 and 241");
                        }();}
                   _U.badCase($moduleName,
-                  "between lines 241 and 243");
+                  "between lines 239 and 241");
                }();
             });
             var horizontalSegment = F2(function (_v42,
@@ -2400,10 +2379,10 @@ Elm.Connection.Controller.make = function (_elm) {
                                                          ,_0: $Basics.abs(_v43._0 - _v42._0)
                                                          ,_1: lineSize}};}
                           _U.badCase($moduleName,
-                          "between lines 237 and 239");
+                          "between lines 235 and 237");
                        }();}
                   _U.badCase($moduleName,
-                  "between lines 237 and 239");
+                  "between lines 235 and 237");
                }();
             });
             return $Debug.log("drawing segments")(function () {
@@ -2552,7 +2531,7 @@ Elm.Connection.Controller.make = function (_elm) {
                                               ,_0: y1
                                               ,_1: y2};}
                                     _U.badCase($moduleName,
-                                    "between lines 251 and 254");
+                                    "between lines 249 and 252");
                                  }();
                                  return $Debug.log("StartEnd")(_U.eq(y1,
                                  y2) ? _L.fromArray([A2(horizontalSegment,
@@ -2701,7 +2680,7 @@ Elm.Connection.Controller.make = function (_elm) {
                         _v65._1)};
               }();}
          _U.badCase($moduleName,
-         "between lines 350 and 355");
+         "between lines 348 and 353");
       }();
    });
    var buildConnections = F2(function (connections,

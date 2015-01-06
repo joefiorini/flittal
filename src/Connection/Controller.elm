@@ -134,11 +134,10 @@ midPoint c =
      offset <| c // 2
 
 rightPort : Box -> PortLocation
-rightPort {position,size,borderSize} =
-  let offset = borderSize * 2
-      (x,y) = position
+rightPort {position,size} =
+  let (x,y) = position
       (w,h) = size in
-      Right (w + x + offset, y + midPoint h)
+      Right (w + x, y + midPoint h)
 
 
 leftPort : Box -> PortLocation
@@ -149,11 +148,10 @@ leftPort {position,size} =
 
 
 bottomPort : Box -> PortLocation
-bottomPort {position,size,borderSize} =
-  let offset = borderSize * 2
-      (x,y) = position
+bottomPort {position,size} =
+  let (x,y) = position
       (w,h) = size in
-      Bottom (x + midPoint w, y + h + offset)
+      Bottom (x + midPoint w, y + h)
 
 topPort : Box -> PortLocation
 topPort {position,size} =

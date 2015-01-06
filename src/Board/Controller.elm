@@ -161,7 +161,6 @@ makeBox identifier =
   , isEditing = False
   , isDragging = False
   , selectedIndex = 1
-  , borderSize = 2
   , style = style
   }
 
