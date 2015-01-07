@@ -56,7 +56,7 @@
         }, state);
       }
 
-      window.onpopstate = function(e) {
+      window.onload = function(e) {
         var currentUrl = window.location.href;
         var matches = currentUrl.match(/\/boards\/(.*)$/);
 
