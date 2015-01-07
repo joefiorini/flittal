@@ -1,111 +1,66 @@
 .box {
-&--dark1 {
-/* Rectangle 13: */
-background: #CC4242;
-border: 2px solid #240B0B;
-/* Dark Red: */
-font-family: Muli;
-font-size: 18px;
-color: #F4F4F4;
-line-height: 37px;
-}
 
-&--dark2 {
-/* Rectangle 16: */
-background: #6794CA;
-border: 2px solid #1A395E;
-/* Dark Blue: */
-font-family: Muli;
-font-size: 18px;
-color: #F4F4F4;
-line-height: 37px;
-}
+  font-family: Muli;
+  font-size: 18px;
+  line-height: 37px;
 
-&--dark3 {
-/* Rectangle 18: */
-background: #A39D5A;
-border: 2px solid #2C2B26;
-/* Dark Yellow: */
-font-family: Muli;
-font-size: 18px;
-color: #F4F4F4;
-line-height: 37px;
-}
+  &--light1, &--light2, &--light3, &--light4 {
+    color: #000000;
+  }
 
-&--dark4 {
-/* Rectangle 19: */
-background: #629133;
-border: 2px solid #1A3102;
-/* Dark Green: */
-font-family: Muli;
-font-size: 18px;
-color: #F4F4F4;
-line-height: 37px;
-}
+  &--dark1, &--dark2, &--dark3, &--dark4 {
+    color: #F4F4F4;
+  }
 
-&--light1 {
-/* Rectangle 14: */
-background: #F4E854;
-border: 2px solid #4F4B1C;
-/* Light Yellow: */
-font-family: Muli;
-font-size: 18px;
-color: #000000;
-line-height: 37px;
-}
+  &--dark1 {
+    background: #CC4242;
+    border: 2px solid #240B0B;
+  }
 
-&--light2 {
-  /* Rectangle 15: */
-background: #95C664;
-border: 2px solid #27341A;
-/* Light Green: */
-font-family: Muli;
-font-size: 18px;
-color: #000000;
-line-height: 37px;
-}
+  &--light1 {
+    background: #E5B2B2;
+    border: 2px solid #651F1F;
+  }
 
-&--light3 {
-/* Rectangle 17: */
-background: #E5B2B2;
-border: 2px solid #651F1F;
-/* Light Red: */
-font-family: Muli;
-font-size: 18px;
-color: #000000;
-line-height: 37px;
-}
 
-&--light4 {
-/* Rectangle 20: */
-background: #94C4FF;
-border: 2px solid #051528;
-/* Light Blue: */
-font-family: Muli;
-font-size: 18px;
-color: #000000;
-line-height: 37px;
-}
+  &--dark2 {
+    background: #6794CA;
+    border: 2px solid #1A395E;
+  }
 
-&--black {
-/* Rectangle 21: */
-background: #262525;
-border: 2px solid #000000;
-/* Black: */
-font-family: Muli;
-font-size: 18px;
-color: #F4F4F4;
-line-height: 37px;
-}
+  &--light2 {
+    background: #94C4FF;
+    border: 2px solid #051528;
+  }
 
-&--white {
-/* Rectangle 22: */
-background: #FFFFFF;
-border: 2px solid #353535;
-/* White: */
-font-family: Muli;
-font-size: 18px;
-color: #000000;
-line-height: 37px;
-}
+  &--dark3 {
+    background: #A39D5A;
+    border: 2px solid #2C2B26;
+  }
+
+  &--light3 {
+    background: #F4E854;
+    border: 2px solid #4F4B1C;
+  }
+
+  &--dark4 {
+    background: #629133;
+    border: 2px solid #1A3102;
+  }
+
+  &--light4 {
+    background: #95C664;
+    border: 2px solid #27341A;
+  }
+
+  &--black {
+    background: #262525;
+    border: 2px solid #000000;
+  }
+
+  &--white {
+    background: #FFFFFF;
+    border: 2px solid #353535;
+  }
+
 }
