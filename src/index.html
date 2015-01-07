@@ -132,6 +132,11 @@
       }
 
       setTimeout(function() {
+        var navBar = document.querySelector("nav.nav-bar");
+        navBar.classList.add("nav-bar--compressed");
+      }, 5000);
+
+      setTimeout(function() {
         var container = document.querySelector("main");
         container.addEventListener('dragstart', function(e) {
 

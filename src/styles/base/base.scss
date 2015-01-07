@@ -5,16 +5,7 @@ body {
 }
 
 header, .header {
-  height: 100px;
   vertical-align: middle;
-  &--compressed {
-    .header__nav-bar {
-      height: 55px;
-    }
-  }
-  &__nav-bar {
-    height: 100px;
-  }
 }
 
 footer {

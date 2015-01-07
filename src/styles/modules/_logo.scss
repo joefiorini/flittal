@@ -5,3 +5,11 @@
   background-repeat: no-repeat;
   width: 100%;
 }
+
+.nav-bar--compressed {
+  .logo {
+    background-image: url(/images/logo-small.svg);
+    background-size: 24px 28px;
+    background-repeat: no-repeat;
+  }
+}

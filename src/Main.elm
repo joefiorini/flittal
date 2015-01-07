@@ -11,6 +11,7 @@ import Mousetrap
 import LocalChannel as LC
 import Partials.Header as Header
 import Partials.Footer as Footer
+import Partials.Sidebar as Sidebar
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -188,16 +189,18 @@ step update state =
 container : AppState -> Routes.Route -> Int -> Html.Html
 container state (url,route) screenHeight =
   let headerChannel = LC.create identity routeChannel
+      sidebarChannel = LC.create identity routeChannel
       boardChannel = LC.create BoardUpdate updates
+      sidebar h = Sidebar.view h sidebarChannel
       board = Board.view boardChannel state.currentBoard (screenHeight - 36)
-      (sidebar,extraClass) =
+      (sidebar',extraClass) =
         case route of
           Routes.About ->
-            ( text "About Diagrammer" , "l-board--compressed" )
+            ( sidebar <| text "About Diagrammer", "l-board--compressed" )
           Routes.Colophon ->
-            ( text "What's in it", "l-board--compressed" )
+            ( sidebar <| text "What's in it", "l-board--compressed" )
           Routes.Help ->
-            ( text "Keyboard Shortcuts", "l-board--compressed" )
+            ( sidebar <| text "Keyboard Shortcuts", "l-board--compressed" )
           _ -> ( text "" , "")
 
   in
@@ -211,10 +214,7 @@ container state (url,route) screenHeight =
           [ board ]
         , section
             [class "l-content"]
-            [ aside
-              [ class "sidebar" ]
-              [ linkTo "x" "#" (Signal.send routeChannel Routes.Root)
-              , sidebar ]
+            [ sidebar'
             ]
         ]
       , section

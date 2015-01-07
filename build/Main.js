@@ -6930,6 +6930,7 @@ Elm.Main.make = function (_elm) {
    $Mousetrap = Elm.Mousetrap.make(_elm),
    $Partials$Footer = Elm.Partials.Footer.make(_elm),
    $Partials$Header = Elm.Partials.Header.make(_elm),
+   $Partials$Sidebar = Elm.Partials.Sidebar.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Routes = Elm.Routes.make(_elm),
    $Signal = Elm.Signal.make(_elm),
@@ -6990,26 +6991,6 @@ Elm.Main.make = function (_elm) {
          switch (_v5.ctor)
          {case "_Tuple2":
             return function () {
-                 var $ = function () {
-                    switch (_v5._1.ctor)
-                    {case "About":
-                       return {ctor: "_Tuple2"
-                              ,_0: $Html.text("About Diagrammer")
-                              ,_1: "l-board--compressed"};
-                       case "Colophon":
-                       return {ctor: "_Tuple2"
-                              ,_0: $Html.text("What\'s in it")
-                              ,_1: "l-board--compressed"};
-                       case "Help":
-                       return {ctor: "_Tuple2"
-                              ,_0: $Html.text("Keyboard Shortcuts")
-                              ,_1: "l-board--compressed"};}
-                    return {ctor: "_Tuple2"
-                           ,_0: $Html.text("")
-                           ,_1: ""};
-                 }(),
-                 sidebar = $._0,
-                 extraClass = $._1;
                  var boardChannel = A2($LocalChannel.create,
                  BoardUpdate,
                  updates);
@@ -7017,6 +6998,34 @@ Elm.Main.make = function (_elm) {
                  boardChannel,
                  state.currentBoard,
                  screenHeight - 36);
+                 var sidebarChannel = A2($LocalChannel.create,
+                 $Basics.identity,
+                 routeChannel);
+                 var sidebar = function (h) {
+                    return A2($Partials$Sidebar.view,
+                    h,
+                    sidebarChannel);
+                 };
+                 var $ = function () {
+                    switch (_v5._1.ctor)
+                    {case "About":
+                       return {ctor: "_Tuple2"
+                              ,_0: sidebar($Html.text("About Diagrammer"))
+                              ,_1: "l-board--compressed"};
+                       case "Colophon":
+                       return {ctor: "_Tuple2"
+                              ,_0: sidebar($Html.text("What\'s in it"))
+                              ,_1: "l-board--compressed"};
+                       case "Help":
+                       return {ctor: "_Tuple2"
+                              ,_0: sidebar($Html.text("Keyboard Shortcuts"))
+                              ,_1: "l-board--compressed"};}
+                    return {ctor: "_Tuple2"
+                           ,_0: $Html.text("")
+                           ,_1: ""};
+                 }(),
+                 sidebar$ = $._0,
+                 extraClass = $._1;
                  var headerChannel = A2($LocalChannel.create,
                  $Basics.identity,
                  routeChannel);
@@ -7031,21 +7040,13 @@ Elm.Main.make = function (_elm) {
                                            _L.fromArray([board]))
                                            ,A2($Html.section,
                                            _L.fromArray([$Html$Attributes.$class("l-content")]),
-                                           _L.fromArray([A2($Html.aside,
-                                           _L.fromArray([$Html$Attributes.$class("sidebar")]),
-                                           _L.fromArray([A3($DomUtils.linkTo,
-                                                        "x",
-                                                        "#",
-                                                        A2($Signal.send,
-                                                        routeChannel,
-                                                        $Routes.Root))
-                                                        ,sidebar]))]))]))
+                                           _L.fromArray([sidebar$]))]))
                               ,A2($Html.section,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 190 and 223");
+         "between lines 191 and 223");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7060,7 +7061,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 114 and 116");
+         "between lines 115 and 117");
       }();
    };
    var encodeAppState = function (state) {
@@ -7078,7 +7079,7 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 93 and 98");
+            "between lines 94 and 99");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7320,7 +7321,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v15._1));}
          _U.badCase($moduleName,
-         "on line 41, column 23 to 56");
+         "on line 42, column 23 to 56");
       }();
    }),
    state),
@@ -15719,6 +15720,41 @@ Elm.Partials.Header.make = function (_elm) {
                                  ,navLinks: navLinks
                                  ,view: view};
    return _elm.Partials.Header.values;
+};
+Elm.Partials = Elm.Partials || {};
+Elm.Partials.Sidebar = Elm.Partials.Sidebar || {};
+Elm.Partials.Sidebar.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.Sidebar = _elm.Partials.Sidebar || {};
+   if (_elm.Partials.Sidebar.values)
+   return _elm.Partials.Sidebar.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.Sidebar",
+   $DomUtils = Elm.DomUtils.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $LocalChannel = Elm.LocalChannel.make(_elm),
+   $Routes = Elm.Routes.make(_elm);
+   var view = F2(function (child,
+   channel) {
+      return A2($Html.aside,
+      _L.fromArray([$Html$Attributes.$class("sidebar")]),
+      _L.fromArray([A3($DomUtils.linkTo,
+                   "x",
+                   "#",
+                   A2($LocalChannel.send,
+                   channel,
+                   $Routes.Root))
+                   ,child]));
+   });
+   _elm.Partials.Sidebar.values = {_op: _op
+                                  ,view: view};
+   return _elm.Partials.Sidebar.values;
 };
 Elm.Result = Elm.Result || {};
 Elm.Result.make = function (_elm) {
