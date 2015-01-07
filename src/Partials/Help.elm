@@ -4,7 +4,7 @@ import Markdown
 
 view = Markdown.toHtml """
 
-# Keyboard Shortcuts
+# Keyboard Commands
 
 <dl class='cheatsheet'>
   <dt>
@@ -27,6 +27,20 @@ view = Markdown.toHtml """
   </dt>
   <dd>
     Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.
+  </dd>
+  <dt>
+    `?`
+    <h3>Keyboard Cheatsheet</h3>
+  </dt>
+  <dd>
+    Brings up a reference of all the keybaord commands provided by Flittal
+  </dd>
+  <dt>
+    `w`
+    <h3>Close sidebar</h3>
+  </dt>
+  <dd>
+    Anytime the sidebar is open, this will close it
   </dd>
   <dt>
     `h/j/k/l`
