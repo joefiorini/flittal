@@ -8,7 +8,7 @@ import Signal (Channel, (<~))
 
 import Html (..)
 import Html.Events (on)
-import Html.Attributes (id, style, property)
+import Html.Attributes (id, style, property, class)
 
 import Board.Model
 import Style.Color (Color(..))
@@ -60,12 +60,9 @@ type Update = NoOp |
 
 view channel model height =
   div [ style
-      [ styleProperty "position" "relative"
-      , styleProperty "width" "100%"
-      , styleProperty "height" <| Geometry.toPx height
-      , styleProperty "border" "solid thin blue"
-      , styleProperty "overflow" "hidden"
+      [ styleProperty "height" <| Geometry.toPx height
       ]
+      , class "board"
       , id "container"
       , on "dblclick" getTargetId (\v -> LC.send channel <| buildEditingAction v)
       , on "mousedown" getMouseSelectionEvent (\v -> LC.send channel <| buildSelectAction v)

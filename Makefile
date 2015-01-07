@@ -7,7 +7,7 @@ SCSS = $(SRC)/styles
 DIST = build
 VENDOR = vendor
 ELM_SRC = $(SRC)/**/*.elm
-SASSC_LOAD_PATH = bower_components/foundation/scss
+SASSC_LOAD_PATH = bower_components/normalize-scss:bower_components/bourbon/app/assets/stylesheets
 VENDOR_FILES = $(addprefix $(VENDOR)/,router.js route-recognizer.js rsvp.js)
 DIST_FILES = $(ELM_MAKE_OUTPUT) index.html $(CSS_OUTPUT)
 
@@ -16,11 +16,14 @@ DIST_FILES = $(ELM_MAKE_OUTPUT) index.html $(CSS_OUTPUT)
 $(DIST)/index.html: $(ELM_HTML_FILE)
 	cp $< $@
 
+$(DIST)/images: $(SRC)/images
+	cp -r $< $(DIST)
+
 $(DIST)/%.js: $(SRC)/%.elm $(ELM_SRC) $(NATIVE)
 	elm-make --output $@ $<
 
 $(DIST)/%.css: $(SCSS)/%.scss
-	sassc -t compressed -I $(SASSC_LOAD_PATH) -m $< $@
+	sass --scss -t compressed -I bower_components/normalize-scss -I bower_components/bourbon/app/assets/stylesheets src/styles/main.scss build/main.css
 
 dist: src/Main.elm $(SCSS)/main.scss $(addprefix $(DIST)/,$(DIST_FILES))
 
@@ -31,7 +34,7 @@ deploy: dist
 	git add .
 	git commit -m "Deploy :tada:"
 
-serve: $(DIST)/index.html $(DIST)/Main.js $(DIST)/main.css
+serve: $(DIST)/index.html $(DIST)/Main.js $(DIST)/main.css $(DIST)/images
 	cd build && pushstate-server . 8000
 
 watch:

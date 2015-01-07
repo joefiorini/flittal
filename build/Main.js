@@ -727,7 +727,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 233 and 237");
+                                     "between lines 230 and 234");
                                   }();
                                }();
                              case "[]":
@@ -735,7 +735,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 227 and 237");
+                          "between lines 224 and 234");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -768,7 +768,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 254 and 258");
+                                     "between lines 251 and 255");
                                   }();
                                }();
                              case "[]":
@@ -776,7 +776,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 248 and 258");
+                          "between lines 245 and 255");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -831,7 +831,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.shiftKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 92 and 96");
+            "between lines 89 and 93");
          }();
       }();
    };
@@ -880,26 +880,15 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 100 and 103");
+            "between lines 97 and 100");
          }();
       }();
    };
    var view = F3(function (channel,
    model,
    height) {
-      return $Html.div(_L.fromArray([$Html$Attributes.style(_L.fromArray([A2($DomUtils.styleProperty,
-                                                                         "position",
-                                                                         "relative")
-                                                                         ,A2($DomUtils.styleProperty,
-                                                                         "width",
-                                                                         "100%")
-                                                                         ,$DomUtils.styleProperty("height")($Geometry$Types.toPx(height))
-                                                                         ,A2($DomUtils.styleProperty,
-                                                                         "border",
-                                                                         "solid thin blue")
-                                                                         ,A2($DomUtils.styleProperty,
-                                                                         "overflow",
-                                                                         "hidden")]))
+      return $Html.div(_L.fromArray([$Html$Attributes.style(_L.fromArray([$DomUtils.styleProperty("height")($Geometry$Types.toPx(height))]))
+                                    ,$Html$Attributes.$class("board")
                                     ,$Html$Attributes.id("container")
                                     ,A3($Html$Events.on,
                                     "dblclick",
@@ -928,7 +917,7 @@ Elm.Board.Controller.make = function (_elm) {
                  $Basics.toString(_v44._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 123, column 41 to 75");
+            "on line 120, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -957,7 +946,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 129 and 133");
+            "between lines 126 and 130");
          }();
       }();
    };
@@ -6934,6 +6923,7 @@ Elm.Main.make = function (_elm) {
    $DomUtils = Elm.DomUtils.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
    $Json$Encode = Elm.Json.Encode.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
@@ -7000,33 +6990,46 @@ Elm.Main.make = function (_elm) {
          switch (_v5.ctor)
          {case "_Tuple2":
             return function () {
+                 var $ = function () {
+                    switch (_v5._1.ctor)
+                    {case "About":
+                       return {ctor: "_Tuple2"
+                              ,_0: $Html.text("About Diagrammer")
+                              ,_1: "l-board--compressed"};}
+                    return {ctor: "_Tuple2"
+                           ,_0: $Html.text("")
+                           ,_1: ""};
+                 }(),
+                 sidebar = $._0,
+                 extraClass = $._1;
                  var boardChannel = A2($LocalChannel.create,
                  BoardUpdate,
                  updates);
+                 var board = A3($Board$Controller.view,
+                 boardChannel,
+                 state.currentBoard,
+                 screenHeight - 36);
                  var headerChannel = A2($LocalChannel.create,
                  $Basics.identity,
                  routeChannel);
-                 return A2($Html.body,
+                 return A2($Html.div,
                  _L.fromArray([]),
                  _L.fromArray([$Partials$Header.view(headerChannel)
                               ,A2($Html.main$,
-                              _L.fromArray([]),
-                              _L.fromArray([function () {
-                                 switch (_v5._1.ctor)
-                                 {case "About":
-                                    return $Html.text("About Diagrammer");
-                                    case "Root":
-                                    return A3($Board$Controller.view,
-                                      boardChannel,
-                                      state.currentBoard,
-                                      screenHeight - 36);}
-                                 _U.badCase($moduleName,
-                                 "between lines 194 and 199");
-                              }()]))
-                              ,$Partials$Footer.view]));
+                              _L.fromArray([$Html$Attributes.$class("l-container")]),
+                              _L.fromArray([A2($Html.section,
+                                           _L.fromArray([$DomUtils.class$(_L.fromArray(["l-board"
+                                                                                       ,extraClass]))]),
+                                           _L.fromArray([board]))
+                                           ,A2($Html.section,
+                                           _L.fromArray([$Html$Attributes.$class("l-content")]),
+                                           _L.fromArray([sidebar]))]))
+                              ,A2($Html.section,
+                              _L.fromArray([$Html$Attributes.$class("l-container")]),
+                              _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 188 and 201");
+         "between lines 188 and 213");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7064,11 +7067,6 @@ Elm.Main.make = function (_elm) {
       }();
    };
    var routeHandler = $Routes.map(routesMap)($Signal.subscribe(routeChannel));
-   var transitionToRoute = _P.portOut("transitionToRoute",
-   _P.outgoingSignal(function (v) {
-      return v;
-   }),
-   $Routes.sendToPort(routeHandler));
    var startingState = {_: {}
                        ,currentBoard: $Board$Controller.startingState};
    var globalKeyboardShortcuts = function (keyCommand) {
@@ -15638,7 +15636,7 @@ Elm.Partials.Footer.make = function (_elm) {
    $Html = Elm.Html.make(_elm);
    var view = A2($Html.footer,
    _L.fromArray([]),
-   _L.fromArray([$Html.text("Copyright &copy;2014 densitypop")]));
+   _L.fromArray([$Html.text("Copyright 2015 Joe Fiorini")]));
    _elm.Partials.Footer.values = {_op: _op
                                  ,view: view};
    return _elm.Partials.Footer.values;
@@ -15664,24 +15662,32 @@ Elm.Partials.Header.make = function (_elm) {
    $LocalChannel = Elm.LocalChannel.make(_elm),
    $Routes = Elm.Routes.make(_elm);
    var navLinks = function (channel) {
-      return $List.concat(_L.fromArray([_L.fromArray([A3($DomUtils.linkTo,
-                                       "Flittal",
-                                       "#",
-                                       A2($LocalChannel.send,
-                                       channel,
-                                       $Routes.Root))])
-                                       ,_L.fromArray([A3($DomUtils.linkTo,
-                                       "About",
-                                       "#",
-                                       A2($LocalChannel.send,
-                                       channel,
-                                       $Routes.About))])]));
+      return $List.concat(_L.fromArray([_L.fromArray([A2($Html.div,
+                                       _L.fromArray([$Html$Attributes.$class("nav-bar__logo-wrapper")]),
+                                       _L.fromArray([A2($Html.a,
+                                       _L.fromArray([$Html$Attributes.href("/")
+                                                    ,$Html$Attributes.$class("logo nav-bar__logo")]),
+                                       _L.fromArray([$Html.text(" ")]))]))])
+                                       ,_L.fromArray([A2($Html.div,
+                                       _L.fromArray([$Html$Attributes.$class("nav-bar__links")]),
+                                       _L.fromArray([A3($DomUtils.linkTo,
+                                                    "About",
+                                                    "#",
+                                                    A2($LocalChannel.send,
+                                                    channel,
+                                                    $Routes.About))
+                                                    ,A3($DomUtils.linkTo,
+                                                    "Colophon",
+                                                    "#",
+                                                    A2($LocalChannel.send,
+                                                    channel,
+                                                    $Routes.Colophon))]))])]));
    };
    var view = function (channel) {
       return A2($Html.header,
-      _L.fromArray([]),
+      _L.fromArray([$Html$Attributes.$class("l-container")]),
       _L.fromArray([A2($Html.nav,
-      _L.fromArray([$Html$Attributes.$class("nav-bar")]),
+      _L.fromArray([$Html$Attributes.$class("nav-bar header__nav-bar")]),
       navLinks(channel))]));
    };
    _elm.Partials.Header.values = {_op: _op
@@ -15797,11 +15803,13 @@ Elm.Routes.make = function (_elm) {
       routeSignal);
    };
    var map = $Signal.map;
+   var Colophon = {ctor: "Colophon"};
    var About = {ctor: "About"};
    var Root = {ctor: "Root"};
    _elm.Routes.values = {_op: _op
                         ,Root: Root
                         ,About: About
+                        ,Colophon: Colophon
                         ,map: map
                         ,sendToPort: sendToPort};
    return _elm.Routes.values;

@@ -1,3 +1,10 @@
+@import "normalize";
+@import "bourbon";
+@import "base/settings";
+@import "base/base";
+@import "layout/containers";
+@import "modules/board";
+@import "modules/logo";
 @import "themes/default/box";
 
 * {
@@ -6,11 +13,34 @@
 }
 
 .nav-bar {
-  > a {
-    display: inline-block;
-    padding: 0 .5em;
-    &:first-child {
-      padding: 0;
+  @include clearfix;
+  display: inline-block;
+  vertical-align: middle;
+  width: 100%;
+
+  &__links {
+    float: right;
+    padding: 2.25em 0;
+    > a {
+      display: inline-block;
+      vertical-align: middle;
+      padding: 0 0.5em;
+      &:first-child {
+        padding: 0;
+      }
     }
+  }
+
+  &__logo-wrapper {
+    float: left;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0.75em 0;
+    width: 113px;
+    height: 100%;
+  }
+
+  &__logo {
+    height: 69px;
   }
 }

@@ -1,0 +1,20 @@
+.l-container {
+  margin: 0 auto;
+  max-width: 1140px;
+}
+
+.l-content {
+  vertical-align: top;
+  padding: 0 1em;
+  display: inline-block;
+  width: 30%;
+}
+
+.l-board {
+  @include transition(width 0.25s ease-in-out);
+  width: 100%;
+  display: inline-block;
+  &--compressed {
+    width: 70%;
+  }
+}

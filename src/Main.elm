@@ -1,12 +1,12 @@
 module Main where
 import Graphics.Element (Element)
 import Html
-import Html (Html, toElement, div, main', body, text)
+import Html (Html, toElement, div, main', body, text, section)
 import Html.Attributes (class)
 import Board.Controller as Board
 import Board.Controller (checkFocus)
 import Box.Controller as Box
-import DomUtils (DragEvent)
+import DomUtils (DragEvent, class')
 import Mousetrap
 import LocalChannel as LC
 import Partials.Header as Header
@@ -130,9 +130,9 @@ port serializeState =
     serializeAppState <~ state
 
 
-port transitionToRoute : Signal Routes.Url
-port transitionToRoute =
-  Routes.sendToPort routeHandler
+-- port transitionToRoute : Signal Routes.Url
+-- port transitionToRoute =
+--   Routes.sendToPort routeHandler
 
 routeHandler =
   Routes.map routesMap
@@ -187,15 +187,27 @@ container : AppState -> Routes.Route -> Int -> Html.Html
 container state (url,route) screenHeight =
   let headerChannel = LC.create identity routeChannel
       boardChannel = LC.create BoardUpdate updates
+      board = Board.view boardChannel state.currentBoard (screenHeight - 36)
+      (sidebar,extraClass) =
+        case route of
+          Routes.About ->
+            ( text "About Diagrammer" , "l-board--compressed")
+          _ -> ( text "" , "")
+
   in
-    body []
+    div []
       [ Header.view headerChannel
-      , main' []
-          [ case route of
-              Routes.Root ->
-                Board.view boardChannel state.currentBoard (screenHeight - 36)
-              Routes.About ->
-                text "About Diagrammer"
+      , main'
+        [class "l-container"]
+        [ section
+          [ class' ["l-board", extraClass]
           ]
-      , Footer.view
+          [ board ]
+        , section
+            [class "l-content"]
+            [ sidebar ]
+        ]
+      , section
+        [ class "l-container" ]
+        [ Footer.view ]
       ]

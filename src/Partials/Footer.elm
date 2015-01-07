@@ -4,4 +4,4 @@ import Html (footer, text, a)
 
 view =
   footer []
-  [ text "Copyright &copy;2014 densitypop" ]
+  [ text "Copyright 2015 Joe Fiorini" ]

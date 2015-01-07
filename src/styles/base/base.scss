@@ -1,0 +1,21 @@
+body {
+  background-color: $background-color;
+}
+
+header, .header {
+  height: 100px;
+  vertical-align: middle;
+  &--compressed {
+    .header__nav-bar {
+      height: 55px;
+    }
+  }
+  &__nav-bar {
+    height: 100px;
+  }
+}
+
+footer {
+  padding: 0.25em;
+  text-align: center;
+}

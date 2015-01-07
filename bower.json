@@ -12,6 +12,7 @@
   "license": "Limited",
   "private": true,
   "dependencies": {
-    "foundation": "~5.5.0"
+    "bourbon": "~4.1.0",
+    "normalize-scss": "~3.0.2"
   }
 }
