@@ -6921,6 +6921,7 @@ Elm.Main.make = function (_elm) {
    $Box$Controller = Elm.Box.Controller.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $DomUtils = Elm.DomUtils.make(_elm),
+   $Geometry$Types = Elm.Geometry.Types.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
@@ -6930,6 +6931,7 @@ Elm.Main.make = function (_elm) {
    $Mousetrap = Elm.Mousetrap.make(_elm),
    $Partials$Footer = Elm.Partials.Footer.make(_elm),
    $Partials$Header = Elm.Partials.Header.make(_elm),
+   $Partials$Help = Elm.Partials.Help.make(_elm),
    $Partials$Sidebar = Elm.Partials.Sidebar.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Routes = Elm.Routes.make(_elm),
@@ -6991,13 +6993,14 @@ Elm.Main.make = function (_elm) {
          switch (_v5.ctor)
          {case "_Tuple2":
             return function () {
+                 var offsetHeight = screenHeight - 52;
                  var boardChannel = A2($LocalChannel.create,
                  BoardUpdate,
                  updates);
                  var board = A3($Board$Controller.view,
                  boardChannel,
                  state.currentBoard,
-                 screenHeight - 36);
+                 offsetHeight);
                  var sidebarChannel = A2($LocalChannel.create,
                  $Basics.identity,
                  routeChannel);
@@ -7018,7 +7021,7 @@ Elm.Main.make = function (_elm) {
                               ,_1: "l-board--compressed"};
                        case "Help":
                        return {ctor: "_Tuple2"
-                              ,_0: sidebar($Html.text("Keyboard Shortcuts"))
+                              ,_0: sidebar($Partials$Help.view)
                               ,_1: "l-board--compressed"};}
                     return {ctor: "_Tuple2"
                            ,_0: $Html.text("")
@@ -7039,16 +7042,28 @@ Elm.Main.make = function (_elm) {
                                                                                        ,extraClass]))]),
                                            _L.fromArray([board]))
                                            ,A2($Html.section,
-                                           _L.fromArray([$Html$Attributes.$class("l-content")]),
+                                           _L.fromArray([$Html$Attributes.$class("l-content")
+                                                        ,$Html$Attributes.style(_L.fromArray([$DomUtils.styleProperty("height")($Geometry$Types.toPx(offsetHeight))]))]),
                                            _L.fromArray([sidebar$]))]))
                               ,A2($Html.section,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 191 and 223");
+         "between lines 204 and 241");
       }();
    });
+   var toggleHelp = A2($Signal.map,
+   function (k) {
+      return function () {
+         switch (k)
+         {case "shift+/":
+            return $Routes.Help;
+            case "w": return $Routes.Root;}
+         return $Routes.Root;
+      }();
+   },
+   $Mousetrap.keydown);
    var loadedState = _P.portIn("loadedState",
    _P.incomingSignal(function (v) {
       return typeof v === "string" || typeof v === "object" && v instanceof String ? v : _U.badPort("a string",
@@ -7061,7 +7076,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 115 and 117");
+         "between lines 117 and 119");
       }();
    };
    var encodeAppState = function (state) {
@@ -7079,22 +7094,23 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 94 and 99");
+            "between lines 96 and 101");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
                 ,_1: routeName};
       }();
    };
-   var routeHandler = $Routes.map(routesMap)($Signal.subscribe(routeChannel));
+   var routeHandler = $Routes.map(routesMap)($Signal.mergeMany(_L.fromArray([$Signal.subscribe(routeChannel)
+                                                                            ,toggleHelp])));
    var startingState = {_: {}
                        ,currentBoard: $Board$Controller.startingState};
    var globalKeyboardShortcuts = function (keyCommand) {
       return function () {
-         var _v14 = A2($Debug.log,
+         var _v15 = A2($Debug.log,
          "keyCommand",
          keyCommand);
-         switch (_v14)
+         switch (_v15)
          {case "-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownAll));
             case "0":
@@ -7310,18 +7326,18 @@ Elm.Main.make = function (_elm) {
    var main = A2($Signal._op["~"],
    A2($Signal._op["~"],
    A2($Signal._op["<~"],
-   F3(function (s,r,_v15) {
+   F3(function (s,r,_v16) {
       return function () {
-         switch (_v15.ctor)
+         switch (_v16.ctor)
          {case "_Tuple2":
             return A2($Html.toElement,
-              _v15._0,
-              _v15._1)(A3(container,
+              _v16._0,
+              _v16._1)(A3(container,
               s,
               r,
-              _v15._1));}
+              _v16._1));}
          _U.badCase($moduleName,
-         "on line 42, column 23 to 56");
+         "on line 44, column 23 to 56");
       }();
    }),
    state),
@@ -7349,6 +7365,7 @@ Elm.Main.make = function (_elm) {
                       ,decodeAppState: decodeAppState
                       ,extractAppState: extractAppState
                       ,deserializedState: deserializedState
+                      ,toggleHelp: toggleHelp
                       ,routeHandler: routeHandler
                       ,NoOp: NoOp
                       ,HydrateAppState: HydrateAppState
@@ -7363,6 +7380,57 @@ Elm.Main.make = function (_elm) {
                       ,step: step
                       ,container: container};
    return _elm.Main.values;
+};
+Elm.Markdown = Elm.Markdown || {};
+Elm.Markdown.make = function (_elm) {
+   "use strict";
+   _elm.Markdown = _elm.Markdown || {};
+   if (_elm.Markdown.values)
+   return _elm.Markdown.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Markdown",
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Native$Markdown = Elm.Native.Markdown.make(_elm);
+   var toElementWith = $Native$Markdown.toElementWith;
+   var toHtmlWith = $Native$Markdown.toHtmlWith;
+   var defaultOptions = {_: {}
+                        ,githubFlavored: $Maybe.Just({_: {}
+                                                     ,breaks: false
+                                                     ,tables: false})
+                        ,sanitize: false
+                        ,smartypants: false};
+   var Options = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,githubFlavored: a
+             ,sanitize: b
+             ,smartypants: c};
+   });
+   var toElement = function (string) {
+      return A2($Native$Markdown.toElementWith,
+      defaultOptions,
+      string);
+   };
+   var toHtml = function (string) {
+      return A2($Native$Markdown.toHtmlWith,
+      defaultOptions,
+      string);
+   };
+   _elm.Markdown.values = {_op: _op
+                          ,toHtml: toHtml
+                          ,toElement: toElement
+                          ,Options: Options
+                          ,defaultOptions: defaultOptions
+                          ,toHtmlWith: toHtmlWith
+                          ,toElementWith: toElementWith};
+   return _elm.Markdown.values;
 };
 Elm.Maybe = Elm.Maybe || {};
 Elm.Maybe.make = function (_elm) {
@@ -10867,6 +10935,91 @@ Elm.Native.List.make = function(elm) {
 
 };
 
+
+// setup
+Elm.Native = Elm.Native || {};
+Elm.Native.Markdown = Elm.Native.Markdown || {};
+
+// definition
+Elm.Native.Markdown.make = function(localRuntime) {
+    'use strict';
+
+    // attempt to short-circuit
+    if ('values' in Elm.Native.Markdown) {
+        return Elm.Native.Markdown.values;
+    }
+
+    var Text = Elm.Text.make(localRuntime);
+
+    /**
+     * marked - a markdown parser
+     * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
+     * https://github.com/chjj/marked
+     */
+    (function(){var block={newline:/^\n+/,code:/^( {4}[^\n]+\n*)+/,fences:noop,hr:/^( *[-*_]){3,} *(?:\n+|$)/,heading:/^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,nptable:noop,lheading:/^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,blockquote:/^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,list:/^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,html:/^ *(?:comment|closed|closing) *(?:\n{2,}|\s*$)/,def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,table:noop,paragraph:/^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,text:/^[^\n]+/};block.bullet=/(?:[*+-]|\d+\.)/;block.item=/^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;block.item=replace(block.item,"gm")(/bull/g,block.bullet)();block.list=replace(block.list)(/bull/g,block.bullet)("hr","\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))")("def","\\n+(?="+block.def.source+")")();block.blockquote=replace(block.blockquote)("def",block.def)();block._tag="(?!(?:"+"a|em|strong|small|s|cite|q|dfn|abbr|data|time|code"+"|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo"+"|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b";block.html=replace(block.html)("comment",/<!--[\s\S]*?-->/)("closed",/<(tag)[\s\S]+?<\/\1>/)("closing",/<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)(/tag/g,block._tag)();block.paragraph=replace(block.paragraph)("hr",block.hr)("heading",block.heading)("lheading",block.lheading)("blockquote",block.blockquote)("tag","<"+block._tag)("def",block.def)();block.normal=merge({},block);block.gfm=merge({},block.normal,{fences:/^ *(`{3,}|~{3,}) *(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,paragraph:/^/});block.gfm.paragraph=replace(block.paragraph)("(?!","(?!"+block.gfm.fences.source.replace("\\1","\\2")+"|"+block.list.source.replace("\\1","\\3")+"|")();block.tables=merge({},block.gfm,{nptable:/^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,table:/^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/});function Lexer(options){this.tokens=[];this.tokens.links={};this.options=options||marked.defaults;this.rules=block.normal;if(this.options.gfm){if(this.options.tables){this.rules=block.tables}else{this.rules=block.gfm}}}Lexer.rules=block;Lexer.lex=function(src,options){var lexer=new Lexer(options);return lexer.lex(src)};Lexer.prototype.lex=function(src){src=src.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    ").replace(/\u00a0/g," ").replace(/\u2424/g,"\n");return this.token(src,true)};Lexer.prototype.token=function(src,top,bq){var src=src.replace(/^ +$/gm,""),next,loose,cap,bull,b,item,space,i,l;while(src){if(cap=this.rules.newline.exec(src)){src=src.substring(cap[0].length);if(cap[0].length>1){this.tokens.push({type:"space"})}}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);cap=cap[0].replace(/^ {4}/gm,"");this.tokens.push({type:"code",text:!this.options.pedantic?cap.replace(/\n+$/,""):cap});continue}if(cap=this.rules.fences.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"code",lang:cap[2],text:cap[3]});continue}if(cap=this.rules.heading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[1].length,text:cap[2]});continue}if(top&&(cap=this.rules.nptable.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].split(/ *\| */)}this.tokens.push(item);continue}if(cap=this.rules.lheading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[2]==="="?1:2,text:cap[1]});continue}if(cap=this.rules.hr.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"hr"});continue}if(cap=this.rules.blockquote.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"blockquote_start"});cap=cap[0].replace(/^ *> ?/gm,"");this.token(cap,top,true);this.tokens.push({type:"blockquote_end"});continue}if(cap=this.rules.list.exec(src)){src=src.substring(cap[0].length);bull=cap[2];this.tokens.push({type:"list_start",ordered:bull.length>1});cap=cap[0].match(this.rules.item);next=false;l=cap.length;i=0;for(;i<l;i++){item=cap[i];space=item.length;item=item.replace(/^ *([*+-]|\d+\.) +/,"");if(~item.indexOf("\n ")){space-=item.length;item=!this.options.pedantic?item.replace(new RegExp("^ {1,"+space+"}","gm"),""):item.replace(/^ {1,4}/gm,"")}if(this.options.smartLists&&i!==l-1){b=block.bullet.exec(cap[i+1])[0];if(bull!==b&&!(bull.length>1&&b.length>1)){src=cap.slice(i+1).join("\n")+src;i=l-1}}loose=next||/\n\n(?!\s*$)/.test(item);if(i!==l-1){next=item.charAt(item.length-1)==="\n";if(!loose)loose=next}this.tokens.push({type:loose?"loose_item_start":"list_item_start"});this.token(item,false,bq);this.tokens.push({type:"list_item_end"})}this.tokens.push({type:"list_end"});continue}if(cap=this.rules.html.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:this.options.sanitize?"paragraph":"html",pre:cap[1]==="pre"||cap[1]==="script"||cap[1]==="style",text:cap[0]});continue}if(!bq&&top&&(cap=this.rules.def.exec(src))){src=src.substring(cap[0].length);this.tokens.links[cap[1].toLowerCase()]={href:cap[2],title:cap[3]};continue}if(top&&(cap=this.rules.table.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/(?: *\| *)?\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].replace(/^ *\| *| *\| *$/g,"").split(/ *\| */)}this.tokens.push(item);continue}if(top&&(cap=this.rules.paragraph.exec(src))){src=src.substring(cap[0].length);this.tokens.push({type:"paragraph",text:cap[1].charAt(cap[1].length-1)==="\n"?cap[1].slice(0,-1):cap[1]});continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"text",text:cap[0]});continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return this.tokens};var inline={escape:/^\\([\\`*{}\[\]()#+\-.!_>])/,autolink:/^<([^ >]+(@|:\/)[^ >]+)>/,url:noop,tag:/^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,link:/^!?\[(inside)\]\(href\)/,reflink:/^!?\[(inside)\]\s*\[([^\]]*)\]/,nolink:/^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,strong:/^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,em:/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,code:/^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,br:/^ {2,}\n(?!\s*$)/,del:noop,text:/^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/};inline._inside=/(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;inline._href=/\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;inline.link=replace(inline.link)("inside",inline._inside)("href",inline._href)();inline.reflink=replace(inline.reflink)("inside",inline._inside)();inline.normal=merge({},inline);inline.pedantic=merge({},inline.normal,{strong:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,em:/^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/});inline.gfm=merge({},inline.normal,{escape:replace(inline.escape)("])","~|])")(),url:/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,del:/^~~(?=\S)([\s\S]*?\S)~~/,text:replace(inline.text)("]|","~]|")("|","|https?://|")()});inline.breaks=merge({},inline.gfm,{br:replace(inline.br)("{2,}","*")(),text:replace(inline.gfm.text)("{2,}","*")()});function InlineLexer(links,options){this.options=options||marked.defaults;this.links=links;this.rules=inline.normal;this.renderer=this.options.renderer||new Renderer;this.renderer.options=this.options;if(!this.links){throw new Error("Tokens array requires a `links` property.")}if(this.options.gfm){if(this.options.breaks){this.rules=inline.breaks}else{this.rules=inline.gfm}}else if(this.options.pedantic){this.rules=inline.pedantic}}InlineLexer.rules=inline;InlineLexer.output=function(src,links,options){var inline=new InlineLexer(links,options);return inline.output(src)};InlineLexer.prototype.output=function(src){var out="",link,text,href,cap;while(src){if(cap=this.rules.escape.exec(src)){src=src.substring(cap[0].length);out+=cap[1];continue}if(cap=this.rules.autolink.exec(src)){src=src.substring(cap[0].length);if(cap[2]==="@"){text=cap[1].charAt(6)===":"?this.mangle(cap[1].substring(7)):this.mangle(cap[1]);href=this.mangle("mailto:")+text}else{text=escape(cap[1]);href=text}out+=this.renderer.link(href,null,text);continue}if(!this.inLink&&(cap=this.rules.url.exec(src))){src=src.substring(cap[0].length);text=escape(cap[1]);href=text;out+=this.renderer.link(href,null,text);continue}if(cap=this.rules.tag.exec(src)){if(!this.inLink&&/^<a /i.test(cap[0])){this.inLink=true}else if(this.inLink&&/^<\/a>/i.test(cap[0])){this.inLink=false}src=src.substring(cap[0].length);out+=this.options.sanitize?escape(cap[0]):cap[0];continue}if(cap=this.rules.link.exec(src)){src=src.substring(cap[0].length);this.inLink=true;out+=this.outputLink(cap,{href:cap[2],title:cap[3]});this.inLink=false;continue}if((cap=this.rules.reflink.exec(src))||(cap=this.rules.nolink.exec(src))){src=src.substring(cap[0].length);link=(cap[2]||cap[1]).replace(/\s+/g," ");link=this.links[link.toLowerCase()];if(!link||!link.href){out+=cap[0].charAt(0);src=cap[0].substring(1)+src;continue}this.inLink=true;out+=this.outputLink(cap,link);this.inLink=false;continue}if(cap=this.rules.strong.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.strong(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.em.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.em(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.codespan(escape(cap[2],true));continue}if(cap=this.rules.br.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.br();continue}if(cap=this.rules.del.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.del(this.output(cap[1]));continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);out+=escape(this.smartypants(cap[0]));continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return out};InlineLexer.prototype.outputLink=function(cap,link){var href=escape(link.href),title=link.title?escape(link.title):null;return cap[0].charAt(0)!=="!"?this.renderer.link(href,title,this.output(cap[1])):this.renderer.image(href,title,escape(cap[1]))};InlineLexer.prototype.smartypants=function(text){if(!this.options.smartypants)return text;return text.replace(/--/g,"—").replace(/(^|[-\u2014/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")};InlineLexer.prototype.mangle=function(text){var out="",l=text.length,i=0,ch;for(;i<l;i++){ch=text.charCodeAt(i);if(Math.random()>.5){ch="x"+ch.toString(16)}out+="&#"+ch+";"}return out};function Renderer(options){this.options=options||{}}Renderer.prototype.code=function(code,lang,escaped){if(this.options.highlight){var out=this.options.highlight(code,lang);if(out!=null&&out!==code){escaped=true;code=out}}if(!lang){return"<pre><code>"+(escaped?code:escape(code,true))+"\n</code></pre>"}return'<pre><code class="'+this.options.langPrefix+escape(lang,true)+'">'+(escaped?code:escape(code,true))+"\n</code></pre>\n"};Renderer.prototype.blockquote=function(quote){return"<blockquote>\n"+quote+"</blockquote>\n"};Renderer.prototype.html=function(html){return html};Renderer.prototype.heading=function(text,level,raw){return"<h"+level+' id="'+this.options.headerPrefix+raw.toLowerCase().replace(/[^\w]+/g,"-")+'">'+text+"</h"+level+">\n"};Renderer.prototype.hr=function(){return this.options.xhtml?"<hr/>\n":"<hr>\n"};Renderer.prototype.list=function(body,ordered){var type=ordered?"ol":"ul";return"<"+type+">\n"+body+"</"+type+">\n"};Renderer.prototype.listitem=function(text){return"<li>"+text+"</li>\n"};Renderer.prototype.paragraph=function(text){return"<p>"+text+"</p>\n"};Renderer.prototype.table=function(header,body){return"<table>\n"+"<thead>\n"+header+"</thead>\n"+"<tbody>\n"+body+"</tbody>\n"+"</table>\n"};Renderer.prototype.tablerow=function(content){return"<tr>\n"+content+"</tr>\n"};Renderer.prototype.tablecell=function(content,flags){var type=flags.header?"th":"td";var tag=flags.align?"<"+type+' style="text-align:'+flags.align+'">':"<"+type+">";return tag+content+"</"+type+">\n"};Renderer.prototype.strong=function(text){return"<strong>"+text+"</strong>"};Renderer.prototype.em=function(text){return"<em>"+text+"</em>"};Renderer.prototype.codespan=function(text){return"<code>"+text+"</code>"};Renderer.prototype.br=function(){return this.options.xhtml?"<br/>":"<br>"};Renderer.prototype.del=function(text){return"<del>"+text+"</del>"};Renderer.prototype.link=function(href,title,text){if(this.options.sanitize){try{var prot=decodeURIComponent(unescape(href)).replace(/[^\w:]/g,"").toLowerCase()}catch(e){return""}if(prot.indexOf("javascript:")===0){return""}}var out='<a href="'+href+'"';if(title){out+=' title="'+title+'"'}out+=">"+text+"</a>";return out};Renderer.prototype.image=function(href,title,text){var out='<img src="'+href+'" alt="'+text+'"';if(title){out+=' title="'+title+'"'}out+=this.options.xhtml?"/>":">";return out};function Parser(options){this.tokens=[];this.token=null;this.options=options||marked.defaults;this.options.renderer=this.options.renderer||new Renderer;this.renderer=this.options.renderer;this.renderer.options=this.options}Parser.parse=function(src,options,renderer){var parser=new Parser(options,renderer);return parser.parse(src)};Parser.prototype.parse=function(src){this.inline=new InlineLexer(src.links,this.options,this.renderer);this.tokens=src.reverse();var out="";while(this.next()){out+=this.tok()}return out};Parser.prototype.next=function(){return this.token=this.tokens.pop()};Parser.prototype.peek=function(){return this.tokens[this.tokens.length-1]||0};Parser.prototype.parseText=function(){var body=this.token.text;while(this.peek().type==="text"){body+="\n"+this.next().text}return this.inline.output(body)};Parser.prototype.tok=function(){switch(this.token.type){case"space":{return""}case"hr":{return this.renderer.hr()}case"heading":{return this.renderer.heading(this.inline.output(this.token.text),this.token.depth,this.token.text)}case"code":{return this.renderer.code(this.token.text,this.token.lang,this.token.escaped)}case"table":{var header="",body="",i,row,cell,flags,j;cell="";for(i=0;i<this.token.header.length;i++){flags={header:true,align:this.token.align[i]};cell+=this.renderer.tablecell(this.inline.output(this.token.header[i]),{header:true,align:this.token.align[i]})}header+=this.renderer.tablerow(cell);for(i=0;i<this.token.cells.length;i++){row=this.token.cells[i];cell="";for(j=0;j<row.length;j++){cell+=this.renderer.tablecell(this.inline.output(row[j]),{header:false,align:this.token.align[j]})}body+=this.renderer.tablerow(cell)}return this.renderer.table(header,body)}case"blockquote_start":{var body="";while(this.next().type!=="blockquote_end"){body+=this.tok()}return this.renderer.blockquote(body)}case"list_start":{var body="",ordered=this.token.ordered;while(this.next().type!=="list_end"){body+=this.tok()}return this.renderer.list(body,ordered)}case"list_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.token.type==="text"?this.parseText():this.tok()}return this.renderer.listitem(body)}case"loose_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.tok()}return this.renderer.listitem(body)}case"html":{var html=!this.token.pre&&!this.options.pedantic?this.inline.output(this.token.text):this.token.text;return this.renderer.html(html)}case"paragraph":{return this.renderer.paragraph(this.inline.output(this.token.text))}case"text":{return this.renderer.paragraph(this.parseText())}}};function escape(html,encode){return html.replace(!encode?/&(?!#?\w+;)/g:/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}function unescape(html){return html.replace(/&([#\w]+);/g,function(_,n){n=n.toLowerCase();if(n==="colon")return":";if(n.charAt(0)==="#"){return n.charAt(1)==="x"?String.fromCharCode(parseInt(n.substring(2),16)):String.fromCharCode(+n.substring(1))}return""})}function replace(regex,opt){regex=regex.source;opt=opt||"";return function self(name,val){if(!name)return new RegExp(regex,opt);val=val.source||val;val=val.replace(/(^|[^\[])\^/g,"$1");regex=regex.replace(name,val);return self}}function noop(){}noop.exec=noop;function merge(obj){var i=1,target,key;for(;i<arguments.length;i++){target=arguments[i];for(key in target){if(Object.prototype.hasOwnProperty.call(target,key)){obj[key]=target[key]}}}return obj}function marked(src,opt,callback){if(callback||typeof opt==="function"){if(!callback){callback=opt;opt=null}opt=merge({},marked.defaults,opt||{});var highlight=opt.highlight,tokens,pending,i=0;try{tokens=Lexer.lex(src,opt)}catch(e){return callback(e)}pending=tokens.length;var done=function(err){if(err){opt.highlight=highlight;return callback(err)}var out;try{out=Parser.parse(tokens,opt)}catch(e){err=e}opt.highlight=highlight;return err?callback(err):callback(null,out)};if(!highlight||highlight.length<3){return done()}delete opt.highlight;if(!pending)return done();for(;i<tokens.length;i++){(function(token){if(token.type!=="code"){return--pending||done()}return highlight(token.text,token.lang,function(err,code){if(err)return done(err);if(code==null||code===token.text){return--pending||done()}token.text=code;token.escaped=true;--pending||done()})})(tokens[i])}return}try{if(opt)opt=merge({},marked.defaults,opt);return Parser.parse(Lexer.lex(src,opt),opt)}catch(e){e.message+="\nPlease report this to https://github.com/chjj/marked.";if((opt||marked.defaults).silent){return"<p>An error occured:</p><pre>"+escape(e.message+"",true)+"</pre>"}throw e}}marked.options=marked.setOptions=function(opt){merge(marked.defaults,opt);return marked};marked.defaults={gfm:true,tables:true,breaks:false,pedantic:false,sanitize:false,smartLists:false,silent:false,highlight:null,langPrefix:"lang-",smartypants:false,headerPrefix:"",renderer:new Renderer,xhtml:false};marked.Parser=Parser;marked.parser=Parser.parse;marked.Renderer=Renderer;marked.Lexer=Lexer;marked.lexer=Lexer.lex;marked.InlineLexer=InlineLexer;marked.inlineLexer=InlineLexer.output;marked.parse=marked;if(typeof module!=="undefined"&&typeof exports==="object"){module.exports=marked}else if(typeof define==="function"&&define.amd){define(function(){return marked})}else{this.marked=marked}}).call(function(){return this||(typeof window!=="undefined"?window:global)}());
+
+    marked.setOptions({
+        highlight: function (code, lang) {
+            if (typeof hljs !== 'undefined'
+                && lang
+                && hljs.listLanguages().indexOf(lang) >= 0) {
+                return hljs.highlight(lang, code, true).value;
+            }
+            return code;
+        }
+    });
+
+    function formatOptions(options) {
+        var gfm = options.githubFlavored;
+        if (gfm.ctor === 'Just') {
+            return {
+                gfm: true,
+                tables: gfm.tables,
+                breaks: gfm.breaks,
+                sanitize: options.sanitize,
+                smartypants: options.smartypants
+            }
+        }
+        else {
+            return {
+                gfm: false,
+                tables: false,
+                breaks: false,
+                sanitize: options.sanitize,
+                smartypants: options.smartypants
+            }
+        }
+    }
+
+    function toHtmlWith(options, rawMarkdown) {
+        var widget = {
+            type: "Widget",
+
+            init: function () {
+                var html = marked(rawMarkdown, formatOptions(options));
+                var div = document.createElement('div');
+                div.innerHTML = html;
+                return div;
+            },
+
+            update: function (previous, node) {
+                var html = marked(rawMarkdown, formatOptions(options));
+                node.innerHTML = html;
+                return node;
+            }
+        };
+        return widget;
+    }
+
+    function toElementWith(options, rawMarkdown) {
+        return Text.markdown(marked(rawMarkdown, formatOptions(options)));
+    }
+
+    return Elm.Native.Markdown.values = {
+        toHtmlWith: F2(toHtmlWith),
+        toElementWith: F2(toElementWith)
+    };
+};
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 Elm.Native.Mousetrap = {};
 
@@ -10895,9 +11048,9 @@ Elm.Native.Mousetrap.make = function(elm) {
   }
 
   return elm.Native.Mousetrap.values = {
-    keydown: bind("keydown"),
-    keypress: bind("keypress"),
-    keyup: bind("keyup")
+    keydown: bind("keydown")
+    // keypress: bind("keypress"),
+    // keyup: bind("keyup")
   };
 
 };
@@ -10952,6 +11105,11 @@ function handleMatch(keys, modifiers, e) {
     return "";
   }
 
+  if (modifiers.length == 1 && modifiers[0] == keyString) {
+    resetState();
+    return "";
+  }
+
   if (modifiers.length > 0) {
     keyString = modifiers.reduce(function(modStr, mod) {
       return mod + "+" + modStr;
@@ -10976,7 +11134,6 @@ Mousetrap.handleKey = function(character, modifiers, e) {
 
   // Catch repeats from holding key down
   if (pendingKeys.indexOf(character) === -1) {
-    console.log(character, modifiers);
     pendingKeys = pendingKeys.concat(character);
   }
 
@@ -13253,6 +13410,180 @@ Elm.Native.String.make = function(elm) {
         toFloat: toFloat,
         toList: toList,
         fromList: fromList
+    };
+};
+
+Elm.Native.Text = {};
+Elm.Native.Text.make = function(elm) {
+    elm.Native = elm.Native || {};
+    elm.Native.Text = elm.Native.Text || {};
+    if (elm.Native.Text.values) return elm.Native.Text.values;
+
+    var toCss = Elm.Native.Color.make(elm).toCss;
+    var Element = Elm.Graphics.Element.make(elm);
+    var NativeElement = Elm.Native.Graphics.Element.make(elm);
+    var List = Elm.Native.List.make(elm);
+    var Utils = Elm.Native.Utils.make(elm);
+
+    function makeSpaces(s) {
+        if (s.length == 0) { return s; }
+        var arr = s.split('');
+        if (arr[0] == ' ') { arr[0] = "&nbsp;" }      
+        for (var i = arr.length; --i; ) {
+            if (arr[i][0] == ' ' && arr[i-1] == ' ') {
+                arr[i-1] = arr[i-1] + arr[i];
+                arr[i] = '';
+            }
+        }
+        for (var i = arr.length; i--; ) {
+            if (arr[i].length > 1 && arr[i][0] == ' ') {
+                var spaces = arr[i].split('');
+                for (var j = spaces.length - 2; j >= 0; j -= 2) {
+                    spaces[j] = '&nbsp;';
+                }
+                arr[i] = spaces.join('');
+            }
+        }
+        arr = arr.join('');
+        if (arr[arr.length-1] === " ") {
+            return arr.slice(0,-1) + '&nbsp;';
+        }
+        return arr;
+    }
+
+    function properEscape(str) {
+        if (str.length == 0) return str;
+        str = str //.replace(/&/g,  "&#38;")
+            .replace(/"/g,  '&#34;')
+            .replace(/'/g,  "&#39;")
+            .replace(/</g,  "&#60;")
+            .replace(/>/g,  "&#62;")
+            .replace(/\n/g, "<br/>");
+        var arr = str.split('<br/>');
+        for (var i = arr.length; i--; ) {
+            arr[i] = makeSpaces(arr[i]);
+        }
+        return arr.join('<br/>');
+    }
+
+    function fromString(str) {
+        return Utils.txt(properEscape(str));
+    }
+
+    function append(xs, ys) {
+        return Utils.txt(Utils.makeText(xs) + Utils.makeText(ys));
+    }
+
+    // conversions from Elm values to CSS
+    function toTypefaces(list) {
+        var typefaces = List.toArray(list);
+        for (var i = typefaces.length; i--; ) {
+            var typeface = typefaces[i];
+            if (typeface.indexOf(' ') > -1) {
+                typefaces[i] = "'" + typeface + "'";
+            }
+        }
+        return typefaces.join(',');
+    }
+    function toLine(line) {
+        var ctor = line.ctor;
+        return ctor === 'Under' ? 'underline' :
+               ctor === 'Over'  ? 'overline'  : 'line-through';
+    }
+
+    // setting styles of Text
+    function style(style, text) {
+        var newText = '<span style="color:' + toCss(style.color) + ';'
+        if (style.typeface.ctor !== '[]') {
+            newText += 'font-family:' + toTypefaces(style.typeface) + ';'
+        }
+        if (style.height.ctor !== "Nothing") {
+            newText += 'font-size:' + style.height._0 + 'px;';
+        }
+        if (style.bold) {
+            newText += 'font-weight:bold;';
+        }
+        if (style.italic) {
+            newText += 'font-style:italic;';
+        }
+        if (style.line.ctor !== 'Nothing') {
+            newText += 'text-decoration:' + toLine(style.line._0) + ';';
+        }
+        newText += '">' + Utils.makeText(text) + '</span>'
+        return Utils.txt(newText);
+    }
+    function height(px, text) {
+        return { style: 'font-size:' + px + 'px;', text:text }
+    }
+    function typeface(names, text) {
+        return { style: 'font-family:' + toTypefaces(names) + ';', text:text }
+    }
+    function monospace(text) {
+        return { style: 'font-family:monospace;', text:text }
+    }
+    function italic(text) {
+        return { style: 'font-style:italic;', text:text }
+    }
+    function bold(text) {
+        return { style: 'font-weight:bold;', text:text }
+    }
+    function link(href, text) {
+        return { href: fromString(href), text:text };
+    }
+    function line(line, text) {
+        return { style: 'text-decoration:' + toLine(line) + ';', text:text };
+    }
+
+    function color(color, text) {
+        return { style: 'color:' + toCss(color) + ';', text:text };
+    }
+
+    function block(align) {
+        return function(text) {
+            var raw = {
+                ctor :'RawHtml',
+                html : Utils.makeText(text),
+                align: align,
+                guid : null
+            };
+            var pos = A2(NativeElement.htmlHeight, 0, raw);
+            return A3(Element.newElement, pos._0, pos._1, raw);
+        }
+    }
+
+    function markdown(text, guid) {
+        var raw = {
+            ctor:'RawHtml',
+            html: text,
+            align: null,
+            guid: guid
+        };
+        var pos = A2(NativeElement.htmlHeight, 0, raw);
+        return A3(Element.newElement, pos._0, pos._1, raw);
+    }
+
+    return elm.Native.Text.values = {
+        fromString: fromString,
+        append: F2(append),
+
+        height : F2(height),
+        italic : italic,
+        bold : bold,
+        line : F2(line),
+        monospace : monospace,
+        typeface : F2(typeface),
+        color : F2(color),
+        link : F2(link),
+        style : F2(style),
+
+        leftAligned  : block('left'),
+        rightAligned : block('right'),
+        centered     : block('center'),
+        justified    : block('justify'),
+        markdown     : markdown,
+
+        toTypefaces:toTypefaces,
+        toLine:toLine
     };
 };
 
@@ -15722,6 +16053,26 @@ Elm.Partials.Header.make = function (_elm) {
    return _elm.Partials.Header.values;
 };
 Elm.Partials = Elm.Partials || {};
+Elm.Partials.Help = Elm.Partials.Help || {};
+Elm.Partials.Help.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.Help = _elm.Partials.Help || {};
+   if (_elm.Partials.Help.values)
+   return _elm.Partials.Help.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.Help",
+   $Markdown = Elm.Markdown.make(_elm);
+   var view = $Markdown.toHtml("\n\n# Keyboard Shortcuts\n\n<dl class=\'cheatsheet\'>\n  <dt>\n    `a`\n    <h3>Add a box</h3>\n  </dt>\n  <dd>\n    Adds a new box to the top-left corner of the board and marks it selected so you can start working with it immediately.\n  </dd>\n  <dt>\n    `d`\n    <h3>Delete a box</h3>\n  </dt>\n  <dd>\n    Removes the selected box from the board.\n  </dd>\n  <dt>\n    `c`\n    <h3>Connect boxes</h3>\n  </dt>\n  <dd>\n    Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.\n  </dd>\n  <dt>\n    `h/j/k/l`\n    <h3>Nudge selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in small increments.\n  </dd>\n  <dt>\n    `shift+h/j/k/l`\n    <h3>Push selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in larger incremements.\n  </dd>\n  <dt>\n    `alt+shift+h/j/k/l`\n    <h3>Jump selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in ginormous incremements.\n  </dd>\n  <dt>\n    `+`\n    <h3>Increase box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little bigger.\n  </dd>\n  <dt>\n    `-`\n    <h3>Decrease box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little smaller.\n  </dd>\n  <dt>\n    `alt++`\n    <h3>Increase box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little wider.\n  </dd>\n  <dt>\n    `alt+-`\n    <h3>Decrease box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little thinner.\n  </dd>\n  <dt>\n    `ctrl++`\n    <h3>Increase box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little taller.\n  </dd>\n  <dt>\n    `ctrl+-`\n    <h3>Decrease box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little shorter.\n  </dd>\n  <dt>\n    `1/2/3/4`\n    <h3>Dark box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a dark style (this affects background, text and border color of each selected box).\n  </dd>\n  <dt>\n    `shift+1/2/3/4`\n    <h3>Light box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a light style (colors correspond to the dark styles of the same number).\n  </dd>\n  <dt>\n    `0/shift+0`\n    <h3>Black/White box styles</h3>\n  </dt>\n  <dd>\n    Switches between black or white box styles.\n  </dd>\n</dl>\n\n");
+   _elm.Partials.Help.values = {_op: _op
+                               ,view: view};
+   return _elm.Partials.Help.values;
+};
+Elm.Partials = Elm.Partials || {};
 Elm.Partials.Sidebar = Elm.Partials.Sidebar || {};
 Elm.Partials.Sidebar.make = function (_elm) {
    "use strict";
@@ -15864,6 +16215,7 @@ Elm.Routes.make = function (_elm) {
       routeSignal);
    };
    var map = $Signal.map;
+   var None = {ctor: "None"};
    var Help = {ctor: "Help"};
    var Colophon = {ctor: "Colophon"};
    var About = {ctor: "About"};
@@ -15873,6 +16225,7 @@ Elm.Routes.make = function (_elm) {
                         ,About: About
                         ,Colophon: Colophon
                         ,Help: Help
+                        ,None: None
                         ,map: map
                         ,sendToPort: sendToPort};
    return _elm.Routes.values;
@@ -16204,6 +16557,114 @@ Elm.Style.Color.make = function (_elm) {
                              ,encode: encode
                              ,decode: decode};
    return _elm.Style.Color.values;
+};
+Elm.Text = Elm.Text || {};
+Elm.Text.make = function (_elm) {
+   "use strict";
+   _elm.Text = _elm.Text || {};
+   if (_elm.Text.values)
+   return _elm.Text.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Text",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Native$Text = Elm.Native.Text.make(_elm);
+   var markdown = $Native$Text.markdown;
+   var justified = $Native$Text.justified;
+   var centered = $Native$Text.centered;
+   var rightAligned = $Native$Text.rightAligned;
+   var leftAligned = $Native$Text.leftAligned;
+   var line = $Native$Text.line;
+   var italic = $Native$Text.italic;
+   var bold = $Native$Text.bold;
+   var color = $Native$Text.color;
+   var height = $Native$Text.height;
+   var link = $Native$Text.link;
+   var monospace = $Native$Text.monospace;
+   var typeface = $Native$Text.typeface;
+   var style = $Native$Text.style;
+   var append = $Native$Text.append;
+   var fromString = $Native$Text.fromString;
+   var empty = fromString("");
+   var concat = function (texts) {
+      return A3($List.foldr,
+      append,
+      empty,
+      texts);
+   };
+   var join = F2(function (seperator,
+   texts) {
+      return concat(A2($List.intersperse,
+      seperator,
+      texts));
+   });
+   var plainText = function (str) {
+      return leftAligned(fromString(str));
+   };
+   var asText = function (value) {
+      return leftAligned(monospace(fromString($Basics.toString(value))));
+   };
+   var defaultStyle = {_: {}
+                      ,bold: false
+                      ,color: $Color.black
+                      ,height: $Maybe.Nothing
+                      ,italic: false
+                      ,line: $Maybe.Nothing
+                      ,typeface: _L.fromArray([])};
+   var Style = F6(function (a,
+   b,
+   c,
+   d,
+   e,
+   f) {
+      return {_: {}
+             ,bold: d
+             ,color: c
+             ,height: b
+             ,italic: e
+             ,line: f
+             ,typeface: a};
+   });
+   var Through = {ctor: "Through"};
+   var Over = {ctor: "Over"};
+   var Under = {ctor: "Under"};
+   var Text = {ctor: "Text"};
+   _elm.Text.values = {_op: _op
+                      ,Text: Text
+                      ,Under: Under
+                      ,Over: Over
+                      ,Through: Through
+                      ,Style: Style
+                      ,defaultStyle: defaultStyle
+                      ,fromString: fromString
+                      ,empty: empty
+                      ,append: append
+                      ,concat: concat
+                      ,join: join
+                      ,style: style
+                      ,typeface: typeface
+                      ,monospace: monospace
+                      ,link: link
+                      ,height: height
+                      ,color: color
+                      ,bold: bold
+                      ,italic: italic
+                      ,line: line
+                      ,leftAligned: leftAligned
+                      ,rightAligned: rightAligned
+                      ,centered: centered
+                      ,justified: justified
+                      ,plainText: plainText
+                      ,markdown: markdown
+                      ,asText: asText};
+   return _elm.Text.values;
 };
 Elm.Transform2D = Elm.Transform2D || {};
 Elm.Transform2D.make = function (_elm) {

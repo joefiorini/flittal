@@ -1,0 +1,23 @@
+.cheatsheet {
+    dt {
+      @include clearfix;
+      > code {
+        float: left;
+        display: inline-block;
+        padding: 0.25em 0.5em;
+        background: #F9F6F6;
+        border: 1px solid #D4CFCF;
+        border-radius: 4px;
+      }
+      > h3 {
+        text-align: right;
+        float: right;
+        margin: 0;
+      }
+    }
+    dd {
+      margin: 0;
+      font-size: 0.7em;
+      padding: 1em 0;
+    }
+}

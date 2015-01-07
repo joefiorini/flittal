@@ -2,4 +2,10 @@
   > a:first-child {
     float: right;
   }
+  > div {
+    > h1:first-of-type {
+      margin-top: 0;
+      text-align: center;
+    }
+  }
 }

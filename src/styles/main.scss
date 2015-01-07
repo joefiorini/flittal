@@ -1,13 +1,20 @@
 @import url(http://fonts.googleapis.com/css?family=Tienne:400,700|Muli:300,400);
+
 @import "normalize";
 @import "bourbon";
+
 @import "base/settings";
 @import "base/base";
 @import "base/links";
+@import "base/headings";
+
 @import "layout/containers";
+
 @import "modules/board";
 @import "modules/logo";
 @import "modules/sidebar";
+@import "modules/cheatsheet";
+
 @import "themes/default/box";
 
 * {

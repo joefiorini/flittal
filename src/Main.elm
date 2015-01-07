@@ -2,16 +2,18 @@ module Main where
 import Graphics.Element (Element)
 import Html
 import Html (Html, toElement, div, main', body, text, section, aside)
-import Html.Attributes (class)
+import Html.Attributes (class, style)
 import Board.Controller as Board
 import Board.Controller (checkFocus)
 import Box.Controller as Box
-import DomUtils (DragEvent, class', linkTo)
+import DomUtils (DragEvent, class', linkTo, styleProperty)
+import Geometry.Types as Geometry
 import Mousetrap
 import LocalChannel as LC
 import Partials.Header as Header
 import Partials.Footer as Footer
 import Partials.Sidebar as Sidebar
+import Partials.Help as Help
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -137,9 +139,20 @@ port serializeState =
 -- port transitionToRoute =
 --   Routes.sendToPort routeHandler
 
+toggleHelp =
+  Signal.map (\k ->
+    case k of
+      "shift+/" -> Routes.Help
+      "w"       -> Routes.Root
+      _ -> Routes.Root
+    ) Mousetrap.keydown
+
 routeHandler =
   Routes.map routesMap
-    <| Signal.subscribe routeChannel
+    <| Signal.mergeMany
+      [ Signal.subscribe routeChannel
+      , toggleHelp
+      ]
 
 type Update = NoOp
             | HydrateAppState AppState
@@ -192,7 +205,8 @@ container state (url,route) screenHeight =
       sidebarChannel = LC.create identity routeChannel
       boardChannel = LC.create BoardUpdate updates
       sidebar h = Sidebar.view h sidebarChannel
-      board = Board.view boardChannel state.currentBoard (screenHeight - 36)
+      offsetHeight = screenHeight - 52
+      board = Board.view boardChannel state.currentBoard offsetHeight
       (sidebar',extraClass) =
         case route of
           Routes.About ->
@@ -200,7 +214,7 @@ container state (url,route) screenHeight =
           Routes.Colophon ->
             ( sidebar <| text "What's in it", "l-board--compressed" )
           Routes.Help ->
-            ( sidebar <| text "Keyboard Shortcuts", "l-board--compressed" )
+            ( sidebar <| Help.view, "l-board--compressed" )
           _ -> ( text "" , "")
 
   in
@@ -213,7 +227,11 @@ container state (url,route) screenHeight =
           ]
           [ board ]
         , section
-            [class "l-content"]
+            [class "l-content"
+            , style
+              [ styleProperty "height" <| Geometry.toPx offsetHeight
+              ]
+            ]
             [ sidebar'
             ]
         ]
