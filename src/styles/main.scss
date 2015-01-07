@@ -3,9 +3,11 @@
 @import "bourbon";
 @import "base/settings";
 @import "base/base";
+@import "base/links";
 @import "layout/containers";
 @import "modules/board";
 @import "modules/logo";
+@import "modules/sidebar";
 @import "themes/default/box";
 
 * {
@@ -26,6 +28,7 @@
       display: inline-block;
       vertical-align: middle;
       padding: 0 0.25em;
+      font-family: $sans-serif-font-stack;
       &:first-child {
         padding-left: 0;
       }

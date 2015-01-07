@@ -7031,13 +7031,21 @@ Elm.Main.make = function (_elm) {
                                            _L.fromArray([board]))
                                            ,A2($Html.section,
                                            _L.fromArray([$Html$Attributes.$class("l-content")]),
-                                           _L.fromArray([sidebar]))]))
+                                           _L.fromArray([A2($Html.aside,
+                                           _L.fromArray([$Html$Attributes.$class("sidebar")]),
+                                           _L.fromArray([A3($DomUtils.linkTo,
+                                                        "x",
+                                                        "#",
+                                                        A2($Signal.send,
+                                                        routeChannel,
+                                                        $Routes.Root))
+                                                        ,sidebar]))]))]))
                               ,A2($Html.section,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 190 and 219");
+         "between lines 190 and 223");
       }();
    });
    var loadedState = _P.portIn("loadedState",

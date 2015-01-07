@@ -1,12 +1,12 @@
 module Main where
 import Graphics.Element (Element)
 import Html
-import Html (Html, toElement, div, main', body, text, section)
+import Html (Html, toElement, div, main', body, text, section, aside)
 import Html.Attributes (class)
 import Board.Controller as Board
 import Board.Controller (checkFocus)
 import Box.Controller as Box
-import DomUtils (DragEvent, class')
+import DomUtils (DragEvent, class', linkTo)
 import Mousetrap
 import LocalChannel as LC
 import Partials.Header as Header
@@ -211,7 +211,11 @@ container state (url,route) screenHeight =
           [ board ]
         , section
             [class "l-content"]
-            [ sidebar ]
+            [ aside
+              [ class "sidebar" ]
+              [ linkTo "x" "#" (Signal.send routeChannel Routes.Root)
+              , sidebar ]
+            ]
         ]
       , section
         [ class "l-container" ]
