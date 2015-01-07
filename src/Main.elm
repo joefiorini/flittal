@@ -93,6 +93,8 @@ routesMap routeName =
     case routeName of
       Routes.Root -> "/"
       Routes.About -> "/about"
+      Routes.Colophon -> "/colophon"
+      Routes.Help -> "/help"
   in
      (url, routeName)
 
@@ -191,7 +193,11 @@ container state (url,route) screenHeight =
       (sidebar,extraClass) =
         case route of
           Routes.About ->
-            ( text "About Diagrammer" , "l-board--compressed")
+            ( text "About Diagrammer" , "l-board--compressed" )
+          Routes.Colophon ->
+            ( text "What's in it", "l-board--compressed" )
+          Routes.Help ->
+            ( text "Keyboard Shortcuts", "l-board--compressed" )
           _ -> ( text "" , "")
 
   in

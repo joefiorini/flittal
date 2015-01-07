@@ -20,8 +20,9 @@ navLinks channel =
     , [ div
         [ class "nav-bar__links" ]
         [
-           linkTo "About" "#" (LC.send channel Routes.About) 
-        ,  linkTo "Colophon" "#" (LC.send channel Routes.Colophon) 
+          linkTo "About" "#" (LC.send channel Routes.About)
+        , linkTo "Colophon" "#" (LC.send channel Routes.Colophon)
+        , linkTo "Help" "#" (LC.send channel Routes.Help)
         ]
       ]
     ]

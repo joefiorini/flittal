@@ -95,9 +95,9 @@
         return state;
       });
 
-      board.ports.transitionToRoute.subscribe(function(url) {
-        window.history.pushState({}, '', url);
-      });
+      // board.ports.transitionToRoute.subscribe(function(url) {
+      //   window.history.pushState({}, '', url);
+      // });
 
       var links = document.querySelectorAll("a[href='#']");
       preventDefault(links, "click");

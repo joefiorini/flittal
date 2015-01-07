@@ -6,6 +6,7 @@ import Signal
 type RouteName = Root
                | About
                | Colophon
+               | Help
 
 type alias Url = String
 type alias Route = (Url, RouteName)

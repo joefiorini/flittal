@@ -6995,6 +6995,14 @@ Elm.Main.make = function (_elm) {
                     {case "About":
                        return {ctor: "_Tuple2"
                               ,_0: $Html.text("About Diagrammer")
+                              ,_1: "l-board--compressed"};
+                       case "Colophon":
+                       return {ctor: "_Tuple2"
+                              ,_0: $Html.text("What\'s in it")
+                              ,_1: "l-board--compressed"};
+                       case "Help":
+                       return {ctor: "_Tuple2"
+                              ,_0: $Html.text("Keyboard Shortcuts")
                               ,_1: "l-board--compressed"};}
                     return {ctor: "_Tuple2"
                            ,_0: $Html.text("")
@@ -7029,7 +7037,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 188 and 213");
+         "between lines 190 and 219");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7044,7 +7052,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 112 and 114");
+         "between lines 114 and 116");
       }();
    };
    var encodeAppState = function (state) {
@@ -7057,9 +7065,12 @@ Elm.Main.make = function (_elm) {
          var url = function () {
             switch (routeName.ctor)
             {case "About": return "/about";
+               case "Colophon":
+               return "/colophon";
+               case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 93 and 96");
+            "between lines 93 and 98");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -15681,7 +15692,13 @@ Elm.Partials.Header.make = function (_elm) {
                                                     "#",
                                                     A2($LocalChannel.send,
                                                     channel,
-                                                    $Routes.Colophon))]))])]));
+                                                    $Routes.Colophon))
+                                                    ,A3($DomUtils.linkTo,
+                                                    "Help",
+                                                    "#",
+                                                    A2($LocalChannel.send,
+                                                    channel,
+                                                    $Routes.Help))]))])]));
    };
    var view = function (channel) {
       return A2($Html.header,
@@ -15803,6 +15820,7 @@ Elm.Routes.make = function (_elm) {
       routeSignal);
    };
    var map = $Signal.map;
+   var Help = {ctor: "Help"};
    var Colophon = {ctor: "Colophon"};
    var About = {ctor: "About"};
    var Root = {ctor: "Root"};
@@ -15810,6 +15828,7 @@ Elm.Routes.make = function (_elm) {
                         ,Root: Root
                         ,About: About
                         ,Colophon: Colophon
+                        ,Help: Help
                         ,map: map
                         ,sendToPort: sendToPort};
    return _elm.Routes.values;
