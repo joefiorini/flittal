@@ -11192,6 +11192,10 @@ function handleMatch(keys, modifiers, e) {
 
 Mousetrap.handleKey = function(character, modifiers, e) {
 
+  if (e.which == 173 && character != "-") {
+    character = "-";
+  }
+
   if(e.type !== action) {
     return;
   }
