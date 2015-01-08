@@ -526,7 +526,9 @@ Elm.Board.Controller.make = function (_elm) {
                return function () {
                     var isSelected = function (boxKey) {
                        return _U.eq($List.length(A3($Box$Controller.filterKey,
-                       $Box$Controller.isSelected,
+                       function ($) {
+                          return $Basics.not($Box$Controller.isSelected($));
+                       },
                        boxKey,
                        state.boxes)),
                        0);
@@ -535,7 +537,9 @@ Elm.Board.Controller.make = function (_elm) {
                     "Deleting Selections",
                     _U.replace([["boxes"
                                 ,A2($List.filter,
-                                $Box$Controller.isSelected,
+                                function ($) {
+                                   return $Basics.not($Box$Controller.isSelected($));
+                                },
                                 state.boxes)]
                                ,["connections"
                                 ,A2($List.filter,

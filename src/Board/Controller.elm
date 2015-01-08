@@ -323,11 +323,11 @@ step update state =
 
       DeleteSelections ->
         let isSelected boxKey =
-          List.length (Box.filterKey Box.isSelected boxKey state.boxes)
+          List.length (Box.filterKey (not << Box.isSelected) boxKey state.boxes)
             == 0
         in
         Debug.log "Deleting Selections"
-          { state | boxes <- List.filter Box.isSelected state.boxes,
+          { state | boxes <- List.filter (not << Box.isSelected) state.boxes,
                     connections <- List.filter
                       (\c ->
                         (isSelected c.startBox) &&
