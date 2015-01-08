@@ -295,6 +295,7 @@ Elm.Board.Controller.make = function (_elm) {
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Style$Color = Elm.Style.Color.make(_elm);
@@ -423,6 +424,7 @@ Elm.Board.Controller.make = function (_elm) {
    var SelectPreviousBox = {ctor: "SelectPreviousBox"};
    var SelectNextBox = {ctor: "SelectNextBox"};
    var DeleteSelections = {ctor: "DeleteSelections"};
+   var DisconnectSelections = {ctor: "DisconnectSelections"};
    var ReconnectSelections = {ctor: "ReconnectSelections"};
    var step = F2(function (update,
    state) {
@@ -552,6 +554,55 @@ Elm.Board.Controller.make = function (_elm) {
                     return _U.replace([["boxes"
                                        ,updateBoxes(state.boxes)]],
                     state);
+                 }();
+               case "DisconnectSelections":
+               return function () {
+                    var selectedBoxes = A2($List.filter,
+                    $Box$Controller.isSelected,
+                    state.boxes);
+                    var connectionish = function () {
+                       switch (selectedBoxes.ctor)
+                       {case "::":
+                          switch (selectedBoxes._1.ctor)
+                            {case "::":
+                               switch (selectedBoxes._1._1.ctor)
+                                 {case "[]":
+                                    return $Maybe.Just(A2($List.filter,
+                                      A2($Connection$Controller.onBoxes,
+                                      selectedBoxes._0,
+                                      selectedBoxes._1._0),
+                                      state.connections));}
+                                 break;}
+                            break;}
+                       return $Maybe.Nothing;
+                    }();
+                    var filtered = A2($Maybe.map,
+                    function (c) {
+                       return function () {
+                          switch (c.ctor)
+                          {case "::":
+                             return A2($List.filter,
+                               F2(function (x,y) {
+                                  return !_U.eq(x,y);
+                               })(c._0),
+                               state.connections);
+                             case "[]":
+                             return state.connections;}
+                          _U.badCase($moduleName,
+                          "between lines 313 and 316");
+                       }();
+                    },
+                    connectionish);
+                    return function () {
+                       switch (filtered.ctor)
+                       {case "Just":
+                          return _U.replace([["connections"
+                                             ,filtered._0]],
+                            state);
+                          case "Nothing": return state;}
+                       _U.badCase($moduleName,
+                       "between lines 318 and 324");
+                    }();
                  }();
                case "DraggingBox":
                return function () {
@@ -708,15 +759,15 @@ Elm.Board.Controller.make = function (_elm) {
                     var selections = $List.filter($Box$Controller.isSelected)(sortLeftToRight(state.boxes));
                     var next = function (boxes) {
                        return function () {
-                          var _v26 = A2($Debug.log,
+                          var _v36 = A2($Debug.log,
                           "selections",
                           selections);
-                          switch (_v26.ctor)
+                          switch (_v36.ctor)
                           {case "::": return function () {
                                   var rightBoxes = A2($List.filter,
                                   function (box) {
                                      return A2($Connection$Controller.leftOf,
-                                     _v26._0.position,
+                                     _v36._0.position,
                                      box.position);
                                   },
                                   boxes);
@@ -727,7 +778,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 230 and 234");
+                                     "between lines 233 and 237");
                                   }();
                                }();
                              case "[]":
@@ -735,7 +786,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 224 and 234");
+                          "between lines 227 and 237");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -749,16 +800,16 @@ Elm.Board.Controller.make = function (_elm) {
                     var selections = $List.filter($Box$Controller.isSelected)(sortRightToLeft(state.boxes));
                     var next = function (boxes) {
                        return function () {
-                          var _v32 = A2($Debug.log,
+                          var _v42 = A2($Debug.log,
                           "selections",
                           selections);
-                          switch (_v32.ctor)
+                          switch (_v42.ctor)
                           {case "::": return function () {
                                   var rightBoxes = A2($List.filter,
                                   function (box) {
                                      return A2($Connection$Controller.leftOf,
                                      box.position,
-                                     _v32._0.position);
+                                     _v42._0.position);
                                   },
                                   boxes);
                                   return function () {
@@ -768,7 +819,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 251 and 255");
+                                     "between lines 254 and 258");
                                   }();
                                }();
                              case "[]":
@@ -776,7 +827,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 245 and 255");
+                          "between lines 248 and 258");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -831,7 +882,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.shiftKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 89 and 93");
+            "between lines 92 and 96");
          }();
       }();
    };
@@ -880,7 +931,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 97 and 100");
+            "between lines 100 and 103");
          }();
       }();
    };
@@ -907,17 +958,17 @@ Elm.Board.Controller.make = function (_elm) {
    });
    var actions = $Signal.channel(NoOp);
    var checkFocus = function () {
-      var toSelector = function (_v44) {
+      var toSelector = function (_v54) {
          return function () {
-            switch (_v44.ctor)
+            switch (_v54.ctor)
             {case "EditingBox":
                return A2($Basics._op["++"],
                  "#box-",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v44._0),
+                 $Basics.toString(_v54._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 120, column 41 to 75");
+            "on line 123, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -946,7 +997,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 126 and 130");
+            "between lines 129 and 133");
          }();
       }();
    };
@@ -965,6 +1016,7 @@ Elm.Board.Controller.make = function (_elm) {
                                   ,CancelEditingBox: CancelEditingBox
                                   ,ConnectSelections: ConnectSelections
                                   ,ReconnectSelections: ReconnectSelections
+                                  ,DisconnectSelections: DisconnectSelections
                                   ,DeleteSelections: DeleteSelections
                                   ,SelectNextBox: SelectNextBox
                                   ,SelectPreviousBox: SelectPreviousBox
@@ -2352,6 +2404,15 @@ Elm.Connection.Controller.make = function (_elm) {
          }();
       }();
    };
+   var onBoxes = F3(function (box1,
+   box2,
+   connection) {
+      return _U.eq(connection.startBox,
+      box1.key) || _U.eq(connection.endBox,
+      box1.key) || (_U.eq(connection.startBox,
+      box2.key) || _U.eq(connection.endBox,
+      box2.key));
+   });
    var within = F2(function (calculation,
    threshold) {
       return _U.replace([["lowerClamp"
@@ -2412,7 +2473,7 @@ Elm.Connection.Controller.make = function (_elm) {
                     _v12.location1,
                     _v12.location2);}
                _U.badCase($moduleName,
-               "between lines 127 and 129");
+               "between lines 131 and 133");
             }();
          }();
       }();
@@ -2649,10 +2710,10 @@ Elm.Connection.Controller.make = function (_elm) {
                                                          ,_0: _v35._0
                                                          ,_1: _v35._1}) ? _v34._1 - _v35._1 : _v35._1 - _v34._1)}};}
                           _U.badCase($moduleName,
-                          "between lines 239 and 241");
+                          "between lines 243 and 245");
                        }();}
                   _U.badCase($moduleName,
-                  "between lines 239 and 241");
+                  "between lines 243 and 245");
                }();
             });
             var horizontalSegment = F2(function (_v42,
@@ -2671,10 +2732,10 @@ Elm.Connection.Controller.make = function (_elm) {
                                                          ,_0: $Basics.abs(_v43._0 - _v42._0)
                                                          ,_1: lineSize}};}
                           _U.badCase($moduleName,
-                          "between lines 235 and 237");
+                          "between lines 239 and 241");
                        }();}
                   _U.badCase($moduleName,
-                  "between lines 235 and 237");
+                  "between lines 239 and 241");
                }();
             });
             return $Debug.log("drawing segments")(function () {
@@ -2823,7 +2884,7 @@ Elm.Connection.Controller.make = function (_elm) {
                                               ,_0: y1
                                               ,_1: y2};}
                                     _U.badCase($moduleName,
-                                    "between lines 249 and 252");
+                                    "between lines 253 and 256");
                                  }();
                                  return $Debug.log("StartEnd")(_U.eq(y1,
                                  y2) ? _L.fromArray([A2(horizontalSegment,
@@ -2972,7 +3033,7 @@ Elm.Connection.Controller.make = function (_elm) {
                         _v65._1)};
               }();}
          _U.badCase($moduleName,
-         "between lines 348 and 353");
+         "between lines 352 and 357");
       }();
    });
    var buildConnections = F2(function (connections,
@@ -3077,6 +3138,7 @@ Elm.Connection.Controller.make = function (_elm) {
                                        ,map2: map2
                                        ,mlt: mlt
                                        ,within: within
+                                       ,onBoxes: onBoxes
                                        ,isPort: isPort
                                        ,midPoint: midPoint
                                        ,rightPort: rightPort
@@ -7050,7 +7112,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 204 and 241");
+         "between lines 205 and 242");
       }();
    });
    var toggleHelp = A2($Signal.map,
@@ -7076,7 +7138,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 117 and 119");
+         "between lines 118 and 120");
       }();
    };
    var encodeAppState = function (state) {
@@ -7094,7 +7156,7 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 96 and 101");
+            "between lines 97 and 102");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7202,7 +7264,9 @@ Elm.Main.make = function (_elm) {
             case "shift+tab":
             return BoardUpdate($Board$Controller.SelectPreviousBox);
             case "tab":
-            return BoardUpdate($Board$Controller.SelectNextBox);}
+            return BoardUpdate($Board$Controller.SelectNextBox);
+            case "x":
+            return BoardUpdate($Board$Controller.DisconnectSelections);}
          return NoOp;
       }();
    };
@@ -16067,7 +16131,7 @@ Elm.Partials.Help.make = function (_elm) {
    _P = _N.Ports.make(_elm),
    $moduleName = "Partials.Help",
    $Markdown = Elm.Markdown.make(_elm);
-   var view = $Markdown.toHtml("\n\n# Keyboard Commands\n\n<dl class=\'cheatsheet\'>\n  <dt>\n    `a`\n    <h3>Add a box</h3>\n  </dt>\n  <dd>\n    Adds a new box to the top-left corner of the board and marks it selected so you can start working with it immediately.\n  </dd>\n  <dt>\n    `d`\n    <h3>Delete a box</h3>\n  </dt>\n  <dd>\n    Removes the selected box from the board.\n  </dd>\n  <dt>\n    `c`\n    <h3>Connect boxes</h3>\n  </dt>\n  <dd>\n    Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.\n  </dd>\n  <dt>\n    `?`\n    <h3>Keyboard Cheatsheet</h3>\n  </dt>\n  <dd>\n    Brings up a reference of all the keybaord commands provided by Flittal\n  </dd>\n  <dt>\n    `w`\n    <h3>Close sidebar</h3>\n  </dt>\n  <dd>\n    Anytime the sidebar is open, this will close it\n  </dd>\n  <dt>\n    `h/j/k/l`\n    <h3>Nudge selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in small increments.\n  </dd>\n  <dt>\n    `shift+h/j/k/l`\n    <h3>Push selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in larger incremements.\n  </dd>\n  <dt>\n    `alt+shift+h/j/k/l`\n    <h3>Jump selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in ginormous incremements.\n  </dd>\n  <dt>\n    `+`\n    <h3>Increase box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little bigger.\n  </dd>\n  <dt>\n    `-`\n    <h3>Decrease box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little smaller.\n  </dd>\n  <dt>\n    `alt++`\n    <h3>Increase box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little wider.\n  </dd>\n  <dt>\n    `alt+-`\n    <h3>Decrease box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little thinner.\n  </dd>\n  <dt>\n    `ctrl++`\n    <h3>Increase box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little taller.\n  </dd>\n  <dt>\n    `ctrl+-`\n    <h3>Decrease box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little shorter.\n  </dd>\n  <dt>\n    `1/2/3/4`\n    <h3>Dark box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a dark style (this affects background, text and border color of each selected box).\n  </dd>\n  <dt>\n    `shift+1/2/3/4`\n    <h3>Light box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a light style (colors correspond to the dark styles of the same number).\n  </dd>\n  <dt>\n    `0/shift+0`\n    <h3>Black/White box styles</h3>\n  </dt>\n  <dd>\n    Switches between black or white box styles.\n  </dd>\n</dl>\n\n");
+   var view = $Markdown.toHtml("\n\n# Keyboard Commands\n\n<dl class=\'cheatsheet\'>\n  <dt>\n    `a`\n    <h3>Add a box</h3>\n  </dt>\n  <dd>\n    Adds a new box to the top-left corner of the board and marks it selected so you can start working with it immediately.\n  </dd>\n  <dt>\n    `d`\n    <h3>Delete a box</h3>\n  </dt>\n  <dd>\n    Removes the selected box from the board.\n  </dd>\n  <dt>\n    `c`\n    <h3>Connect boxes</h3>\n  </dt>\n  <dd>\n    Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.\n  </dd>\n  <dt>\n    `x`\n    <h3>Disconnect Boxes</h3>\n  </dt>\n  <dd>\n    Removes a connection between two connected boxes.\n  <dt>\n    `?`\n    <h3>Keyboard Cheatsheet</h3>\n  </dt>\n  <dd>\n    Brings up a reference of all the keybaord commands provided by Flittal\n  </dd>\n  <dt>\n    `w`\n    <h3>Close sidebar</h3>\n  </dt>\n  <dd>\n    Anytime the sidebar is open, this will close it\n  </dd>\n  <dt>\n    `h/j/k/l`\n    <h3>Nudge selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in small increments.\n  </dd>\n  <dt>\n    `shift+h/j/k/l`\n    <h3>Push selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in larger incremements.\n  </dd>\n  <dt>\n    `alt+shift+h/j/k/l`\n    <h3>Jump selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in ginormous incremements.\n  </dd>\n  <dt>\n    `+`\n    <h3>Increase box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little bigger.\n  </dd>\n  <dt>\n    `-`\n    <h3>Decrease box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little smaller.\n  </dd>\n  <dt>\n    `alt++`\n    <h3>Increase box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little wider.\n  </dd>\n  <dt>\n    `alt+-`\n    <h3>Decrease box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little thinner.\n  </dd>\n  <dt>\n    `ctrl++`\n    <h3>Increase box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little taller.\n  </dd>\n  <dt>\n    `ctrl+-`\n    <h3>Decrease box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little shorter.\n  </dd>\n  <dt>\n    `1/2/3/4`\n    <h3>Dark box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a dark style (this affects background, text and border color of each selected box).\n  </dd>\n  <dt>\n    `shift+1/2/3/4`\n    <h3>Light box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a light style (colors correspond to the dark styles of the same number).\n  </dd>\n  <dt>\n    `0/shift+0`\n    <h3>Black/White box styles</h3>\n  </dt>\n  <dd>\n    Switches between black or white box styles.\n  </dd>\n</dl>\n\n");
    _elm.Partials.Help.values = {_op: _op
                                ,view: view};
    return _elm.Partials.Help.values;

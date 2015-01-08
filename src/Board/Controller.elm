@@ -6,6 +6,8 @@ import Debug
 import Signal
 import Signal (Channel, (<~))
 
+import Maybe
+
 import Html (..)
 import Html.Events (on)
 import Html.Attributes (id, style, property, class)
@@ -50,6 +52,7 @@ type Update = NoOp |
   CancelEditingBox Box.BoxKey |
   ConnectSelections |
   ReconnectSelections |
+  DisconnectSelections |
   DeleteSelections |
   SelectNextBox |
   SelectPreviousBox |
@@ -296,6 +299,27 @@ step update state =
              Debug.log "Connecting Selections"
              { state | connections <- Connection.buildConnections state.connections
                                           <| Debug.log "Selected Boxes" <| selectedBoxes state.boxes }
+
+      DisconnectSelections ->
+        let selectedBoxes = List.filter Box.isSelected state.boxes
+            connectionish =
+              case selectedBoxes of
+                [box1, box2] ->
+                  Just <| List.filter (Connection.onBoxes box1 box2) state.connections
+                _ ->
+                  Nothing
+            filtered =
+              Maybe.map (\c ->
+                case c of
+                  [] -> state.connections
+                  connection :: rest ->
+                    List.filter ((/=) connection) state.connections) connectionish
+        in
+           case filtered of
+             Just f ->
+              { state | connections <- f }
+             Nothing ->
+               state
 
       DeleteSelections ->
         let isSelected boxKey =

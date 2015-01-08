@@ -119,6 +119,10 @@ within calculation threshold =
     , upperClamp <- Just <| Debug.log "upperClamp" (calculation.location2 + threshold)
   }
 
+onBoxes box1 box2 connection =
+  (connection.startBox == box1.key || connection.endBox == box1.key) ||
+    (connection.startBox == box2.key || connection.endBox == box2.key)
+
 
 isPort : Calculation -> Bool
 isPort {result,clampedResult,lowerClamp,upperClamp,location1,location2} =

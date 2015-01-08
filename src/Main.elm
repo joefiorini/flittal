@@ -53,6 +53,7 @@ globalKeyboardShortcuts keyCommand =
     "shift+tab" -> BoardUpdate Board.SelectPreviousBox
     "a"     -> BoardUpdate Board.NewBox
     "c"     -> BoardUpdate Board.ConnectSelections
+    "x"     -> BoardUpdate Board.DisconnectSelections
     "d"     -> BoardUpdate Board.DeleteSelections
     "1"     -> BoardUpdate <| Board.UpdateBoxColor Dark1
     "2"     -> BoardUpdate <| Board.UpdateBoxColor Dark2

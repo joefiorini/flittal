@@ -29,6 +29,12 @@ view = Markdown.toHtml """
     Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.
   </dd>
   <dt>
+    `x`
+    <h3>Disconnect Boxes</h3>
+  </dt>
+  <dd>
+    Removes a connection between two connected boxes.
+  <dt>
     `?`
     <h3>Keyboard Cheatsheet</h3>
   </dt>
