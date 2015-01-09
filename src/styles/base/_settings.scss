@@ -5,3 +5,6 @@ $sans-serif-font-stack: Muli, sans-serif;
 
 $blue: #6794CA;
 $black: #424141;
+
+$default-border-color: lighten($black, 25%);
+$default-whitespace: 1em;

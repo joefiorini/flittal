@@ -6253,7 +6253,7 @@ Elm.Html.Attributes.make = function (_elm) {
    };
    var readonly = function (bool) {
       return A2(boolProperty,
-      "readonly",
+      "readOnly",
       bool);
    };
    var required = function (bool) {
@@ -6999,6 +6999,7 @@ Elm.Main.make = function (_elm) {
    $Partials$Header = Elm.Partials.Header.make(_elm),
    $Partials$Help = Elm.Partials.Help.make(_elm),
    $Partials$Sidebar = Elm.Partials.Sidebar.make(_elm),
+   $Partials$Toolbar = Elm.Partials.Toolbar.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Routes = Elm.Routes.make(_elm),
    $Signal = Elm.Signal.make(_elm),
@@ -7036,6 +7037,10 @@ Elm.Main.make = function (_elm) {
       }();
    };
    var routeChannel = $Signal.channel($Routes.Root);
+   var ToolbarUpdate = function (a) {
+      return {ctor: "ToolbarUpdate"
+             ,_0: a};
+   };
    var BoardUpdate = function (a) {
       return {ctor: "BoardUpdate"
              ,_0: a};
@@ -7052,11 +7057,23 @@ Elm.Main.make = function (_elm) {
    var inEditingMode = A2($Signal.map,
    entersEditMode,
    $Signal.subscribe(updates));
+   var toggleHelp = A2($Signal.map,
+   function (k) {
+      return function () {
+         switch (k)
+         {case "shift+/":
+            return $Routes.Help;
+            case "w": return $Routes.Root;}
+         return $Routes.Root;
+      }();
+   },
+   $Mousetrap.keydown);
+   var shareChannel = $Signal.channel(NoOp);
    var container = F3(function (state,
-   _v5,
+   _v6,
    screenHeight) {
       return function () {
-         switch (_v5.ctor)
+         switch (_v6.ctor)
          {case "_Tuple2":
             return function () {
                  var offsetHeight = screenHeight - 52;
@@ -7067,6 +7084,9 @@ Elm.Main.make = function (_elm) {
                  boardChannel,
                  state.currentBoard,
                  offsetHeight);
+                 var toolbarChannel = A2($LocalChannel.create,
+                 ToolbarUpdate,
+                 shareChannel);
                  var sidebarChannel = A2($LocalChannel.create,
                  $Basics.identity,
                  routeChannel);
@@ -7076,7 +7096,7 @@ Elm.Main.make = function (_elm) {
                     sidebarChannel);
                  };
                  var $ = function () {
-                    switch (_v5._1.ctor)
+                    switch (_v6._1.ctor)
                     {case "About":
                        return {ctor: "_Tuple2"
                               ,_0: sidebar($Html.text("About Diagrammer"))
@@ -7101,6 +7121,7 @@ Elm.Main.make = function (_elm) {
                  return A2($Html.div,
                  _L.fromArray([]),
                  _L.fromArray([$Partials$Header.view(headerChannel)
+                              ,$Partials$Toolbar.view(toolbarChannel)
                               ,A2($Html.main$,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),
                               _L.fromArray([A2($Html.section,
@@ -7116,20 +7137,9 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 205 and 242");
+         "between lines 211 and 250");
       }();
    });
-   var toggleHelp = A2($Signal.map,
-   function (k) {
-      return function () {
-         switch (k)
-         {case "shift+/":
-            return $Routes.Help;
-            case "w": return $Routes.Root;}
-         return $Routes.Root;
-      }();
-   },
-   $Mousetrap.keydown);
    var loadedState = _P.portIn("loadedState",
    _P.incomingSignal(function (v) {
       return typeof v === "string" || typeof v === "object" && v instanceof String ? v : _U.badPort("a string",
@@ -7142,7 +7152,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 118 and 120");
+         "between lines 119 and 121");
       }();
    };
    var encodeAppState = function (state) {
@@ -7160,7 +7170,7 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 97 and 102");
+            "between lines 98 and 103");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7405,7 +7415,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v16._1));}
          _U.badCase($moduleName,
-         "on line 44, column 23 to 56");
+         "on line 45, column 23 to 56");
       }();
    }),
    state),
@@ -7419,9 +7429,13 @@ Elm.Main.make = function (_elm) {
       var serializeAppState = function ($) {
          return $Json$Encode.encode(0)(encodeAppState($));
       };
-      return A2($Signal._op["<~"],
-      serializeAppState,
-      state);
+      return A2($Signal.sampleOn,
+      $Signal.subscribe(shareChannel),
+      A2($Signal._op["<~"],
+      function (a) {
+         return serializeAppState(a);
+      },
+      state));
    }());
    _elm.Main.values = {_op: _op
                       ,AppState: AppState
@@ -7433,11 +7447,13 @@ Elm.Main.make = function (_elm) {
                       ,decodeAppState: decodeAppState
                       ,extractAppState: extractAppState
                       ,deserializedState: deserializedState
+                      ,shareChannel: shareChannel
                       ,toggleHelp: toggleHelp
                       ,routeHandler: routeHandler
                       ,NoOp: NoOp
                       ,HydrateAppState: HydrateAppState
                       ,BoardUpdate: BoardUpdate
+                      ,ToolbarUpdate: ToolbarUpdate
                       ,updates: updates
                       ,routeChannel: routeChannel
                       ,userInput: userInput
@@ -16178,6 +16194,57 @@ Elm.Partials.Sidebar.make = function (_elm) {
    _elm.Partials.Sidebar.values = {_op: _op
                                   ,view: view};
    return _elm.Partials.Sidebar.values;
+};
+Elm.Partials = Elm.Partials || {};
+Elm.Partials.Toolbar = Elm.Partials.Toolbar || {};
+Elm.Partials.Toolbar.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.Toolbar = _elm.Partials.Toolbar || {};
+   if (_elm.Partials.Toolbar.values)
+   return _elm.Partials.Toolbar.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.Toolbar",
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $LocalChannel = Elm.LocalChannel.make(_elm);
+   var NoOp = {ctor: "NoOp"};
+   var ShareBoard = {ctor: "ShareBoard"};
+   var shareButton = function (channel) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("share")]),
+      _L.fromArray([A2($Html.input,
+                   _L.fromArray([$Html$Attributes.$class("share__url")
+                                ,$Html$Attributes.placeholder("Share this board")
+                                ,$Html$Events.onClick(A2($LocalChannel.send,
+                                channel,
+                                ShareBoard))
+                                ,$Html$Attributes.type$("text")
+                                ,$Html$Attributes.readonly(true)]),
+                   _L.fromArray([]))
+                   ,A2($Html.button,
+                   _L.fromArray([$Html$Attributes.$class("button-pseudo")]),
+                   _L.fromArray([A2($Html.img,
+                   _L.fromArray([$Html$Attributes.src("/images/icon-share.svg")
+                                ,$Html$Attributes.width(25)]),
+                   _L.fromArray([]))]))]));
+   };
+   var view = function (channel) {
+      return A2($Html.section,
+      _L.fromArray([$Html$Attributes.$class("l-container")]),
+      _L.fromArray([shareButton(channel)]));
+   };
+   _elm.Partials.Toolbar.values = {_op: _op
+                                  ,ShareBoard: ShareBoard
+                                  ,NoOp: NoOp
+                                  ,shareButton: shareButton
+                                  ,view: view};
+   return _elm.Partials.Toolbar.values;
 };
 Elm.Result = Elm.Result || {};
 Elm.Result.make = function (_elm) {

@@ -1,0 +1,18 @@
+// Pseudo button
+// -------------
+// Use the same padding as a default button,
+// for use in situations where a cancel link
+// sits next to a button.
+
+.button-pseudo {
+  display: inline-block;
+  padding: 8px 0;
+  line-height: normal;
+  vertical-align: middle;
+  background: transparent;
+  border: 0;
+
+  .button + & {
+    margin-left: $default-whitespace;
+  }
+}

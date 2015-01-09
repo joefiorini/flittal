@@ -14,6 +14,7 @@ import Partials.Header as Header
 import Partials.Footer as Footer
 import Partials.Sidebar as Sidebar
 import Partials.Help as Help
+import Partials.Toolbar as Toolbar
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -133,7 +134,11 @@ port serializeState : Signal String
 port serializeState =
   let serializeAppState = (Encode.encode 0) << encodeAppState
   in
-    serializeAppState <~ state
+    Signal.sampleOn
+      (Signal.subscribe shareChannel)
+      ((\a -> serializeAppState a) <~ state)
+
+shareChannel = Signal.channel NoOp
 
 
 -- port transitionToRoute : Signal Routes.Url
@@ -158,6 +163,7 @@ routeHandler =
 type Update = NoOp
             | HydrateAppState AppState
             | BoardUpdate Board.Update
+            | ToolbarUpdate Toolbar.Update
 
 updates : Signal.Channel Update
 updates = Signal.channel NoOp
@@ -204,6 +210,7 @@ container : AppState -> Routes.Route -> Int -> Html.Html
 container state (url,route) screenHeight =
   let headerChannel = LC.create identity routeChannel
       sidebarChannel = LC.create identity routeChannel
+      toolbarChannel = LC.create ToolbarUpdate shareChannel
       boardChannel = LC.create BoardUpdate updates
       sidebar h = Sidebar.view h sidebarChannel
       offsetHeight = screenHeight - 52
@@ -221,6 +228,7 @@ container state (url,route) screenHeight =
   in
     div []
       [ Header.view headerChannel
+      , Toolbar.view toolbarChannel
       , main'
         [class "l-container"]
         [ section

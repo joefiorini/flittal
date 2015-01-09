@@ -16,8 +16,8 @@ DIST_FILES = $(ELM_MAKE_OUTPUT) index.html $(CSS_OUTPUT)
 $(DIST)/index.html: $(ELM_HTML_FILE)
 	cp $< $@
 
-$(DIST)/images: $(SRC)/images
-	cp -r $< $(DIST)
+$(DIST)/images: $(SRC)/images/*
+	cp -r $< $(DIST)/images
 
 $(DIST)/%.js: $(SRC)/%.elm $(ELM_SRC) $(NATIVE)
 	elm-make --output $@ $<

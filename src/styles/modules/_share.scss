@@ -1,0 +1,24 @@
+.share {
+  position: relative;
+  @include clearfix;
+  margin-bottom: .5em;
+  &__url {
+    float: right;
+    @include transition(box-shadow 250ms);
+    padding: 0.5em !important;
+    padding-right: 2.25em !important;
+    border-radius: 5px;
+    color: #999;
+
+    &:hover {
+      cursor: pointer;
+      box-shadow: 2px 2px 4px 3px rgba($blue,0.49), -2px -2px 4px 3px rgba($blue,0.50);
+      border-color: white;
+    }
+  }
+  button {
+    position: absolute;
+    right: 7px;
+    top: -1px;
+  }
+}

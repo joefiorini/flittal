@@ -61,6 +61,7 @@
           var adaptedState = adapt(deserializedState);
           console.log(adaptedState);
           board.ports.loadedState.send(adaptedState);
+          window.history.pushState({}, "", "/");
         }
 
       };
@@ -85,8 +86,10 @@
 
       board.ports.serializeState.subscribe(function(state) {
         var encoded = btoa(JSON.stringify(state));
+        var input = document.querySelector(".share__url");
 
-        window.history.replaceState({}, "", "/boards/" + encoded);
+        input.value = window.location.protocol + "//" + window.location.host + "/boards/" + encoded;
+        input.select();
         return state;
       });
 
