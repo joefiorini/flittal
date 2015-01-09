@@ -7100,23 +7100,28 @@ Elm.Main.make = function (_elm) {
                  var $ = function () {
                     switch (_v6._1.ctor)
                     {case "About":
-                       return {ctor: "_Tuple2"
+                       return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$About.view)
-                              ,_1: "l-board--compressed"};
+                              ,_1: "l-board--compressed"
+                              ,_2: offsetHeight};
                        case "Colophon":
-                       return {ctor: "_Tuple2"
+                       return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$Colophon.view)
-                              ,_1: "l-board--compressed"};
+                              ,_1: "l-board--compressed"
+                              ,_2: offsetHeight};
                        case "Help":
-                       return {ctor: "_Tuple2"
+                       return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$Help.view)
-                              ,_1: "l-board--compressed"};}
-                    return {ctor: "_Tuple2"
+                              ,_1: "l-board--compressed"
+                              ,_2: offsetHeight};}
+                    return {ctor: "_Tuple3"
                            ,_0: $Html.text("")
-                           ,_1: ""};
+                           ,_1: ""
+                           ,_2: 0};
                  }(),
                  sidebar$ = $._0,
-                 extraClass = $._1;
+                 extraClass = $._1,
+                 sidebarHeight = $._2;
                  var headerChannel = A2($LocalChannel.create,
                  $Basics.identity,
                  routeChannel);
@@ -7132,7 +7137,7 @@ Elm.Main.make = function (_elm) {
                                            _L.fromArray([board]))
                                            ,A2($Html.section,
                                            _L.fromArray([$Html$Attributes.$class("l-content")
-                                                        ,$Html$Attributes.style(_L.fromArray([$DomUtils.styleProperty("height")($Geometry$Types.toPx(offsetHeight))]))]),
+                                                        ,$Html$Attributes.style(_L.fromArray([$DomUtils.styleProperty("height")($Geometry$Types.toPx(sidebarHeight))]))]),
                                            _L.fromArray([sidebar$]))]))
                               ,A2($Html.section,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),

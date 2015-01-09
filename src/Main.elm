@@ -217,15 +217,15 @@ container state (url,route) screenHeight =
       sidebar h = Sidebar.view h sidebarChannel
       offsetHeight = screenHeight - 52
       board = Board.view boardChannel state.currentBoard offsetHeight
-      (sidebar',extraClass) =
+      (sidebar',extraClass,sidebarHeight) =
         case route of
           Routes.About ->
-            ( sidebar <| About.view, "l-board--compressed" )
+            ( sidebar <| About.view, "l-board--compressed", offsetHeight )
           Routes.Colophon ->
-            ( sidebar <| Colophon.view, "l-board--compressed" )
+            ( sidebar <| Colophon.view, "l-board--compressed", offsetHeight )
           Routes.Help ->
-            ( sidebar <| Help.view, "l-board--compressed" )
-          _ -> ( text "" , "")
+            ( sidebar <| Help.view, "l-board--compressed", offsetHeight )
+          _ -> ( text "" , "", 0)
 
   in
     div []
@@ -240,7 +240,7 @@ container state (url,route) screenHeight =
         , section
             [class "l-content"
             , style
-              [ styleProperty "height" <| Geometry.toPx offsetHeight
+              [ styleProperty "height" <| Geometry.toPx sidebarHeight
               ]
             ]
             [ sidebar'
