@@ -74,7 +74,7 @@ view channel box =
     , styleProperty "left" (fst <| toPxPoint box.position)
     , styleProperty "top" (snd <| toPxPoint box.position)
     , styleProperty "text-align" "center"
-    , styleProperty "line-height" (toString (toFloat <| snd box.size)  ++ "px")
+    , styleProperty "line-height" "2"
     ]
     , autofocus True
     , boolProperty "draggable" True

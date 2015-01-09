@@ -1550,9 +1550,7 @@ Elm.Box.Controller.make = function (_elm) {
                                                         "center")
                                                         ,A2($DomUtils.styleProperty,
                                                         "line-height",
-                                                        A2($Basics._op["++"],
-                                                        $Basics.toString($Basics.toFloat($Basics.snd(box.size))),
-                                                        "px"))]))
+                                                        "2")]))
                    ,$Html$Attributes.autofocus(true)
                    ,A2($Html$Attributes.boolProperty,
                    "draggable",
