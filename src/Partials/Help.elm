@@ -34,6 +34,14 @@ view = Markdown.toHtml """
   </dt>
   <dd>
     Removes a connection between two connected boxes.
+  </dd>
+  <dt>
+    `Shift+click`
+    <h3>Select multiple boxes</h3>
+  </dt>
+  <dd>
+    Many of the keyboard shortcuts modify all boxes that are selected. Use this after selecting a box to select additional ones.
+  </dd>
   <dt>
     `?`
     <h3>Keyboard Cheatsheet</h3>

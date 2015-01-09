@@ -6995,6 +6995,8 @@ Elm.Main.make = function (_elm) {
    $Json$Encode = Elm.Json.Encode.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm),
    $Mousetrap = Elm.Mousetrap.make(_elm),
+   $Partials$About = Elm.Partials.About.make(_elm),
+   $Partials$Colophon = Elm.Partials.Colophon.make(_elm),
    $Partials$Footer = Elm.Partials.Footer.make(_elm),
    $Partials$Header = Elm.Partials.Header.make(_elm),
    $Partials$Help = Elm.Partials.Help.make(_elm),
@@ -7099,11 +7101,11 @@ Elm.Main.make = function (_elm) {
                     switch (_v6._1.ctor)
                     {case "About":
                        return {ctor: "_Tuple2"
-                              ,_0: sidebar($Html.text("About Diagrammer"))
+                              ,_0: sidebar($Partials$About.view)
                               ,_1: "l-board--compressed"};
                        case "Colophon":
                        return {ctor: "_Tuple2"
-                              ,_0: sidebar($Html.text("What\'s in it"))
+                              ,_0: sidebar($Partials$Colophon.view)
                               ,_1: "l-board--compressed"};
                        case "Help":
                        return {ctor: "_Tuple2"
@@ -7137,7 +7139,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 211 and 250");
+         "between lines 213 and 252");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7152,7 +7154,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 119 and 121");
+         "between lines 121 and 123");
       }();
    };
    var encodeAppState = function (state) {
@@ -7170,7 +7172,7 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 98 and 103");
+            "between lines 100 and 105");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7415,7 +7417,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v16._1));}
          _U.badCase($moduleName,
-         "on line 45, column 23 to 56");
+         "on line 47, column 23 to 56");
       }();
    }),
    state),
@@ -16059,6 +16061,46 @@ Elm.Native.Window.make = function(localRuntime) {
 };
 
 Elm.Partials = Elm.Partials || {};
+Elm.Partials.About = Elm.Partials.About || {};
+Elm.Partials.About.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.About = _elm.Partials.About || {};
+   if (_elm.Partials.About.values)
+   return _elm.Partials.About.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.About",
+   $Markdown = Elm.Markdown.make(_elm);
+   var view = $Markdown.toHtml("\n\n## Welcome to Flittal\n\n#### Planning at the speed of thought\n\nI\'ve used Visio, OmniGraffle, Google Charts, etc, but none of them supported the fast paced workflow I needed for getting ideas out of my head. After enough time with suboptimal tools, I\'ve decided to write my own.\n\nFlittal is a lightweight, keyboard-driven tool to help you communicate your ideas. At the moment I\'ve chosen to focus on flow charts, but the future may bring additional features and charts.\n\nGet started by pressing `?` to browse the keyboard shortcuts that are available. When you are ready to share, click on the \"Share this board\" field.\n\n### This tool is alpha\n\nIf you get frustrated with this tool or have ideas you\'d like to see implemented, my email is <joe@joefiorini.com>, I want to hear from you.\n\nThanks for trying it out!\n\n");
+   _elm.Partials.About.values = {_op: _op
+                                ,view: view};
+   return _elm.Partials.About.values;
+};
+Elm.Partials = Elm.Partials || {};
+Elm.Partials.Colophon = Elm.Partials.Colophon || {};
+Elm.Partials.Colophon.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.Colophon = _elm.Partials.Colophon || {};
+   if (_elm.Partials.Colophon.values)
+   return _elm.Partials.Colophon.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.Colophon",
+   $Markdown = Elm.Markdown.make(_elm);
+   var view = $Markdown.toHtml("\n\n## What I Used\n\nThis app was designed and built by Joe Fiorini.\n\n- [Sketch](http://bohemiancoding.com/sketch/) for design\n- [Elm](http://elm-lang.org) for [beautiful code](https://github.com/joefiorini/flittal)\n- [Vim](http://www.vim.org) for writing\n\nThanks to the [elm-discuss](https://groups.google.com/forum/#!forum/elm-discuss) mailing list for answering my questions.\n\nDedicated to Katie for giving me the time to do this even when she didn\'t want to ;)\n\n");
+   _elm.Partials.Colophon.values = {_op: _op
+                                   ,view: view};
+   return _elm.Partials.Colophon.values;
+};
+Elm.Partials = Elm.Partials || {};
 Elm.Partials.Footer = Elm.Partials.Footer || {};
 Elm.Partials.Footer.make = function (_elm) {
    "use strict";
@@ -16155,7 +16197,7 @@ Elm.Partials.Help.make = function (_elm) {
    _P = _N.Ports.make(_elm),
    $moduleName = "Partials.Help",
    $Markdown = Elm.Markdown.make(_elm);
-   var view = $Markdown.toHtml("\n\n# Keyboard Commands\n\n<dl class=\'cheatsheet\'>\n  <dt>\n    `a`\n    <h3>Add a box</h3>\n  </dt>\n  <dd>\n    Adds a new box to the top-left corner of the board and marks it selected so you can start working with it immediately.\n  </dd>\n  <dt>\n    `d`\n    <h3>Delete a box</h3>\n  </dt>\n  <dd>\n    Removes the selected box from the board.\n  </dd>\n  <dt>\n    `c`\n    <h3>Connect boxes</h3>\n  </dt>\n  <dd>\n    Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.\n  </dd>\n  <dt>\n    `x`\n    <h3>Disconnect Boxes</h3>\n  </dt>\n  <dd>\n    Removes a connection between two connected boxes.\n  <dt>\n    `?`\n    <h3>Keyboard Cheatsheet</h3>\n  </dt>\n  <dd>\n    Brings up a reference of all the keybaord commands provided by Flittal\n  </dd>\n  <dt>\n    `w`\n    <h3>Close sidebar</h3>\n  </dt>\n  <dd>\n    Anytime the sidebar is open, this will close it\n  </dd>\n  <dt>\n    `h/j/k/l`\n    <h3>Nudge selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in small increments.\n  </dd>\n  <dt>\n    `shift+h/j/k/l`\n    <h3>Push selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in larger incremements.\n  </dd>\n  <dt>\n    `alt+shift+h/j/k/l`\n    <h3>Jump selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in ginormous incremements.\n  </dd>\n  <dt>\n    `+`\n    <h3>Increase box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little bigger.\n  </dd>\n  <dt>\n    `-`\n    <h3>Decrease box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little smaller.\n  </dd>\n  <dt>\n    `alt++`\n    <h3>Increase box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little wider.\n  </dd>\n  <dt>\n    `alt+-`\n    <h3>Decrease box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little thinner.\n  </dd>\n  <dt>\n    `ctrl++`\n    <h3>Increase box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little taller.\n  </dd>\n  <dt>\n    `ctrl+-`\n    <h3>Decrease box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little shorter.\n  </dd>\n  <dt>\n    `1/2/3/4`\n    <h3>Dark box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a dark style (this affects background, text and border color of each selected box).\n  </dd>\n  <dt>\n    `shift+1/2/3/4`\n    <h3>Light box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a light style (colors correspond to the dark styles of the same number).\n  </dd>\n  <dt>\n    `0/shift+0`\n    <h3>Black/White box styles</h3>\n  </dt>\n  <dd>\n    Switches between black or white box styles.\n  </dd>\n</dl>\n\n");
+   var view = $Markdown.toHtml("\n\n# Keyboard Commands\n\n<dl class=\'cheatsheet\'>\n  <dt>\n    `a`\n    <h3>Add a box</h3>\n  </dt>\n  <dd>\n    Adds a new box to the top-left corner of the board and marks it selected so you can start working with it immediately.\n  </dd>\n  <dt>\n    `d`\n    <h3>Delete a box</h3>\n  </dt>\n  <dd>\n    Removes the selected box from the board.\n  </dd>\n  <dt>\n    `c`\n    <h3>Connect boxes</h3>\n  </dt>\n  <dd>\n    Select two boxes (click one, then click another while holding down shift) and press c. This draws a line between the boxes, with an arrowhead pointing at the first box selected.\n  </dd>\n  <dt>\n    `x`\n    <h3>Disconnect Boxes</h3>\n  </dt>\n  <dd>\n    Removes a connection between two connected boxes.\n  </dd>\n  <dt>\n    `Shift+click`\n    <h3>Select multiple boxes</h3>\n  </dt>\n  <dd>\n    Many of the keyboard shortcuts modify all boxes that are selected. Use this after selecting a box to select additional ones.\n  </dd>\n  <dt>\n    `?`\n    <h3>Keyboard Cheatsheet</h3>\n  </dt>\n  <dd>\n    Brings up a reference of all the keybaord commands provided by Flittal\n  </dd>\n  <dt>\n    `w`\n    <h3>Close sidebar</h3>\n  </dt>\n  <dd>\n    Anytime the sidebar is open, this will close it\n  </dd>\n  <dt>\n    `h/j/k/l`\n    <h3>Nudge selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in small increments.\n  </dd>\n  <dt>\n    `shift+h/j/k/l`\n    <h3>Push selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in larger incremements.\n  </dd>\n  <dt>\n    `alt+shift+h/j/k/l`\n    <h3>Jump selected box</h3>\n  </dt>\n  <dd>\n    Move the selected boxes left, down, up or right on the board in ginormous incremements.\n  </dd>\n  <dt>\n    `+`\n    <h3>Increase box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little bigger.\n  </dd>\n  <dt>\n    `-`\n    <h3>Decrease box size</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little smaller.\n  </dd>\n  <dt>\n    `alt++`\n    <h3>Increase box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little wider.\n  </dd>\n  <dt>\n    `alt+-`\n    <h3>Decrease box width</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little thinner.\n  </dd>\n  <dt>\n    `ctrl++`\n    <h3>Increase box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little taller.\n  </dd>\n  <dt>\n    `ctrl+-`\n    <h3>Decrease box height</h3>\n  </dt>\n  <dd>\n    Make the selected boxes a little shorter.\n  </dd>\n  <dt>\n    `1/2/3/4`\n    <h3>Dark box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a dark style (this affects background, text and border color of each selected box).\n  </dd>\n  <dt>\n    `shift+1/2/3/4`\n    <h3>Light box styles</h3>\n  </dt>\n  <dd>\n    Changes the colors of the selected boxes to a light style (colors correspond to the dark styles of the same number).\n  </dd>\n  <dt>\n    `0/shift+0`\n    <h3>Black/White box styles</h3>\n  </dt>\n  <dd>\n    Switches between black or white box styles.\n  </dd>\n</dl>\n\n");
    _elm.Partials.Help.values = {_op: _op
                                ,view: view};
    return _elm.Partials.Help.values;

@@ -15,6 +15,8 @@ import Partials.Footer as Footer
 import Partials.Sidebar as Sidebar
 import Partials.Help as Help
 import Partials.Toolbar as Toolbar
+import Partials.About as About
+import Partials.Colophon as Colophon
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -218,9 +220,9 @@ container state (url,route) screenHeight =
       (sidebar',extraClass) =
         case route of
           Routes.About ->
-            ( sidebar <| text "About Diagrammer", "l-board--compressed" )
+            ( sidebar <| About.view, "l-board--compressed" )
           Routes.Colophon ->
-            ( sidebar <| text "What's in it", "l-board--compressed" )
+            ( sidebar <| Colophon.view, "l-board--compressed" )
           Routes.Help ->
             ( sidebar <| Help.view, "l-board--compressed" )
           _ -> ( text "" , "")
