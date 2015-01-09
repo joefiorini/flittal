@@ -52,6 +52,12 @@
       }
 
       window.onload = function(e) {
+
+        if (window.localStorage.getItem('sawIntro') == null) {
+          window.localStorage.setItem('sawIntro', true);
+          window.location.href = "http://tinyurl.com/my7tc6p";
+        }
+
         var currentUrl = window.location.href;
         var matches = currentUrl.match(/\/boards\/(.*)$/);
 

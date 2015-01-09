@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="17px" height="16px" viewBox="0 0 17 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.2.1 (9971) - http://www.bohemiancoding.com/sketch -->
+    <title>icon-clear</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Website" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Toolbar-Open" sketch:type="MSArtboardGroup" transform="translate(-370.000000, -51.000000)">
+            <g id="icon-clear" sketch:type="MSLayerGroup" transform="translate(378.537571, 60.000000) rotate(45.000000) translate(-378.537571, -60.000000) translate(374.537571, 53.500000)">
+                <path d="M0.147589295,0.240436506 C0.148948984,0.10764709 0.251868338,1.87583282e-12 0.38969201,1.87583282e-12 L7.11293198,1.87583282e-12 C7.24528193,1.87583282e-12 7.35257276,0.11750909 7.35257276,0.23820263 L7.35257276,10.2252154 C7.35257276,10.3567711 7.28150942,10.5344814 7.1849767,10.6310141 L5.38432526,12.4316656 C5.29176452,12.5242263 5.10820989,12.5992616 4.96613041,12.5992616 L0.271640706,12.5992616 C0.133238812,12.5992616 0.0221572011,12.4903403 0.0235038421,12.3588251 L0.147589295,0.240436506 Z" id="Path-78" stroke="#FFFFFF" stroke-width="2" sketch:type="MSShapeGroup"></path>
+                <rect id="Rectangle-49" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0.46735325" y="0.33382375" width="6.88515699" height="6.08836887"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

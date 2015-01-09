@@ -206,13 +206,18 @@ step update state =
       let updatedBoard = Board.step u state.currentBoard
       in
       { state | currentBoard <- updatedBoard }
+    ToolbarUpdate u ->
+      let updatedBoard = Board.step Board.ClearBoard state.currentBoard
+      in
+         { state | currentBoard <- updatedBoard }
     _ -> state
 
 container : AppState -> Routes.Route -> Int -> Html.Html
 container state (url,route) screenHeight =
   let headerChannel = LC.create identity routeChannel
       sidebarChannel = LC.create identity routeChannel
-      toolbarChannel = LC.create ToolbarUpdate shareChannel
+      shareChannel' = LC.create ToolbarUpdate shareChannel
+      toolbarChannel = LC.create ToolbarUpdate updates
       boardChannel = LC.create BoardUpdate updates
       sidebar h = Sidebar.view h sidebarChannel
       offsetHeight = screenHeight - 52
@@ -230,7 +235,7 @@ container state (url,route) screenHeight =
   in
     div []
       [ Header.view headerChannel
-      , Toolbar.view toolbarChannel
+      , Toolbar.view toolbarChannel shareChannel'
       , main'
         [class "l-container"]
         [ section

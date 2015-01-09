@@ -2,8 +2,8 @@
   position: relative;
   @include clearfix;
   margin-bottom: .5em;
+  float: right;
   &__url {
-    float: right;
     @include transition(box-shadow 250ms);
     padding: 0.5em !important;
     padding-right: 2.25em !important;
@@ -21,4 +21,12 @@
     right: 7px;
     top: -1px;
   }
+}
+
+.clear-board {
+  img {
+    width: auto;
+    height: 26px;
+  }
+  float: left;
 }

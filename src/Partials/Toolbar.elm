@@ -1,13 +1,27 @@
 module Partials.Toolbar where
 
 import Html (input, div, text, section, button, img)
-import Html.Attributes (class, placeholder, src, width, type', readonly, required)
+import Html.Attributes (class, placeholder, src, width, type', readonly, required, title)
 import Html.Events (onClick)
 import LocalChannel as LC
 
 type Update =
     ShareBoard
+  | ClearBoard
   | NoOp
+
+clearButton channel =
+  div
+    [ class "clear-board" ]
+    [ button
+      [ onClick (LC.send channel ClearBoard)
+      , title "Clear the board"
+      ]
+      [ img
+        [ src "/images/icon-clear.svg" ]
+        [ ]
+      ]
+    ]
 
 shareButton channel =
   div
@@ -30,8 +44,9 @@ shareButton channel =
       ]
     ]
 
-view channel =
+view channel share =
   section
     [class "l-container"]
-    [ shareButton channel
+    [ clearButton channel
+    , shareButton share
     ]

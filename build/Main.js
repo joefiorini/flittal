@@ -515,6 +515,8 @@ Elm.Board.Controller.make = function (_elm) {
                                   _v7._0._0))]],
                       state));}
                  break;
+               case "ClearBoard":
+               return startingState;
                case "ConnectSelections":
                return _U.cmp($List.length(selectedBoxes(state.boxes)),
                  2) < 0 ? state : A2($Debug.log,
@@ -593,7 +595,7 @@ Elm.Board.Controller.make = function (_elm) {
                              case "[]":
                              return state.connections;}
                           _U.badCase($moduleName,
-                          "between lines 313 and 316");
+                          "between lines 314 and 317");
                        }();
                     },
                     connectionish);
@@ -605,7 +607,7 @@ Elm.Board.Controller.make = function (_elm) {
                             state);
                           case "Nothing": return state;}
                        _U.badCase($moduleName,
-                       "between lines 318 and 324");
+                       "between lines 319 and 325");
                     }();
                  }();
                case "DraggingBox":
@@ -782,7 +784,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 233 and 237");
+                                     "between lines 234 and 238");
                                   }();
                                }();
                              case "[]":
@@ -790,7 +792,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 227 and 237");
+                          "between lines 228 and 238");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -823,7 +825,7 @@ Elm.Board.Controller.make = function (_elm) {
                                         case "[]":
                                         return $List.head(boxes);}
                                      _U.badCase($moduleName,
-                                     "between lines 254 and 258");
+                                     "between lines 255 and 259");
                                   }();
                                }();
                              case "[]":
@@ -831,7 +833,7 @@ Elm.Board.Controller.make = function (_elm) {
                                "all sorted",
                                boxes));}
                           _U.badCase($moduleName,
-                          "between lines 248 and 258");
+                          "between lines 249 and 259");
                        }();
                     };
                     return _U.replace([["boxes"
@@ -886,7 +888,7 @@ Elm.Board.Controller.make = function (_elm) {
                case "Ok":
                return event.shiftKey ? SelectBoxMulti(boxIdM._0) : SelectBox(boxIdM._0);}
             _U.badCase($moduleName,
-            "between lines 92 and 96");
+            "between lines 93 and 97");
          }();
       }();
    };
@@ -904,6 +906,7 @@ Elm.Board.Controller.make = function (_elm) {
              ,_1: b};
    });
    var RequestedAdd = {ctor: "RequestedAdd"};
+   var ClearBoard = {ctor: "ClearBoard"};
    var BoxAction = function (a) {
       return {ctor: "BoxAction"
              ,_0: a};
@@ -935,7 +938,7 @@ Elm.Board.Controller.make = function (_elm) {
                  boxIdM._0,
                  true);}
             _U.badCase($moduleName,
-            "between lines 100 and 103");
+            "between lines 101 and 104");
          }();
       }();
    };
@@ -972,7 +975,7 @@ Elm.Board.Controller.make = function (_elm) {
                  $Basics.toString(_v54._0),
                  "-label"));}
             _U.badCase($moduleName,
-            "on line 123, column 41 to 75");
+            "on line 124, column 41 to 75");
          }();
       };
       var needsFocus = function (act) {
@@ -1001,13 +1004,14 @@ Elm.Board.Controller.make = function (_elm) {
                  boxKeyM._0,
                  event);}
             _U.badCase($moduleName,
-            "between lines 129 and 133");
+            "between lines 130 and 134");
          }();
       }();
    };
    _elm.Board.Controller.values = {_op: _op
                                   ,NoOp: NoOp
                                   ,BoxAction: BoxAction
+                                  ,ClearBoard: ClearBoard
                                   ,RequestedAdd: RequestedAdd
                                   ,UpdateBox: UpdateBox
                                   ,NewBox: NewBox
@@ -7024,7 +7028,16 @@ Elm.Main.make = function (_elm) {
             case "HydrateAppState":
             return A2($Debug.log,
               "Updated State",
-              _v0._0);}
+              _v0._0);
+            case "ToolbarUpdate":
+            return function () {
+                 var updatedBoard = A2($Board$Controller.step,
+                 $Board$Controller.ClearBoard,
+                 state.currentBoard);
+                 return _U.replace([["currentBoard"
+                                    ,updatedBoard]],
+                 state);
+              }();}
          return state;
       }();
    });
@@ -7070,10 +7083,10 @@ Elm.Main.make = function (_elm) {
    $Mousetrap.keydown);
    var shareChannel = $Signal.channel(NoOp);
    var container = F3(function (state,
-   _v6,
+   _v7,
    screenHeight) {
       return function () {
-         switch (_v6.ctor)
+         switch (_v7.ctor)
          {case "_Tuple2":
             return function () {
                  var offsetHeight = screenHeight - 52;
@@ -7086,6 +7099,9 @@ Elm.Main.make = function (_elm) {
                  offsetHeight);
                  var toolbarChannel = A2($LocalChannel.create,
                  ToolbarUpdate,
+                 updates);
+                 var shareChannel$ = A2($LocalChannel.create,
+                 ToolbarUpdate,
                  shareChannel);
                  var sidebarChannel = A2($LocalChannel.create,
                  $Basics.identity,
@@ -7096,7 +7112,7 @@ Elm.Main.make = function (_elm) {
                     sidebarChannel);
                  };
                  var $ = function () {
-                    switch (_v6._1.ctor)
+                    switch (_v7._1.ctor)
                     {case "About":
                        return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$About.view)
@@ -7126,7 +7142,9 @@ Elm.Main.make = function (_elm) {
                  return A2($Html.div,
                  _L.fromArray([]),
                  _L.fromArray([$Partials$Header.view(headerChannel)
-                              ,$Partials$Toolbar.view(toolbarChannel)
+                              ,A2($Partials$Toolbar.view,
+                              toolbarChannel,
+                              shareChannel$)
                               ,A2($Html.main$,
                               _L.fromArray([$Html$Attributes.$class("l-container")]),
                               _L.fromArray([A2($Html.section,
@@ -7142,7 +7160,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 213 and 252");
+         "between lines 217 and 257");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7188,10 +7206,10 @@ Elm.Main.make = function (_elm) {
                        ,currentBoard: $Board$Controller.startingState};
    var globalKeyboardShortcuts = function (keyCommand) {
       return function () {
-         var _v15 = A2($Debug.log,
+         var _v16 = A2($Debug.log,
          "keyCommand",
          keyCommand);
-         switch (_v15)
+         switch (_v16)
          {case "-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownAll));
             case "0":
@@ -7409,16 +7427,16 @@ Elm.Main.make = function (_elm) {
    var main = A2($Signal._op["~"],
    A2($Signal._op["~"],
    A2($Signal._op["<~"],
-   F3(function (s,r,_v16) {
+   F3(function (s,r,_v17) {
       return function () {
-         switch (_v16.ctor)
+         switch (_v17.ctor)
          {case "_Tuple2":
             return A2($Html.toElement,
-              _v16._0,
-              _v16._1)(A3(container,
+              _v17._0,
+              _v17._1)(A3(container,
               s,
               r,
-              _v16._1));}
+              _v17._1));}
          _U.badCase($moduleName,
          "on line 47, column 23 to 56");
       }();
@@ -16259,6 +16277,19 @@ Elm.Partials.Toolbar.make = function (_elm) {
    $Html$Events = Elm.Html.Events.make(_elm),
    $LocalChannel = Elm.LocalChannel.make(_elm);
    var NoOp = {ctor: "NoOp"};
+   var ClearBoard = {ctor: "ClearBoard"};
+   var clearButton = function (channel) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("clear-board")]),
+      _L.fromArray([A2($Html.button,
+      _L.fromArray([$Html$Events.onClick(A2($LocalChannel.send,
+                   channel,
+                   ClearBoard))
+                   ,$Html$Attributes.title("Clear the board")]),
+      _L.fromArray([A2($Html.img,
+      _L.fromArray([$Html$Attributes.src("/images/icon-clear.svg")]),
+      _L.fromArray([]))]))]));
+   };
    var ShareBoard = {ctor: "ShareBoard"};
    var shareButton = function (channel) {
       return A2($Html.div,
@@ -16279,14 +16310,18 @@ Elm.Partials.Toolbar.make = function (_elm) {
                                 ,$Html$Attributes.width(25)]),
                    _L.fromArray([]))]))]));
    };
-   var view = function (channel) {
+   var view = F2(function (channel,
+   share) {
       return A2($Html.section,
       _L.fromArray([$Html$Attributes.$class("l-container")]),
-      _L.fromArray([shareButton(channel)]));
-   };
+      _L.fromArray([clearButton(channel)
+                   ,shareButton(share)]));
+   });
    _elm.Partials.Toolbar.values = {_op: _op
                                   ,ShareBoard: ShareBoard
+                                  ,ClearBoard: ClearBoard
                                   ,NoOp: NoOp
+                                  ,clearButton: clearButton
                                   ,shareButton: shareButton
                                   ,view: view};
    return _elm.Partials.Toolbar.values;

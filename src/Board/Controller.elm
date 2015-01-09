@@ -40,6 +40,7 @@ type alias Board = Board.Model.Model
 
 type Update = NoOp |
   BoxAction Box.Update |
+  ClearBoard |
   RequestedAdd |
   UpdateBox Box.Model String |
   NewBox |
@@ -343,5 +344,6 @@ step update state =
         let updateBoxes = List.map (updateSelectedBoxes (Box.Move mode direction))
         in
         step ReconnectSelections { state | boxes <- updateBoxes state.boxes }
+      ClearBoard -> startingState
       _ -> state
       NoOp -> Debug.log "NoOp" state
