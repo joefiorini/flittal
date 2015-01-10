@@ -63,7 +63,8 @@
 
         if (matches && matches.length && matches.length > 0) {
           var serializedState = matches[1];
-          var deserializedState = JSON.parse(atob(serializedState));
+          var decodedState = decodeURIComponent(serializedState);
+          var deserializedState = JSON.parse(atob(decodedState));
           var adaptedState = adapt(deserializedState);
           console.log(adaptedState);
           board.ports.loadedState.send(adaptedState);
@@ -90,11 +91,17 @@
           }, 50);
       });
 
+      function urlForState(state) {
+        var encoded = encodeURIComponent(state);
+        return window.location.protocol + "//" + window.location.host + "/boards/" + encoded
+      }
+
       board.ports.serializeState.subscribe(function(state) {
         var encoded = btoa(JSON.stringify(state));
         var input = document.querySelector(".share__url");
+        var url = urlForState(encoded);
 
-        input.value = window.location.protocol + "//" + window.location.host + "/boards/" + encoded;
+        input.value = url;
         input.select();
         return state;
       });
