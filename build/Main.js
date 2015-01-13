@@ -533,7 +533,7 @@ Elm.Board.Controller.make = function (_elm) {
                        },
                        boxKey,
                        state.boxes)),
-                       0);
+                       1);
                     };
                     return A2($Debug.log,
                     "Deleting Selections",
@@ -2411,9 +2411,9 @@ Elm.Connection.Controller.make = function (_elm) {
    var onBoxes = F3(function (box1,
    box2,
    connection) {
-      return _U.eq(connection.startBox,
+      return (_U.eq(connection.startBox,
       box1.key) || _U.eq(connection.endBox,
-      box1.key) || (_U.eq(connection.startBox,
+      box1.key)) && (_U.eq(connection.startBox,
       box2.key) || _U.eq(connection.endBox,
       box2.key));
    });
@@ -7051,6 +7051,8 @@ Elm.Main.make = function (_elm) {
                        return recordedHistory;
                        case "NewBox":
                        return recordedHistory;
+                       case "ResizeBox":
+                       return recordedHistory;
                        case "UpdateBoxColor":
                        return recordedHistory;}
                     return state.boardHistory;
@@ -7064,9 +7066,28 @@ Elm.Main.make = function (_elm) {
                  state);
               }();
             case "HydrateAppState":
-            return A2($Debug.log,
-              "Updated State",
-              _v0._0);
+            return function () {
+                 var history$ = $TimeMachine.initialize(_v0._0.currentBoard);
+                 return _U.replace([["boardHistory"
+                                    ,history$]],
+                 _v0._0);
+              }();
+            case "Redo":
+            return function () {
+                 var history$ = $TimeMachine.travelForward(state.boardHistory);
+                 return function () {
+                    var _v14 = history$.current;
+                    switch (_v14.ctor)
+                    {case "Just":
+                       return _U.replace([["currentBoard"
+                                          ,_v14._0]
+                                         ,["boardHistory",history$]],
+                         state);
+                       case "Nothing": return state;}
+                    _U.badCase($moduleName,
+                    "between lines 256 and 263");
+                 }();
+              }();
             case "ToolbarUpdate":
             return function () {
                  var updatedBoard = A2($Board$Controller.step,
@@ -7080,18 +7101,16 @@ Elm.Main.make = function (_elm) {
             return function () {
                  var history$ = $TimeMachine.travelBackward(state.boardHistory);
                  return function () {
-                    var _v13 = A2($Debug.log,
-                    "got history",
-                    history$.current);
-                    switch (_v13.ctor)
+                    var _v16 = history$.current;
+                    switch (_v16.ctor)
                     {case "Just":
                        return _U.replace([["currentBoard"
-                                          ,_v13._0]
+                                          ,_v16._0]
                                          ,["boardHistory",history$]],
                          state);
                        case "Nothing": return state;}
                     _U.badCase($moduleName,
-                    "between lines 240 and 247");
+                    "between lines 246 and 253");
                  }();
               }();}
          return state;
@@ -7106,6 +7125,7 @@ Elm.Main.make = function (_elm) {
       }();
    };
    var routeChannel = $Signal.channel($Routes.Root);
+   var Redo = {ctor: "Redo"};
    var Undo = {ctor: "Undo"};
    var ToolbarUpdate = function (a) {
       return {ctor: "ToolbarUpdate"
@@ -7140,10 +7160,10 @@ Elm.Main.make = function (_elm) {
    $Mousetrap.keydown);
    var shareChannel = $Signal.channel(NoOp);
    var container = F3(function (state,
-   _v18,
+   _v21,
    screenHeight) {
       return function () {
-         switch (_v18.ctor)
+         switch (_v21.ctor)
          {case "_Tuple2":
             return function () {
                  var offsetHeight = screenHeight - 52;
@@ -7169,7 +7189,7 @@ Elm.Main.make = function (_elm) {
                     sidebarChannel);
                  };
                  var $ = function () {
-                    switch (_v18._1.ctor)
+                    switch (_v21._1.ctor)
                     {case "About":
                        return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$About.view)
@@ -7217,7 +7237,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 251 and 291");
+         "between lines 267 and 307");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7232,7 +7252,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 130 and 132");
+         "between lines 131 and 133");
       }();
    };
    var mkState = function (board) {
@@ -7260,7 +7280,7 @@ Elm.Main.make = function (_elm) {
                case "Help": return "/help";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 105 and 110");
+            "between lines 106 and 111");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7288,10 +7308,10 @@ Elm.Main.make = function (_elm) {
    }();
    var globalKeyboardShortcuts = function (keyCommand) {
       return function () {
-         var _v27 = A2($Debug.log,
+         var _v30 = A2($Debug.log,
          "keyCommand",
          keyCommand);
-         switch (_v27)
+         switch (_v30)
          {case "-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownAll));
             case "0":
@@ -7330,6 +7350,7 @@ Elm.Main.make = function (_elm) {
             return BoardUpdate($Board$Controller.ConnectSelections);
             case "ctrl+-":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeDownNS));
+            case "ctrl+r": return Redo;
             case "ctrl+shift+=":
             return BoardUpdate($Board$Controller.ResizeBox($Box$Controller.ResizeUpNS));
             case "d":
@@ -7493,16 +7514,16 @@ Elm.Main.make = function (_elm) {
    var main = A2($Signal._op["~"],
    A2($Signal._op["~"],
    A2($Signal._op["<~"],
-   F3(function (s,r,_v28) {
+   F3(function (s,r,_v31) {
       return function () {
-         switch (_v28.ctor)
+         switch (_v31.ctor)
          {case "_Tuple2":
             return A2($Html.toElement,
-              _v28._0,
-              _v28._1)(A3(container,
+              _v31._0,
+              _v31._1)(A3(container,
               s,
               r,
-              _v28._1));}
+              _v31._1));}
          _U.badCase($moduleName,
          "on line 50, column 23 to 56");
       }();
@@ -7545,6 +7566,7 @@ Elm.Main.make = function (_elm) {
                       ,BoardUpdate: BoardUpdate
                       ,ToolbarUpdate: ToolbarUpdate
                       ,Undo: Undo
+                      ,Redo: Redo
                       ,updates: updates
                       ,routeChannel: routeChannel
                       ,userInput: userInput
@@ -17159,7 +17181,8 @@ Elm.TimeMachine.History.make = function (_elm) {
          entry,
          history.entries);
          return _U.replace([["entries"
-                            ,entries$]],
+                            ,entries$]
+                           ,["pointer",1]],
          history);
       }();
    });
