@@ -9,6 +9,7 @@ import Box.Controller as Box
 import DomUtils (DragEvent, class', linkTo, styleProperty)
 import Geometry.Types as Geometry
 import Mousetrap
+import TimeMachine
 import LocalChannel as LC
 import Partials.Header as Header
 import Partials.Footer as Footer
@@ -21,6 +22,7 @@ import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
 import Json.Decode ((:=))
+import List
 import Signal
 import Result
 import Routes
@@ -40,7 +42,8 @@ port focus = checkFocus
 port globalKeyDown : Signal Int
 
 type alias AppState =
-  { currentBoard        : Board.Board
+  { currentBoard             : Board.Board
+  , boardHistory             : TimeMachine.History Board.Board
   }
 
 main : Signal Element
@@ -79,6 +82,7 @@ globalKeyboardShortcuts keyCommand =
     "j"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
     "k"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
     "l"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
+    "u"     -> Undo
     "shift+h"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Left
     "shift+j"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Down
     "shift+k"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Up
@@ -93,6 +97,7 @@ globalKeyboardShortcuts keyCommand =
 startingState : AppState
 startingState =
   { currentBoard = Board.startingState
+  , boardHistory = TimeMachine.initialize Board.startingState
   }
 
 routesMap routeName =
@@ -111,9 +116,13 @@ encodeAppState state =
     [ ("currentBoard", Board.encode state.currentBoard)
     ]
 
+mkState board =
+  { currentBoard = board
+  , boardHistory = TimeMachine.initialize Board.startingState}
+
 decodeAppState : Decode.Decoder AppState
 decodeAppState =
-  Decode.object1 AppState
+  Decode.object1 mkState
     ("currentBoard" := Board.decode)
 
 extractAppState : Result.Result String AppState -> AppState
@@ -166,6 +175,7 @@ type Update = NoOp
             | HydrateAppState AppState
             | BoardUpdate Board.Update
             | ToolbarUpdate Toolbar.Update
+            | Undo
 
 updates : Signal.Channel Update
 updates = Signal.channel NoOp
@@ -204,12 +214,36 @@ step update state =
     HydrateAppState state' -> Debug.log "Updated State" state'
     BoardUpdate u ->
       let updatedBoard = Board.step u state.currentBoard
+          recordedHistory = TimeMachine.record updatedBoard state.boardHistory
+          history' =
+           case u of
+             Board.NewBox           -> recordedHistory
+             Board.MoveBox _ _      -> recordedHistory
+             Board.UpdateBoxColor _ -> recordedHistory
+             Board.DeleteSelections -> recordedHistory
+             Board.ConnectSelections -> recordedHistory
+             Board.DisconnectSelections -> recordedHistory
+             Board.Drop _ _         -> recordedHistory
+             Board.BoxAction (Box.EditingBox _ _) ->
+               recordedHistory
+             _ -> state.boardHistory
       in
-      { state | currentBoard <- updatedBoard }
+      { state | currentBoard <- updatedBoard
+              , boardHistory <- Debug.log "new history" history' }
     ToolbarUpdate u ->
       let updatedBoard = Board.step Board.ClearBoard state.currentBoard
       in
          { state | currentBoard <- updatedBoard }
+    Undo ->
+      let history' = TimeMachine.travelBackward state.boardHistory
+      in
+      case Debug.log "got history" history'.current of
+        Just b ->
+          { state | currentBoard <- b
+                  , boardHistory <- history'
+          }
+        Nothing ->
+          state
     _ -> state
 
 container : AppState -> Routes.Route -> Int -> Html.Html

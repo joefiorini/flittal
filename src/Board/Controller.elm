@@ -41,7 +41,6 @@ type alias Board = Board.Model.Model
 type Update = NoOp |
   BoxAction Box.Update |
   ClearBoard |
-  RequestedAdd |
   UpdateBox Box.Model String |
   NewBox |
   MoveBox Box.MoveType Box.MoveDirection |
@@ -190,7 +189,8 @@ step update state =
       NewBox ->
         if | isEditing state.boxes -> state
            | True ->
-            let newBox = makeBox state.nextIdentifier in
+            let newBox = makeBox state.nextIdentifier
+            in
               Debug.log "newBox" { state | boxes <- newBox :: (deselectBoxes state.boxes)
                                          , nextIdentifier <- state.nextIdentifier + 1 }
       BoxAction (Box.CancelEditingBox box) ->
