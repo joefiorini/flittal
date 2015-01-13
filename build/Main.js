@@ -16340,7 +16340,7 @@ Elm.Partials.Releases.make = function (_elm) {
    _P = _N.Ports.make(_elm),
    $moduleName = "Partials.Releases",
    $Markdown = Elm.Markdown.make(_elm);
-   var view = $Markdown.toHtml("\n\n## What\'s New\n\n### [1.0.0](https://github.com/joefiorini/flittal/releases/1.0.0)\n\nInitial release with ability to create a basic flow chart with rectangular shapes. Boxes can be manipulated in a variety of ways: move, resize, change their text, etc. See the Help link in the header for instructions and more information.\n\n#### Coming Soon\n\n- Undo\n- Give boards a title\n\n");
+   var view = $Markdown.toHtml("\n\n## What\'s New\n\n### [1.1.0](https://github.com/joefiorini/flittal/releases/1.1.0)\n\nSecond release brings Undo/Redo functionality. Press `u` to undo an action and `ctrl+r` to redo it. I also fixed some bugs related to deleting multiple selections at once, and a bug around disconnecting boxes. I also added this \"What\'s New\" sidebar so you can keep track of recent changes.\n\n#### Coming Soon\n\n- Titles for boards\n\n### [1.0.0](https://github.com/joefiorini/flittal/releases/1.0.0)\n\nInitial release with ability to create a basic flow chart with rectangular shapes. Boxes can be manipulated in a variety of ways: move, resize, change their text, etc. See the Help link in the header for instructions and more information.\n\n#### Coming Soon\n\n- Undo\n- Give boards a title\n\n");
    _elm.Partials.Releases.values = {_op: _op
                                    ,view: view};
    return _elm.Partials.Releases.values;
