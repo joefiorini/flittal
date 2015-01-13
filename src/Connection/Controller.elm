@@ -120,7 +120,7 @@ within calculation threshold =
   }
 
 onBoxes box1 box2 connection =
-  (connection.startBox == box1.key || connection.endBox == box1.key) ||
+  (connection.startBox == box1.key || connection.endBox == box1.key) &&
     (connection.startBox == box2.key || connection.endBox == box2.key)
 
 
