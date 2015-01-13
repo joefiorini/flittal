@@ -57,6 +57,20 @@ view = Markdown.toHtml """
     Anytime the sidebar is open, this will close it
   </dd>
   <dt>
+    `u`
+    <h3>Undo</h3>
+  </dt>
+  <dd>
+    Undo the previous change. (Alpha note: if this doesn't appear to work, please try hitting `u` a few times and let me know).
+  </dd>
+  <dt>
+    `ctrl+r`
+    <h3>Redo</h3>
+  </dt>
+  <dd>
+    Redo the previously undone change.
+  </dd>
+  <dt>
     `h/j/k/l`
     <h3>Nudge selected box</h3>
   </dt>
