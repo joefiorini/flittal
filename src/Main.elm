@@ -18,6 +18,7 @@ import Partials.Help as Help
 import Partials.Toolbar as Toolbar
 import Partials.About as About
 import Partials.Colophon as Colophon
+import Partials.Releases as Releases
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -107,6 +108,7 @@ routesMap routeName =
       Routes.Root -> "/"
       Routes.About -> "/about"
       Routes.Colophon -> "/colophon"
+      Routes.Releases -> "/releases"
       Routes.Help -> "/help"
   in
      (url, routeName)
@@ -280,6 +282,8 @@ container state (url,route) screenHeight =
             ( sidebar <| Colophon.view, "l-board--compressed", offsetHeight )
           Routes.Help ->
             ( sidebar <| Help.view, "l-board--compressed", offsetHeight )
+          Routes.Releases ->
+            ( sidebar <| Releases.view, "l-board--compressed", offsetHeight )
           _ -> ( text "" , "", 0)
 
   in

@@ -7009,6 +7009,7 @@ Elm.Main.make = function (_elm) {
    $Partials$Footer = Elm.Partials.Footer.make(_elm),
    $Partials$Header = Elm.Partials.Header.make(_elm),
    $Partials$Help = Elm.Partials.Help.make(_elm),
+   $Partials$Releases = Elm.Partials.Releases.make(_elm),
    $Partials$Sidebar = Elm.Partials.Sidebar.make(_elm),
    $Partials$Toolbar = Elm.Partials.Toolbar.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -7085,7 +7086,7 @@ Elm.Main.make = function (_elm) {
                          state);
                        case "Nothing": return state;}
                     _U.badCase($moduleName,
-                    "between lines 256 and 263");
+                    "between lines 258 and 265");
                  }();
               }();
             case "ToolbarUpdate":
@@ -7110,7 +7111,7 @@ Elm.Main.make = function (_elm) {
                          state);
                        case "Nothing": return state;}
                     _U.badCase($moduleName,
-                    "between lines 246 and 253");
+                    "between lines 248 and 255");
                  }();
               }();}
          return state;
@@ -7204,6 +7205,11 @@ Elm.Main.make = function (_elm) {
                        return {ctor: "_Tuple3"
                               ,_0: sidebar($Partials$Help.view)
                               ,_1: "l-board--compressed"
+                              ,_2: offsetHeight};
+                       case "Releases":
+                       return {ctor: "_Tuple3"
+                              ,_0: sidebar($Partials$Releases.view)
+                              ,_1: "l-board--compressed"
                               ,_2: offsetHeight};}
                     return {ctor: "_Tuple3"
                            ,_0: $Html.text("")
@@ -7237,7 +7243,7 @@ Elm.Main.make = function (_elm) {
                               _L.fromArray([$Partials$Footer.view]))]));
               }();}
          _U.badCase($moduleName,
-         "between lines 267 and 307");
+         "between lines 269 and 311");
       }();
    });
    var loadedState = _P.portIn("loadedState",
@@ -7252,7 +7258,7 @@ Elm.Main.make = function (_elm) {
             return $Debug.crash(result._0);
             case "Ok": return result._0;}
          _U.badCase($moduleName,
-         "between lines 131 and 133");
+         "between lines 133 and 135");
       }();
    };
    var mkState = function (board) {
@@ -7278,9 +7284,11 @@ Elm.Main.make = function (_elm) {
                case "Colophon":
                return "/colophon";
                case "Help": return "/help";
+               case "Releases":
+               return "/releases";
                case "Root": return "/";}
             _U.badCase($moduleName,
-            "between lines 106 and 111");
+            "between lines 107 and 113");
          }();
          return {ctor: "_Tuple2"
                 ,_0: url
@@ -7525,7 +7533,7 @@ Elm.Main.make = function (_elm) {
               r,
               _v31._1));}
          _U.badCase($moduleName,
-         "on line 50, column 23 to 56");
+         "on line 51, column 23 to 56");
       }();
    }),
    state),
@@ -16273,6 +16281,12 @@ Elm.Partials.Header.make = function (_elm) {
                                                     channel,
                                                     $Routes.Colophon))
                                                     ,A3($DomUtils.linkTo,
+                                                    "What\'s New",
+                                                    "#",
+                                                    A2($LocalChannel.send,
+                                                    channel,
+                                                    $Routes.Releases))
+                                                    ,A3($DomUtils.linkTo,
                                                     "Help",
                                                     "#",
                                                     A2($LocalChannel.send,
@@ -16310,6 +16324,26 @@ Elm.Partials.Help.make = function (_elm) {
    _elm.Partials.Help.values = {_op: _op
                                ,view: view};
    return _elm.Partials.Help.values;
+};
+Elm.Partials = Elm.Partials || {};
+Elm.Partials.Releases = Elm.Partials.Releases || {};
+Elm.Partials.Releases.make = function (_elm) {
+   "use strict";
+   _elm.Partials = _elm.Partials || {};
+   _elm.Partials.Releases = _elm.Partials.Releases || {};
+   if (_elm.Partials.Releases.values)
+   return _elm.Partials.Releases.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Partials.Releases",
+   $Markdown = Elm.Markdown.make(_elm);
+   var view = $Markdown.toHtml("\n\n## What\'s New\n\n### [1.0.0](https://github.com/joefiorini/flittal/releases/1.0.0)\n\nInitial release with ability to create a basic flow chart with rectangular shapes. Boxes can be manipulated in a variety of ways: move, resize, change their text, etc. See the Help link in the header for instructions and more information.\n\n#### Coming Soon\n\n- Undo\n- Give boards a title\n\n");
+   _elm.Partials.Releases.values = {_op: _op
+                                   ,view: view};
+   return _elm.Partials.Releases.values;
 };
 Elm.Partials = Elm.Partials || {};
 Elm.Partials.Sidebar = Elm.Partials.Sidebar || {};
@@ -16681,6 +16715,7 @@ Elm.Routes.make = function (_elm) {
    var map = $Signal.map;
    var None = {ctor: "None"};
    var Help = {ctor: "Help"};
+   var Releases = {ctor: "Releases"};
    var Colophon = {ctor: "Colophon"};
    var About = {ctor: "About"};
    var Root = {ctor: "Root"};
@@ -16688,6 +16723,7 @@ Elm.Routes.make = function (_elm) {
                         ,Root: Root
                         ,About: About
                         ,Colophon: Colophon
+                        ,Releases: Releases
                         ,Help: Help
                         ,None: None
                         ,map: map

@@ -6,6 +6,7 @@ import Signal
 type RouteName = Root
                | About
                | Colophon
+               | Releases
                | Help
                | None
 

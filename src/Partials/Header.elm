@@ -22,6 +22,7 @@ navLinks channel =
         [
           linkTo "About" "#" (LC.send channel Routes.About)
         , linkTo "Colophon" "#" (LC.send channel Routes.Colophon)
+        , linkTo "What's New" "#" (LC.send channel Routes.Releases)
         , linkTo "Help" "#" (LC.send channel Routes.Help)
         ]
       ]
