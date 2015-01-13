@@ -83,6 +83,7 @@ globalKeyboardShortcuts keyCommand =
     "k"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
     "l"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
     "u"     -> Undo
+    "ctrl+r" -> Redo
     "shift+h"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Left
     "shift+j"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Down
     "shift+k"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Up
@@ -176,6 +177,7 @@ type Update = NoOp
             | BoardUpdate Board.Update
             | ToolbarUpdate Toolbar.Update
             | Undo
+            | Redo
 
 updates : Signal.Channel Update
 updates = Signal.channel NoOp
@@ -211,7 +213,10 @@ convertDragOperation dragE =
 step : Update -> AppState -> AppState
 step update state =
   case Debug.log "update" update of
-    HydrateAppState state' -> Debug.log "Updated State" state'
+    HydrateAppState state' ->
+      let history' = TimeMachine.initialize state'.currentBoard
+      in
+        { state' | boardHistory <- history' }
     BoardUpdate u ->
       let updatedBoard = Board.step u state.currentBoard
           recordedHistory = TimeMachine.record updatedBoard state.boardHistory
@@ -224,6 +229,7 @@ step update state =
              Board.ConnectSelections -> recordedHistory
              Board.DisconnectSelections -> recordedHistory
              Board.Drop _ _         -> recordedHistory
+             Board.ResizeBox _      -> recordedHistory
              Board.BoxAction (Box.EditingBox _ _) ->
                recordedHistory
              _ -> state.boardHistory
@@ -237,13 +243,23 @@ step update state =
     Undo ->
       let history' = TimeMachine.travelBackward state.boardHistory
       in
-      case Debug.log "got history" history'.current of
+      case history'.current of
         Just b ->
           { state | currentBoard <- b
                   , boardHistory <- history'
           }
         Nothing ->
           state
+    Redo ->
+      let history' = TimeMachine.travelForward state.boardHistory
+      in
+         case history'.current of
+           Just b ->
+            { state | currentBoard <- b
+                    , boardHistory <- history'
+            }
+           Nothing ->
+             state
     _ -> state
 
 container : AppState -> Routes.Route -> Int -> Html.Html
