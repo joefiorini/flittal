@@ -5,3 +5,5 @@ cabal.sandbox.config
 dist
 bower_components
 /.sass-cache
+node_modules/
+node_modules

@@ -1,12 +1,12 @@
 module Main where
-import Graphics.Element (Element)
+import Graphics.Element exposing (Element)
 import Html
-import Html (Html, toElement, div, main', body, text, section, aside)
-import Html.Attributes (class, style)
+import Html exposing (Html, toElement, div, main', body, text, section, aside)
+import Html.Attributes exposing (class, style)
 import Board.Controller as Board
-import Board.Controller (checkFocus)
+import Board.Controller exposing (checkFocus)
 import Box.Controller as Box
-import DomUtils (DragEvent, class', linkTo, styleProperty)
+import DomUtils exposing (DragEvent, class', linkTo, styleProperty)
 import Geometry.Types as Geometry
 import Mousetrap
 import TimeMachine
@@ -22,16 +22,16 @@ import Partials.Releases as Releases
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode ((:=))
+import Json.Decode exposing ((:=))
 import List
 import Signal
 import Result
 import Routes
-import Signal (Signal, (<~), (~))
+import Signal exposing (Signal, (<~), (~))
 import Keyboard
 import Window
 import Debug
-import Style.Color (Color(..))
+import Style.Color exposing (Color(..))
 
 port drop : Signal DragEvent
 port dragstart : Signal DragEvent
