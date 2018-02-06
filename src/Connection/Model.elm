@@ -3,7 +3,7 @@ module Connection.Model exposing (..)
 import Box.Model as Box
 import Geometry.Types as Geometry
 import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field, string, succeed, fail, andThen)
 import Geometry.Types exposing (Point, Size)
 import Json.Encode as Encode
 import List
@@ -80,29 +80,30 @@ encodePort portLocation =
 
 portRawDecoder =
     Decode.map2 RawPort
-        ("location" := Decode.string)
-        ("point" := Geometry.decodePoint)
+        (field "location" Decode.string)
+        (field "point" Geometry.decodePoint)
 
 
 decodePort =
-    Decode.customDecoder portRawDecoder
-        (\{ location, point } ->
-            case location of
-                "right" ->
-                    Result.Ok <| Right point
+    portRawDecoder
+        |> andThen
+            (\{ location, point } ->
+                case location of
+                    "right" ->
+                        succeed <| Right point
 
-                "left" ->
-                    Result.Ok <| Left point
+                    "left" ->
+                        succeed <| Left point
 
-                "top" ->
-                    Result.Ok <| Top point
+                    "top" ->
+                        succeed <| Top point
 
-                "bottom" ->
-                    Result.Ok <| Bottom point
+                    "bottom" ->
+                        succeed <| Bottom point
 
-                _ ->
-                    Result.Err ("port location value of \"" ++ location ++ "\" is invalid.")
-        )
+                    _ ->
+                        fail ("port location value of \"" ++ location ++ "\" is invalid.")
+            )
 
 
 encode connection =
@@ -129,18 +130,19 @@ encodeLineLayout layout =
 
 
 decodeLineLayout =
-    Decode.customDecoder Decode.string
-        (\layout ->
-            case layout of
-                "Vertical" ->
-                    Result.Ok Vertical
+    Decode.string
+        |> andThen
+            (\layout ->
+                case layout of
+                    "Vertical" ->
+                        succeed Vertical
 
-                "Horizontal" ->
-                    Result.Ok Horizontal
+                    "Horizontal" ->
+                        succeed Horizontal
 
-                _ ->
-                    Result.Err ("layout value of \"" ++ layout ++ "\" is invalid.")
-        )
+                    _ ->
+                        fail ("layout value of \"" ++ layout ++ "\" is invalid.")
+            )
 
 
 encodeSegment segment =
@@ -152,17 +154,17 @@ encodeSegment segment =
 
 
 decodeSegment =
-    Decode.object3 Line
-        ("position" := Geometry.decodePoint)
-        ("size" := Geometry.decodeSize)
-        ("layout" := decodeLineLayout)
+    Decode.map3 Line
+        (field "position" Geometry.decodePoint)
+        (field "size" Geometry.decodeSize)
+        (field "layout" decodeLineLayout)
 
 
 decode : Decode.Decoder Model
 decode =
-    Decode.object5 Model
-        ("segments" := Decode.list decodeSegment)
-        ("startPort" := decodePort)
-        ("endPort" := decodePort)
-        ("startBox" := Decode.int)
-        ("endBox" := Decode.int)
+    Decode.map5 Model
+        (field "segments" <| Decode.list decodeSegment)
+        (field "startPort" decodePort)
+        (field "endPort" decodePort)
+        (field "startBox" Decode.int)
+        (field "endBox" Decode.int)

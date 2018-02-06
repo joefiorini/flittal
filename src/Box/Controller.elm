@@ -1,14 +1,14 @@
 module Box.Controller exposing (..)
 
 import DomUtils
-import DomUtils exposing (DragEvent, stopPropagation, styleProperty, class_)
+import DomUtils exposing (DragEvent, stopPropagation, styleProperty, class_, boolProperty)
 import Geometry.Types exposing (toPxPoint)
 import Html exposing (..)
-import Html.Attributes exposing (id, class, autofocus, style, property, boolProperty, type_, value)
-import Html.Events exposing (on, keyCode, onKeyPress, targetValue)
+import Html.Attributes exposing (id, class, autofocus, style, property, type_, value)
+import Html.Events exposing (on, keyCode, targetValue, onWithOptions, onInput)
 import Box.Model as Model
 import Debug
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field)
 import Json.Decode as Json
 import Style.Color exposing (..)
 import Geometry.Types as Geometry
@@ -68,8 +68,8 @@ isSelected =
     Model.isSelected
 
 
-view : LC.LocalChannel Msg -> Model -> Html
-view channel box =
+view : Model -> Html Msg
+view box =
     div
         [ style
             [ styleProperty "position" "absolute"
@@ -87,12 +87,12 @@ view channel box =
         , autofocus True
         , boolProperty "draggable" True
         , id <| "box-" ++ (toString box.key)
-        , on "input" targetValue (\v -> LC.send channel (UpdateBox box v))
+        , onInput (\v -> (UpdateBox box v))
         , class_ <| boxClasses box
-        , onKeyDown channel box
+        , onKeyDown box
         ]
         [ if box.isEditing then
-            labelField channel box box.label
+            labelField box box.label
           else
             text box.label
         ]
@@ -156,7 +156,7 @@ encode =
     Model.encode
 
 
-onKeyDown channel box =
+onKeyDown box =
     let
         checkKeyCode keyCode =
             (case keyCode of
@@ -171,13 +171,13 @@ onKeyDown channel box =
                     NoOp
             )
     in
-        on "keydown" keyCode (\v -> Debug.log "box:keydown" <| LC.send channel <| checkKeyCode v)
+        on "keydown" (Json.map (Debug.log "box:keydown" <| checkKeyCode) keyCode)
 
 
 keyCodeAndValue : Json.Decoder ( Int, String )
 keyCodeAndValue =
-    Json.object2 (,)
-        ("keyCode" := Json.int)
+    Json.map2 (,)
+        (field "keyCode" Json.int)
         (Json.at [ "target", "value" ] Json.string)
 
 
@@ -188,11 +188,11 @@ extractLabelUpdate box ( keyCode, value ) =
         Debug.log "UpdateBox" <| UpdateBox box value
 
 
-labelField : LC.LocalChannel Update -> Model -> String -> Html
-labelField channel box label =
+labelField : Model -> String -> Html Msg
+labelField box label =
     let
-        nullHandler v =
-            LC.send channel NoOp
+        nullHandler =
+            NoOp
     in
         input
             [ id <| "box-" ++ toString box.key ++ "-label"
@@ -200,7 +200,7 @@ labelField channel box label =
             , value label
 
             -- , on "input" keyCodeAndValue (\a -> Debug.log "input:keydown" LC.send channel <| extractLabelUpdate box a)
-            , on "mousedown" stopPropagation nullHandler
+            , onWithOptions "mousedown" stopPropagation (Json.succeed nullHandler)
             ]
             []
 
@@ -384,6 +384,15 @@ step update box =
                             moveBox 300
             in
                 { box | position = moveBox_ direction box }
+
+        CancelEditingBox _ ->
+            box
+
+        UpdateBox _ _ ->
+            box
+
+        EditingBox _ _ ->
+            box
 
         NoOp ->
             box

@@ -4,7 +4,6 @@ import Html
 import Html exposing (Html, toElement, div, main_, body, text, section, aside)
 import Html.Attributes exposing (class, style)
 import Board.Controller as Board
-import Board.Controller exposing (checkFocus)
 import Box.Controller as Box
 import DomUtils exposing (DragEvent, class_, linkTo, styleProperty)
 import Geometry.Types as Geometry
@@ -36,11 +35,6 @@ port dragstart : Signal DragEvent
 
 
 port dragend : Signal DragEvent
-
-
-port focus : Signal String
-port focus =
-    checkFocus
 
 
 port globalKeyDown : Signal Int

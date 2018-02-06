@@ -15,7 +15,7 @@ clearButton channel =
     div
         [ class "clear-board" ]
         [ button
-            [ onClick (LC.send channel ClearBoard)
+            [ onClick ClearBoard
             , title "Clear the board"
             ]
             [ img
@@ -31,7 +31,7 @@ shareButton channel =
         [ input
             [ class "share__url"
             , placeholder "Share this board"
-            , onClick (LC.send channel ShareBoard)
+            , onClick ShareBoard
             , type_ "text"
             , readonly True
             ]

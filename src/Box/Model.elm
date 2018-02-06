@@ -4,7 +4,7 @@ import Geometry.Types as Geometry
 import Geometry.Types exposing (Geometric)
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field)
 import Json.Ext as JsonExt
 import Result
 import Result exposing (andThen)
@@ -65,7 +65,7 @@ decode : Decode.Decoder Model
 decode =
     let
         extract property decoder =
-            (property := decoder)
+            (field property decoder)
     in
         apply
             (apply
@@ -92,7 +92,7 @@ decode =
                 )
                 (extract "selectedIndex" Decode.int)
             )
-            ("style" := Style.decode)
+            (field "style" Style.decode)
 
 
 isSelected : Model -> Bool

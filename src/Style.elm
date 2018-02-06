@@ -3,7 +3,7 @@ module Style exposing (..)
 import Style.Color as InternalColor
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field)
 
 
 type alias Color =
@@ -17,8 +17,8 @@ type alias Model =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.object1 Model
-        ("color" := InternalColor.decode)
+    Decode.map Model
+        (field "color" InternalColor.decode)
 
 
 encode style =

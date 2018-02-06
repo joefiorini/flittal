@@ -3,12 +3,12 @@ module Partials.Header exposing (..)
 import Html exposing (header, nav, text, a, Html, img, div)
 import Html.Attributes exposing (href, class, src)
 import DomUtils exposing (linkTo)
-import Routes
+import Routes exposing (RouteName)
 import List
 
 
-navLinks : LC.LocalChannel Routes.RouteName -> List Html
-navLinks channel =
+navLinks : List (Html RouteName)
+navLinks =
     List.concat
         [ [ div
                 [ class "nav-bar__logo-wrapper" ]
@@ -19,10 +19,10 @@ navLinks channel =
           ]
         , [ div
                 [ class "nav-bar__links" ]
-                [ linkTo "About" "#" (LC.send channel Routes.About)
-                , linkTo "Colophon" "#" (LC.send channel Routes.Colophon)
-                , linkTo "What's New" "#" (LC.send channel Routes.Releases)
-                , linkTo "Help" "#" (LC.send channel Routes.Help)
+                [ linkTo "About" "#" Routes.About
+                , linkTo "Colophon" "#" Routes.Colophon
+                , linkTo "What's New" "#" Routes.Releases
+                , linkTo "Help" "#" Routes.Help
                 ]
           ]
         ]
@@ -33,5 +33,5 @@ view channel =
         [ class "l-container" ]
         [ nav
             [ class "nav-bar header__nav-bar" ]
-            (navLinks channel)
+            navLinks
         ]

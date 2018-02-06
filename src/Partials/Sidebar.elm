@@ -9,6 +9,6 @@ import Routes
 view child channel =
     aside
         [ class "sidebar" ]
-        [ linkTo "x" "#" (LC.send channel Routes.Root)
+        [ linkTo "x" "#" Routes.Root
         , child
         ]

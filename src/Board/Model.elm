@@ -4,7 +4,7 @@ import List exposing (head, filter, map)
 import Box.Model as Box
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field)
 import Connection.Model as Connection
 import Debug
 
@@ -38,7 +38,7 @@ encode board =
 
 decode : Decode.Decoder Model
 decode =
-    Decode.object3 Model
-        ("boxes" := Decode.list Box.decode)
-        ("connections" := Decode.list Connection.decode)
-        ("nextIdentifier" := Decode.int)
+    Decode.map3 Model
+        (Decode.list Box.decode |> field "boxes")
+        (Decode.list Connection.decode |> field "connections")
+        (field "nextIdentifier" Decode.int)

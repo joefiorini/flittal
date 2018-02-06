@@ -2,6 +2,7 @@ module Board.Controller exposing (..)
 
 import Debug
 import Maybe
+import Task
 import Html exposing (..)
 import Html.Events exposing (on)
 import Html.Attributes exposing (id, style, property, class)
@@ -11,7 +12,7 @@ import Box.Controller as Box
 import Connection.Controller as Connection
 import Connection.Controller exposing (leftOf)
 import Connection.Model
-import DomUtils exposing (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent, DnDPort)
+import DomUtils exposing (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent)
 import Html exposing (Html)
 import String exposing (split, toInt)
 import List
@@ -19,6 +20,8 @@ import List exposing ((::))
 import Result
 import Native.Custom.Html
 import Geometry.Types as Geometry
+import Dom
+import Json.Decode exposing (map, succeed)
 
 
 type alias Board =
@@ -51,17 +54,20 @@ type Msg
 
 
 view channel model height =
-    div
-        [ style
-            [ styleProperty "height" <| Geometry.toPx height
+    let
+        ( boxes, connections ) =
+            widgets model
+    in
+        div
+            [ style
+                [ styleProperty "height" <| Geometry.toPx height
+                ]
+            , class "board"
+            , id "container"
+            , on "dblclick" (getTargetId |> Json.Decode.map buildEditingAction)
+            , on "mousedown" (getMouseSelectionEvent |> Json.Decode.map buildSelectAction)
             ]
-        , class "board"
-        , id "container"
-        , on "dblclick" getTargetId (\v -> LC.send channel <| buildEditingAction v)
-        , on "mousedown" getMouseSelectionEvent (\v -> LC.send channel <| buildSelectAction v)
-        ]
-    <|
-        widgets channel model
+            (List.concatMap identity [ boxes, connections ])
 
 
 entersEditMode update =
@@ -88,7 +94,7 @@ decode =
     Board.Model.decode
 
 
-renderConnections : List Connection.Model.Model -> List Html
+renderConnections : List Connection.Model.Model -> List (Html Msg)
 renderConnections =
     List.map Connection.renderConnection
 
@@ -99,13 +105,13 @@ buildSelectAction event =
             extractBoxId event.id
     in
         case boxIdM of
-            Result.Ok key ->
+            Just key ->
                 if event.shiftKey then
                     SelectBoxMulti key
                 else
                     SelectBox key
 
-            Result.Err s ->
+            Nothing ->
                 Debug.log "deselect" DeselectBoxes
 
 
@@ -116,44 +122,23 @@ buildEditingAction id =
             extractBoxId id
     in
         case boxIdM of
-            Result.Ok key ->
+            Just key ->
                 EditingBox key True
 
-            Result.Err s ->
+            Nothing ->
                 NoOp
 
 
-widgets : LC.LocalChannel Msg -> Board -> List Html
-widgets channel board =
-    let
-        boxChannel =
-            LC.localize (\a -> Debug.log "BoxAction" <| BoxAction a) channel
-    in
-        List.concatMap identity
-            [ (List.map (Box.view boxChannel) board.boxes)
-            , (renderConnections board.connections)
-            ]
+widgets : Board -> ( List (Html Msg), List (Html Msg) )
+widgets board =
+    ( (List.map (\b -> (Box.view b |> Html.map BoxAction)) board.boxes)
+    , (renderConnections board.connections)
+    )
 
 
-actions : Channel Msg
-actions =
-    Signal.channel NoOp
-
-
-checkFocus =
-    let
-        needsFocus act =
-            case act of
-                EditingBox key bool ->
-                    bool
-
-                _ ->
-                    False
-
-        toSelector (EditingBox id _) =
-            ("#box-" ++ toString id ++ "-label")
-    in
-        toSelector <~ Signal.keepIf needsFocus (EditingBox 0 True) (Signal.subscribe actions)
+toSelector : Int -> String
+toSelector domId =
+    ("#box-" ++ toString id ++ "-label")
 
 
 moveBoxAction : DragEvent -> Msg
@@ -163,13 +148,13 @@ moveBoxAction event =
             extractBoxId event.id
     in
         case boxKeyM of
-            Ok key ->
+            Just key ->
                 if event.isStart then
                     DraggingBox key
                 else
                     Drop key event
 
-            Err s ->
+            Nothing ->
                 NoOp
 
 
@@ -210,7 +195,7 @@ sortLeftToRight boxes =
         List.sortBy (Tuple.second << (.position)) boxes
 
 
-boxForKey : Box.BoxKey -> List Box.Model -> Box.Model
+boxForKey : Box.BoxKey -> List Box.Model -> Maybe Box.Model
 boxForKey key boxes =
     List.head (List.filter (\b -> b.key == key) boxes)
 
@@ -245,9 +230,10 @@ replaceBox boxes withBox =
         boxes
 
 
-step : Msg -> Board -> Board
+step : Msg -> Board -> ( Board, Cmd Msg )
 step update state =
     let
+        -- Msg -> Box -> Box
         updateBoxInState update box iterator =
             (if iterator.key == box.key then
                 Box.step update iterator
@@ -287,17 +273,19 @@ step update state =
         case Debug.log "Performing update" update of
             NewBox ->
                 if isEditing state.boxes then
-                    state
+                    ( state, Cmd.none )
                 else
                     let
                         newBox =
                             makeBox state.nextIdentifier
                     in
-                        Debug.log "newBox"
+                        ( Debug.log "newBox"
                             { state
                                 | boxes = newBox :: (deselectBoxes state.boxes)
                                 , nextIdentifier = state.nextIdentifier + 1
                             }
+                        , Cmd.none
+                        )
 
             BoxAction (Box.CancelEditingBox box) ->
                 let
@@ -307,7 +295,7 @@ step update state =
                     boxes_ =
                         replaceBox state.boxes box_
                 in
-                    Debug.log "Canceling edit" { state | boxes = deselectBoxes boxes_ }
+                    ( Debug.log "Canceling edit" { state | boxes = deselectBoxes boxes_ }, Cmd.none )
 
             DeselectBoxes ->
                 let
@@ -317,17 +305,21 @@ step update state =
                     updateBoxes =
                         cancelEditing >> deselectBoxes
                 in
-                    { state | boxes = updateBoxes state.boxes }
+                    ( { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             SelectBoxMulti id ->
                 let
                     box =
                         boxForKey id state.boxes
 
+                    -- TODO: Handle Maybe Nothing case here!
                     updateBoxes boxes =
-                        List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+                        -- box: Maybe Box
+                        -- boxes: List Box
+                        -- List Box -> Box -> List Box
+                        Maybe.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes)) box |> List.map boxes
                 in
-                    Debug.log "adding box to selection" { state | boxes = updateBoxes state.boxes }
+                    ( Debug.log "adding box to selection" { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             DraggingBox id ->
                 let
@@ -343,7 +335,7 @@ step update state =
                     updateBoxes =
                         selectedBox >> draggingBox
                 in
-                    Debug.log "started dragging" { state | boxes = updateBoxes state.boxes }
+                    ( Debug.log "started dragging" { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             SelectBox id ->
                 let
@@ -357,9 +349,9 @@ step update state =
                         deselectBoxes >> selectedBox
                 in
                     if box.selectedIndex > -1 then
-                        state
+                        ( state, Cmd.none )
                     else
-                        Debug.log "selecting box" { state | boxes = updateBoxes state.boxes }
+                        ( Debug.log "selecting box" { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             SelectNextBox ->
                 let
@@ -383,7 +375,7 @@ step update state =
                                         current :: remaining ->
                                             current
                 in
-                    { state
+                    ( { state
                         | boxes =
                             List.map
                                 (updateBoxInState (Box.SetSelected 0) <|
@@ -392,7 +384,9 @@ step update state =
                                 )
                             <|
                                 deselectBoxes state.boxes
-                    }
+                      }
+                    , Cmd.none
+                    )
 
             SelectPreviousBox ->
                 let
@@ -416,7 +410,7 @@ step update state =
                                         current :: remaining ->
                                             current
                 in
-                    { state
+                    ( { state
                         | boxes =
                             List.map
                                 (updateBoxInState (Box.SetSelected 0) <|
@@ -425,7 +419,9 @@ step update state =
                                 )
                             <|
                                 deselectBoxes state.boxes
-                    }
+                      }
+                    , Cmd.none
+                    )
 
             EditingBox boxKey toggle ->
                 let
@@ -438,14 +434,14 @@ step update state =
                     boxes_ =
                         replaceBox state.boxes box_
                 in
-                    Debug.log "Canceling edit" { state | boxes = boxes_ }
+                    ( Debug.log "Canceling edit" { state | boxes = boxes_ }, toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp)) )
 
             BoxAction (Box.EditingBox box toggle) ->
                 let
                     box_ =
                         Box.step (Box.Editing toggle) box
                 in
-                    Debug.log "editing box" { state | boxes = replaceBox state.boxes <| box_ }
+                    ( Debug.log "editing box" { state | boxes = replaceBox state.boxes <| box_ }, Cmd.none )
 
             EditingSelectedBox toggle ->
                 let
@@ -453,17 +449,19 @@ step update state =
                         List.filter (\b -> b.selectedIndex /= -1) state.boxes
                 in
                     if List.length selectedBoxes == 1 then
-                        { state
+                        ( { state
                             | boxes =
                                 replaceBox state.boxes <|
                                     Box.step (Box.Editing toggle) <|
                                         List.head selectedBoxes
-                        }
+                          }
+                        , Cmd.none
+                        )
                     else
-                        state
+                        ( state, Cmd.none )
 
             BoxAction (Box.UpdateBox box label) ->
-                Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Msg label) box }
+                ( Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Update label) box }, Cmd.none )
 
             Drop key event ->
                 let
@@ -482,26 +480,32 @@ step update state =
                         { state | boxes = updateBoxes state.boxes }
 
             ReconnectSelections ->
-                { state
-                    | connections =
-                        Connection.boxMap
-                            Connection.connectBoxes
-                            state.boxes
-                            state.connections
-                }
+                ( state, Cmd.none )
 
+            -- TODO: Fix reconnect selections!
+            -- { state
+            --     | connections =
+            --         Connection.boxMap
+            --             Connection.connectBoxes
+            --             state.boxes
+            --             state.connections
+            -- }
             ConnectSelections ->
                 if List.length (selectedBoxes state.boxes) < 2 then
-                    state
+                    ( state, Cmd.none )
                 else
-                    Debug.log "Connecting Selections"
-                        { state
-                            | connections =
-                                Connection.buildConnections state.connections <|
-                                    Debug.log "Selected Boxes" <|
-                                        selectedBoxes state.boxes
-                        }
+                    ( state
+                    , Cmd.none
+                    )
 
+            -- TODO: Fix connect selections
+            -- Debug.log "Connecting Selections"
+            --     { state
+            --         | connections =
+            --             Connection.buildConnections state.connections <|
+            --                 Debug.log "Selected Boxes" <|
+            --                     selectedBoxes state.boxes
+            --     }
             DisconnectSelections ->
                 let
                     selectedBoxes =
@@ -529,10 +533,10 @@ step update state =
                 in
                     case filtered of
                         Just f ->
-                            { state | connections = f }
+                            ( { state | connections = f }, Cmd.none )
 
                         Nothing ->
-                            state
+                            ( state, Cmd.none )
 
             DeleteSelections ->
                 let
@@ -540,7 +544,7 @@ step update state =
                         List.length (Box.filterKey (not << Box.isSelected) boxKey state.boxes)
                             == 1
                 in
-                    Debug.log "Deleting Selections"
+                    ( Debug.log "Deleting Selections"
                         { state
                             | boxes = List.filter (not << Box.isSelected) state.boxes
                             , connections =
@@ -551,6 +555,8 @@ step update state =
                                     )
                                     state.connections
                         }
+                    , Cmd.none
+                    )
 
             ResizeBox mode ->
                 let
@@ -560,7 +566,7 @@ step update state =
                     step ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
             UpdateBoxColor color ->
-                { state | boxes = List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }
+                ( { state | boxes = List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }, Cmd.none )
 
             MoveBox mode direction ->
                 let
@@ -570,10 +576,10 @@ step update state =
                     step ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
             ClearBoard ->
-                startingState
+                ( startingState, Cmd.none )
 
             _ ->
-                state
+                ( state, Cmd.none )
 
             NoOp ->
-                Debug.log "NoOp" state
+                ( Debug.log "NoOp" state, Cmd.none )

@@ -1,13 +1,15 @@
 module DomUtils exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (href, class)
+import Html.Attributes exposing (href, class, property)
 import Html.Events exposing (onClick)
 import Native.Custom.Html
-import Json.Decode as Json
+import Json.Encode as Json
 import Json.Decode exposing (string, Decoder, at, field, map5, bool)
 import List exposing (head, reverse)
 import String exposing (split, toInt, join)
+import Routes exposing (RouteName)
+import Result exposing (fromMaybe, andThen, map)
 
 
 type alias DragEvent =
@@ -36,16 +38,12 @@ styleProperty =
     (,)
 
 
-type alias DnDPort =
-    Signal DragEvent
-
-
-getTargetId : Json.Decoder String
+getTargetId : Decoder String
 getTargetId =
     at [ "target", "id" ] string
 
 
-getMouseSelectionEvent : Json.Decoder MouseSelectionEvent
+getMouseSelectionEvent : Decoder MouseSelectionEvent
 getMouseSelectionEvent =
     map5 MouseSelectionEvent
         (at [ "target", "id" ] string)
@@ -56,7 +54,9 @@ getMouseSelectionEvent =
 
 
 stopPropagation =
-    Native.Custom.Html.stopPropagation
+    { stopPropagation = True
+    , preventDefault = False
+    }
 
 
 setFocus =
@@ -67,20 +67,30 @@ on =
     Native.Custom.Html.on
 
 
-extractBoxId : String -> Result String Int
-extractBoxId id =
-    toInt << head << reverse <| split "-" id
+extractBoxId : String -> Maybe Int
+extractBoxId domId =
+    -- toInt << head << reverse <| split "-" id
+    let
+        firstItem =
+            split "-" domId |> reverse |> head
+    in
+        firstItem |> Maybe.andThen (\s -> (toInt s) |> Result.toMaybe)
 
 
-linkTo : String -> String -> Signal.Message -> Html
-linkTo title url handle =
+linkTo : String -> String -> RouteName -> Html RouteName
+linkTo title url routeName =
     a
         [ href url
-        , onClick handle
+        , onClick routeName
         ]
         [ text title ]
 
 
-class_ : List String -> Attribute
+class_ : List String -> Attribute msg
 class_ names =
     class <| join " " names
+
+
+boolProperty : String -> Bool -> Attribute msg
+boolProperty key b =
+    property key (Json.bool b)

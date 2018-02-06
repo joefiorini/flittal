@@ -5,7 +5,6 @@ import Html.Attributes exposing (class, style)
 import Geometry.Types exposing (Geometric, Point, toPxPoint, toPx)
 import Box.Model
 import Connection.Model exposing (Model, Line, LineLayout(..), ConnectionPort, PortLocation(..), PortOrder(..))
-import Box.Controller
 import Debug
 import DomUtils exposing (styleProperty)
 import List
@@ -16,12 +15,12 @@ type alias Box =
     Box.Model.Model
 
 
-renderConnection : Model -> Html
+renderConnection : Model -> Html msg
 renderConnection connection =
     div [ class "connection" ] <| drawEndpoint connection.endPort :: List.map drawSegment connection.segments
 
 
-drawSegment : Line -> Html
+drawSegment : Line -> Html msg
 drawSegment line =
     div
         [ style
@@ -67,7 +66,7 @@ endpointMidY =
     offsetMidpoint <| endpointHeight // 2
 
 
-drawEndpoint : PortLocation -> Html
+drawEndpoint : PortLocation -> Html msg
 drawEndpoint p =
     let
         points =
@@ -496,27 +495,27 @@ buildSegments { start, end, order } =
                     Debug.crash ("cases exhausted in buildSegments" ++ toString ( start, end ))
 
 
-boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model
-boxMap f boxes connections =
-    List.map
-        (\c ->
-            let
-                startBox =
-                    List.head <|
-                        List.filter (\b -> b.key == c.startBox) boxes
 
-                endBox =
-                    List.head <|
-                        List.filter (\b -> b.key == c.endBox) boxes
-            in
-                f startBox endBox
-        )
-        connections
-
-
-buildConnections : List Model -> List Box -> List Model
-buildConnections connections boxes =
-    Tuple.second (List.foldl connectBoxesFold ( List.head boxes, connections ) (List.tail boxes))
+-- TODO: Fix the type error in "f startBox endBox"
+-- boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model
+-- boxMap f boxes connections =
+--     List.map
+--         (\c ->
+--             let
+--                 startBox =
+--                     List.head <|
+--                         List.filter (\b -> b.key == c.startBox) boxes
+--                 endBox =
+--                     List.head <|
+--                         List.filter (\b -> b.key == c.endBox) boxes
+--             in
+--                 f startBox endBox
+--         )
+--         connections
+-- TODO: Fix type error in List.foldl
+-- buildConnections : List Model -> List Box -> List Model
+-- buildConnections connections boxes =
+--     Tuple.second (List.foldl connectBoxesFold ( List.head boxes, connections ) (List.tail boxes))
 
 
 connectBoxes : Box -> Box -> Model
