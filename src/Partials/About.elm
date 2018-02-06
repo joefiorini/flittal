@@ -1,8 +1,10 @@
-module Partials.About where
+module Partials.About exposing (..)
 
 import Markdown
 
-view = Markdown.toHtml """
+
+view =
+    Markdown.toHtml """
 
 ## Welcome to Flittal
 
@@ -12,7 +14,7 @@ I've used Visio, OmniGraffle, Google Charts, etc, but none of them supported the
 
 Flittal is a lightweight, keyboard-driven tool to help you communicate your ideas. At the moment I've chosen to focus on flow charts, but the future may bring additional features and charts.
 
-Get started by pressing `?` to browse the keyboard shortcuts that are available. When you are ready to share, click on the \"Share this board\" field.
+Get started by pressing `?` to browse the keyboard shortcuts that are available. When you are ready to share, click on the "Share this board" field.
 
 ### This tool is alpha
 

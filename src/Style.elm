@@ -1,23 +1,27 @@
-module Style where
+module Style exposing (..)
 
 import Style.Color as InternalColor
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode ((:=))
+import Json.Decode exposing ((:=))
 
-type alias Color = InternalColor.Color
+
+type alias Color =
+    InternalColor.Color
+
 
 type alias Model =
-  { color: Color
-  }
+    { color : Color
+    }
+
 
 decode : Decode.Decoder Model
 decode =
-  Decode.object1 Model
-    ("color" := InternalColor.decode)
+    Decode.object1 Model
+        ("color" := InternalColor.decode)
+
 
 encode style =
-  Encode.object
-    [ ("color", InternalColor.encode style.color)
-    ]
-
+    Encode.object
+        [ ( "color", InternalColor.encode style.color )
+        ]

@@ -1,8 +1,10 @@
-module Partials.Colophon where
+module Partials.Colophon exposing (..)
 
 import Markdown
 
-view = Markdown.toHtml """
+
+view =
+    Markdown.toHtml """
 
 ## What I Used
 
