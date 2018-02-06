@@ -3,7 +3,6 @@ module Partials.Header exposing (..)
 import Html exposing (header, nav, text, a, Html, img, div)
 import Html.Attributes exposing (href, class, src)
 import DomUtils exposing (linkTo)
-import LocalChannel as LC
 import Routes
 import List
 

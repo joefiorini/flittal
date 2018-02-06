@@ -4,9 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (href, class)
 import Html.Events exposing (onClick)
 import Native.Custom.Html
-import Signal
 import Json.Decode as Json
-import Json.Decode exposing (string, Decoder, at, (:=), object5, bool)
+import Json.Decode exposing (string, Decoder, at, field, map5, bool)
 import List exposing (head, reverse)
 import String exposing (split, toInt, join)
 

@@ -13,7 +13,6 @@ import Connection.Controller exposing (leftOf)
 import Connection.Model
 import DomUtils exposing (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent, DnDPort)
 import Html exposing (Html)
-import LocalChannel as LC
 import String exposing (split, toInt)
 import List
 import List exposing ((::))

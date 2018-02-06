@@ -6,12 +6,8 @@ import Geometry.Types exposing (toPxPoint)
 import Html exposing (..)
 import Html.Attributes exposing (id, class, autofocus, style, property, boolProperty, type_, value)
 import Html.Events exposing (on, keyCode, onKeyPress, targetValue)
-import Signal
-import Signal exposing (Channel)
-import Graphics.Input as Input
 import Box.Model as Model
 import Debug
-import LocalChannel as LC
 import Json.Decode exposing ((:=))
 import Json.Decode as Json
 import Style.Color exposing (..)

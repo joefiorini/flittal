@@ -3,7 +3,6 @@ module Partials.Toolbar exposing (..)
 import Html exposing (input, div, text, section, button, img)
 import Html.Attributes exposing (class, placeholder, src, width, type_, readonly, required, title)
 import Html.Events exposing (onClick)
-import LocalChannel as LC
 
 
 type Msg

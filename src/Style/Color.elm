@@ -1,8 +1,7 @@
 module Style.Color exposing (..)
 
 import Json.Encode as Encode
-import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (succeed, fail, andThen, Decoder, string)
 import Result
 
 

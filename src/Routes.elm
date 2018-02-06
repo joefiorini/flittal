@@ -1,7 +1,6 @@
 module Routes exposing (..)
 
 import Debug
-import Signal
 
 
 type RouteName

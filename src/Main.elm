@@ -10,7 +10,6 @@ import DomUtils exposing (DragEvent, class_, linkTo, styleProperty)
 import Geometry.Types as Geometry
 import Mousetrap
 import TimeMachine
-import LocalChannel as LC
 import Partials.Header as Header
 import Partials.Footer as Footer
 import Partials.Sidebar as Sidebar
@@ -24,11 +23,8 @@ import Json.Encode as Encode
 import Json.Decode as Decode
 import Json.Decode exposing ((:=))
 import List
-import Signal
 import Result
 import Routes
-import Signal exposing (Signal, (<~), (~))
-import Window
 import Debug
 import Style.Color exposing (Color(..))
 
