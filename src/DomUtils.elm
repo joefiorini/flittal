@@ -47,12 +47,12 @@ getTargetId =
 
 getMouseSelectionEvent : Json.Decoder MouseSelectionEvent
 getMouseSelectionEvent =
-    object5 MouseSelectionEvent
+    map5 MouseSelectionEvent
         (at [ "target", "id" ] string)
-        ("metaKey" := bool)
-        ("altKey" := bool)
-        ("ctrlKey" := bool)
-        ("shiftKey" := bool)
+        (field "metaKey" bool)
+        (field "altKey" bool)
+        (field "ctrlKey" bool)
+        (field "shiftKey" bool)
 
 
 stopPropagation =

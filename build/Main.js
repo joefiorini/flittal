@@ -1365,7 +1365,7 @@ Elm.Box.Controller.make = function (_elm) {
          "between lines 230 and 266");
       }();
    });
-   var keyCodeAndValue = A3($Json$Decode.object2,
+   var keyCodeAndValue = A3($Json$Decode.map2,
    F2(function (v0,v1) {
       return {ctor: "_Tuple2"
              ,_0: v0
@@ -3280,7 +3280,7 @@ Elm.Connection.Model.make = function (_elm) {
              ,location: a
              ,point: b};
    });
-   var portRawDecoder = A3($Json$Decode.object2,
+   var portRawDecoder = A3($Json$Decode.map2,
    RawPort,
    A2($Json$Decode._op[":="],
    "location",
@@ -4549,7 +4549,7 @@ Elm.Geometry.Types.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Json$Decode = Elm.Json.Decode.make(_elm),
    $Json$Encode = Elm.Json.Encode.make(_elm);
-   var decodeSize = A3($Json$Decode.object2,
+   var decodeSize = A3($Json$Decode.map2,
    F2(function (v0,v1) {
       return {ctor: "_Tuple2"
              ,_0: v0
@@ -4569,7 +4569,7 @@ Elm.Geometry.Types.make = function (_elm) {
                                                ,_0: "height"
                                                ,_1: $Json$Encode.$int($Basics.snd(size))}]));
    };
-   var decodePoint = A3($Json$Decode.object2,
+   var decodePoint = A3($Json$Decode.map2,
    F2(function (v0,v1) {
       return {ctor: "_Tuple2"
              ,_0: v0

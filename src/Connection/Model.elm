@@ -79,7 +79,7 @@ encodePort portLocation =
 
 
 portRawDecoder =
-    Decode.object2 RawPort
+    Decode.map2 RawPort
         ("location" := Decode.string)
         ("point" := Geometry.decodePoint)
 

@@ -52,41 +52,42 @@ encode color =
                 "white"
 
 
-decode : Decode.Decoder Color
+decode : Decoder Color
 decode =
-    Decode.customDecoder Decode.string
-        (\color ->
-            case color of
-                "dark1" ->
-                    Result.Ok Dark1
+    string
+        |> andThen
+            (\color ->
+                case color of
+                    "dark1" ->
+                        succeed Dark1
 
-                "dark2" ->
-                    Result.Ok Dark2
+                    "dark2" ->
+                        succeed Dark2
 
-                "dark3" ->
-                    Result.Ok Dark3
+                    "dark3" ->
+                        succeed Dark3
 
-                "dark4" ->
-                    Result.Ok Dark4
+                    "dark4" ->
+                        succeed Dark4
 
-                "light1" ->
-                    Result.Ok Light1
+                    "light1" ->
+                        succeed Light1
 
-                "light2" ->
-                    Result.Ok Light2
+                    "light2" ->
+                        succeed Light2
 
-                "light3" ->
-                    Result.Ok Light3
+                    "light3" ->
+                        succeed Light3
 
-                "light4" ->
-                    Result.Ok Light4
+                    "light4" ->
+                        succeed Light4
 
-                "white" ->
-                    Result.Ok White
+                    "white" ->
+                        succeed White
 
-                "black" ->
-                    Result.Ok Black
+                    "black" ->
+                        succeed Black
 
-                _ ->
-                    Result.Err ("color value of \"" ++ color ++ "\" is invalid.")
-        )
+                    _ ->
+                        fail ("color value of \"" ++ color ++ "\" is invalid.")
+            )

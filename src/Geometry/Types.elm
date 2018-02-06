@@ -37,9 +37,9 @@ encodePoint point =
 
 decodePoint : Decode.Decoder Point
 decodePoint =
-    Decode.object2 (,)
-        ("x" := Decode.int)
-        ("y" := Decode.int)
+    Decode.map2 (,)
+        (Decode.field "x" Decode.int)
+        (Decode.field "y" Decode.int)
 
 
 encodeSize : Size -> Encode.Value
@@ -52,6 +52,6 @@ encodeSize size =
 
 decodeSize : Decode.Decoder Size
 decodeSize =
-    Decode.object2 (,)
-        ("width" := Decode.int)
-        ("height" := Decode.int)
+    Decode.map2 (,)
+        (Decode.field "width" Decode.int)
+        (Decode.field "height" Decode.int)
