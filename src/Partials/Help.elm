@@ -4,7 +4,7 @@ import Markdown
 
 
 view =
-    Markdown.toHtml """
+    Markdown.toHtml [] """
 
 # Keyboard Commands
 
