@@ -1,6 +1,6 @@
 module Partials.Toolbar exposing (..)
 
-import Html exposing (input, div, text, section, button, img)
+import Html exposing (input, div, text, section, button, img, Html)
 import Html.Attributes exposing (class, placeholder, src, width, type_, readonly, required, title)
 import Html.Events exposing (onClick)
 
@@ -11,7 +11,8 @@ type Msg
     | NoOp
 
 
-clearButton channel =
+clearButton : Html Msg
+clearButton =
     div
         [ class "clear-board" ]
         [ button
@@ -25,7 +26,8 @@ clearButton channel =
         ]
 
 
-shareButton channel =
+shareButton : Html Msg
+shareButton =
     div
         [ class "share" ]
         [ input
@@ -47,9 +49,10 @@ shareButton channel =
         ]
 
 
-view channel share =
+view : Html Msg
+view =
     section
         [ class "l-container" ]
-        [ clearButton channel
-        , shareButton share
+        [ clearButton
+        , shareButton
         ]

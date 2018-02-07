@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html
-import Html exposing (Html, toElement, div, main_, body, text, section, aside)
+import Html exposing (Html, div, main_, body, text, section, aside)
 import Html.Attributes exposing (class, style)
 import Board.Controller as Board
 import Box.Controller as Box
@@ -20,24 +20,13 @@ import Partials.Releases as Releases
 import Native.App as App
 import Json.Encode as Encode
 import Json.Decode as Decode
-import Json.Decode exposing ((:=))
+import Json.Decode exposing (field)
 import List
 import Result
 import Routes
 import Debug
 import Style.Color exposing (Color(..))
-
-
-port drop : Signal DragEvent
-
-
-port dragstart : Signal DragEvent
-
-
-port dragend : Signal DragEvent
-
-
-port globalKeyDown : Signal Int
+import Interop
 
 
 type alias AppState =
@@ -215,8 +204,8 @@ mkState board =
 
 decodeAppState : Decode.Decoder AppState
 decodeAppState =
-    Decode.object1 mkState
-        ("currentBoard" := Board.decode)
+    Decode.map mkState
+        (field "currentBoard" Board.decode)
 
 
 extractAppState : Result.Result String AppState -> AppState
@@ -243,28 +232,13 @@ deserializedState =
         (HydrateAppState << extractAppState << deserializeAppState) <~ loadedState_
 
 
-port loadedState : Signal String
-
-
-port serializeState : Signal String
-port serializeState =
-    let
-        serializeAppState =
-            (Encode.encode 0) << encodeAppState
-    in
-        Signal.sampleOn
-            (Signal.subscribe shareChannel)
-            ((\a -> serializeAppState a) <~ state)
-
-
-shareChannel =
-    Signal.channel NoOp
-
-
-
--- port transitionToRoute : Signal Routes.Url
--- port transitionToRoute =
---   Routes.sendToPort routeHandler
+subscriptions : model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Interop.serializeState SerializeState
+        , Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
+        , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
+        ]
 
 
 toggleHelp =
@@ -298,16 +272,7 @@ type Msg
     | ToolbarUpdate Toolbar.Msg
     | Undo
     | Redo
-
-
-updates : Signal.Channel Msg
-updates =
-    Signal.channel NoOp
-
-
-routeChannel : Signal.Channel Routes.RouteName
-routeChannel =
-    Signal.channel Routes.Root
+    | SerializeState
 
 
 userInput =
@@ -322,7 +287,6 @@ state =
             [ Signal.subscribe updates
             , deserializedState
             , Signal.map globalKeyboardShortcuts Mousetrap.keydown
-            , convertDragOperation <~ Signal.mergeMany [ drop, dragstart ]
             ]
         )
 
@@ -336,13 +300,9 @@ entersEditMode update =
             False
 
 
-inEditingMode : Signal Bool
+inEditingMode : Sub msg
 inEditingMode =
     Signal.map entersEditMode (Signal.subscribe updates)
-
-
-convertDragOperation dragE =
-    BoardUpdate <| Board.moveBoxAction dragE
 
 
 step : Msg -> AppState -> AppState
@@ -437,36 +397,29 @@ step update state =
                     Nothing ->
                         state
 
+        SerializeState ->
+            ( state
+            , state
+                |> (Encode.encode 0)
+                << encodeAppState
+                |> Interop.serializeState
+            )
+
         _ ->
             state
 
 
-container : AppState -> Routes.Route -> Int -> Html.Html
+container : AppState -> Routes.Route -> Int -> Html Msg
 container state ( url, route ) screenHeight =
     let
-        headerChannel =
-            LC.create identity routeChannel
-
-        sidebarChannel =
-            LC.create identity routeChannel
-
-        shareChannel_ =
-            LC.create ToolbarUpdate shareChannel
-
-        toolbarChannel =
-            LC.create ToolbarUpdate updates
-
-        boardChannel =
-            LC.create BoardUpdate updates
-
         sidebar h =
-            Sidebar.view h sidebarChannel
+            Sidebar.view h
 
         offsetHeight =
             screenHeight - 52
 
         board =
-            Board.view boardChannel state.currentBoard offsetHeight
+            Board.view state.currentBoard offsetHeight
 
         ( sidebar_, extraClass, sidebarHeight ) =
             case route of
@@ -486,8 +439,8 @@ container state ( url, route ) screenHeight =
                     ( text "", "", 0 )
     in
         div []
-            [ Header.view headerChannel
-            , Toolbar.view toolbarChannel shareChannel_
+            [ Header.view
+            , Toolbar.view
             , main_
                 [ class "l-container" ]
                 [ section
