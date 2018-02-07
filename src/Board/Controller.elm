@@ -14,11 +14,9 @@ import Connection.Controller exposing (leftOf)
 import Connection.Model
 import DomUtils exposing (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent)
 import Html exposing (Html)
-import String exposing (split, toInt)
 import List
 import List exposing ((::))
-import Result
-import Native.Custom.Html
+import List.Extra exposing (find)
 import Geometry.Types as Geometry
 import Dom
 import Json.Decode exposing (map, succeed)
@@ -230,17 +228,17 @@ replaceBox boxes withBox =
         boxes
 
 
+updateBoxInState : Box.BoxKey -> Box.Msg -> Box.Model -> Box.Model
+updateBoxInState boxKey update box =
+    if box.key == boxKey then
+        Box.step update box
+    else
+        box
+
+
 step : Msg -> Board -> ( Board, Cmd Msg )
 step update state =
     let
-        -- Msg -> Box -> Box
-        updateBoxInState update box iterator =
-            (if iterator.key == box.key then
-                Box.step update iterator
-             else
-                iterator
-            )
-
         updateSelectedBoxes update iterator =
             (if iterator.selectedIndex > -1 then
                 Box.step update iterator
@@ -308,18 +306,17 @@ step update state =
                     ( { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             SelectBoxMulti id ->
-                let
-                    box =
-                        boxForKey id state.boxes
-
-                    -- TODO: Handle Maybe Nothing case here!
-                    updateBoxes boxes =
-                        -- box: Maybe Box
-                        -- boxes: List Box
-                        -- List Box -> Box -> List Box
-                        Maybe.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes)) box |> List.map boxes
-                in
-                    ( Debug.log "adding box to selection" { state | boxes = updateBoxes state.boxes }, Cmd.none )
+                ( Debug.log "adding box to selection"
+                    { state
+                        | boxes =
+                            state.boxes
+                                |> List.map
+                                    (\box ->
+                                        updateBoxInState id (nextSelectedIndex state.boxes |> Box.SetSelected) box
+                                    )
+                    }
+                , Cmd.none
+                )
 
             DraggingBox id ->
                 let
@@ -327,7 +324,7 @@ step update state =
                         boxForKey id state.boxes
 
                     selectedBox boxes =
-                        List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+                        List.map (\box -> updateBoxInState id (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
 
                     draggingBox =
                         List.map (updateSelectedBoxes Box.Dragging)
@@ -339,52 +336,53 @@ step update state =
 
             SelectBox id ->
                 let
-                    box =
-                        boxForKey id state.boxes
-
                     selectedBox boxes =
-                        List.map (updateBoxInState (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+                        List.map (\box -> updateBoxInState id (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
 
                     updateBoxes =
                         deselectBoxes >> selectedBox
                 in
-                    if box.selectedIndex > -1 then
-                        ( state, Cmd.none )
-                    else
-                        ( Debug.log "selecting box" { state | boxes = updateBoxes state.boxes }, Cmd.none )
+                    ( Debug.log "selecting box" { state | boxes = updateBoxes state.boxes }, Cmd.none )
 
             SelectNextBox ->
                 let
                     selections =
                         List.filter Box.isSelected <| sortLeftToRight state.boxes
 
-                    next boxes =
-                        case Debug.log "selections" selections of
-                            [] ->
-                                List.head <| Debug.log "all sorted" boxes
+                    nextBox =
+                        let
+                            sortedBoxes =
+                                sortLeftToRight state.boxes
+                        in
+                            case Debug.log "selections" selections of
+                                [] ->
+                                    List.head <| Debug.log "all sorted" sortedBoxes
 
-                            current :: remaining ->
-                                let
-                                    rightBoxes =
-                                        List.filter (\box -> leftOf current.position box.position) boxes
-                                in
-                                    case rightBoxes of
-                                        [] ->
-                                            List.head boxes
+                                current :: _ ->
+                                    let
+                                        rightBoxes =
+                                            List.filter (\box -> leftOf current.position box.position) sortedBoxes
+                                    in
+                                        case rightBoxes of
+                                            [] ->
+                                                List.head sortedBoxes
 
-                                        current :: remaining ->
-                                            current
-                in
-                    ( { state
-                        | boxes =
-                            List.map
-                                (updateBoxInState (Box.SetSelected 0) <|
-                                    Debug.log "next selection" next <|
-                                        sortLeftToRight state.boxes
+                                            current :: _ ->
+                                                Just current
+
+                    newState =
+                        nextBox
+                            |> Maybe.map
+                                (\next ->
+                                    { state
+                                        | boxes =
+                                            List.map
+                                                (\box -> updateBoxInState next.key (Box.SetSelected 0) box)
+                                                state.boxes
+                                    }
                                 )
-                            <|
-                                deselectBoxes state.boxes
-                      }
+                in
+                    ( Maybe.withDefault state newState
                     , Cmd.none
                     )
 
@@ -393,48 +391,52 @@ step update state =
                     selections =
                         List.filter Box.isSelected <| sortRightToLeft state.boxes
 
-                    next boxes =
-                        case Debug.log "selections" selections of
-                            [] ->
-                                List.head <| Debug.log "all sorted" boxes
+                    nextBox =
+                        let
+                            sortedBoxes =
+                                sortRightToLeft state.boxes
+                        in
+                            case Debug.log "selections" selections of
+                                [] ->
+                                    List.head <| Debug.log "all sorted" sortedBoxes
 
-                            current :: remaining ->
-                                let
-                                    rightBoxes =
-                                        List.filter (\box -> leftOf box.position current.position) boxes
-                                in
-                                    case rightBoxes of
-                                        [] ->
-                                            List.head boxes
+                                current :: _ ->
+                                    let
+                                        firstRight =
+                                            find (\box -> leftOf box.position current.position) sortedBoxes
+                                    in
+                                        case firstRight of
+                                            Nothing ->
+                                                List.head sortedBoxes
 
-                                        current :: remaining ->
-                                            current
-                in
-                    ( { state
-                        | boxes =
-                            List.map
-                                (updateBoxInState (Box.SetSelected 0) <|
-                                    Debug.log "next selection" next <|
-                                        sortRightToLeft state.boxes
+                                            _ ->
+                                                firstRight
+
+                    newState =
+                        nextBox
+                            |> Maybe.map
+                                (\next ->
+                                    { state
+                                        | boxes =
+                                            deselectBoxes state.boxes
+                                                |> List.map
+                                                    (\box -> updateBoxInState next.key (Box.SetSelected 0) box)
+                                    }
                                 )
-                            <|
-                                deselectBoxes state.boxes
-                      }
+                in
+                    ( Maybe.withDefault state newState
                     , Cmd.none
                     )
 
             EditingBox boxKey toggle ->
                 let
                     box =
-                        boxForKey boxKey state.boxes
+                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.step (Box.Editing toggle) box)
 
-                    box_ =
-                        Box.step (Box.Editing toggle) box
-
-                    boxes_ =
-                        replaceBox state.boxes box_
+                    newState =
+                        Maybe.map (\box -> { state | boxes = replaceBox state.boxes box }) box
                 in
-                    ( Debug.log "Canceling edit" { state | boxes = boxes_ }, toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp)) )
+                    ( Debug.log "Canceling edit" (Maybe.withDefault state newState), toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp)) )
 
             BoxAction (Box.EditingBox box toggle) ->
                 let
@@ -445,20 +447,20 @@ step update state =
 
             EditingSelectedBox toggle ->
                 let
-                    selectedBoxes =
-                        List.filter (\b -> b.selectedIndex /= -1) state.boxes
+                    selectedBox =
+                        List.filter (\b -> b.selectedIndex /= -1) state.boxes |> List.head
+
+                    newState =
+                        selectedBox
+                            |> Maybe.map
+                                (\box ->
+                                    { state
+                                        | boxes =
+                                            Box.step (Box.Editing toggle) box |> replaceBox state.boxes
+                                    }
+                                )
                 in
-                    if List.length selectedBoxes == 1 then
-                        ( { state
-                            | boxes =
-                                replaceBox state.boxes <|
-                                    Box.step (Box.Editing toggle) <|
-                                        List.head selectedBoxes
-                          }
-                        , Cmd.none
-                        )
-                    else
-                        ( state, Cmd.none )
+                    ( Maybe.withDefault state newState, Cmd.none )
 
             BoxAction (Box.UpdateBox box label) ->
                 ( Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Update label) box }, Cmd.none )
@@ -580,6 +582,3 @@ step update state =
 
             _ ->
                 ( state, Cmd.none )
-
-            NoOp ->
-                ( Debug.log "NoOp" state, Cmd.none )
