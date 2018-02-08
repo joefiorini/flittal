@@ -1,32 +1,32 @@
 module Main exposing (..)
 
-import Html
-import Html exposing (Html, div, main_, body, text, section, aside)
-import Html.Attributes exposing (class, style)
 import Board.Controller as Board
+import Board.Model exposing (Model)
 import Box.Controller as Box
 import DomUtils exposing (DragEvent, class_, linkTo, styleProperty)
 import Geometry.Types as Geometry
+import Html exposing (Html, aside, body, div, main_, section, text)
+import Html.Attributes exposing (class, style)
+import Interop
+import Json.Decode exposing (Decoder, decodeString, field, map)
+import Json.Encode as Encode
+import Keyboard.Extra exposing (Key)
+import Keyboard.Extra exposing (..)
+import List
 import Mousetrap
-import TimeMachine
-import Partials.Header as Header
-import Partials.Footer as Footer
-import Partials.Sidebar as Sidebar
-import Partials.Help as Help
-import Partials.Toolbar as Toolbar
+import Native.App as App
 import Partials.About as About
 import Partials.Colophon as Colophon
+import Partials.Footer as Footer
+import Partials.Header as Header
+import Partials.Help as Help
 import Partials.Releases as Releases
-import Native.App as App
-import Json.Encode as Encode
-import Json.Decode as Decode
-import Json.Decode exposing (field)
-import List
+import Partials.Sidebar as Sidebar
+import Partials.Toolbar as Toolbar
 import Result
 import Routes
-import Debug
 import Style.Color exposing (Color(..))
-import Interop
+import TimeMachine
 
 
 type alias AppState =
@@ -35,127 +35,139 @@ type alias AppState =
     }
 
 
-main : Signal Html
+main : Program Never Model Msg
 main =
-    (\s r -> container s r)
-        <~ state
-        ~ routeHandler
+    Html.program
+        { init = startingState
+        , view = container
+        , update = step
+        , subscriptions = subscriptions
+        }
 
 
-globalKeyboardShortcuts : String -> Msg
+
+{-
+   Use http://package.elm-lang.org/packages/ohanhi/keyboard-extra/latest to get
+   the keys that were pressed in a list, so use those lists for the case clauses
+   instead of mousetrap strings; then in the update function, we'll call this
+   as part of the (a -> Msg) in Task.perform (might have to use Task.succeed
+   with the list of pressed keys to get them into the function)
+-}
+
+
+globalKeyboardShortcuts : List Key -> Msg
 globalKeyboardShortcuts keyCommand =
     case Debug.log "keyCommand" keyCommand of
-        "tab" ->
+        [ Tab ] ->
             BoardUpdate Board.SelectNextBox
 
-        "shift+tab" ->
+        [ Shift, Tab ] ->
             BoardUpdate Board.SelectPreviousBox
 
-        "a" ->
+        [ CharA ] ->
             BoardUpdate Board.NewBox
 
-        "c" ->
+        [ CharC ] ->
             BoardUpdate Board.ConnectSelections
 
-        "x" ->
+        [ CharX ] ->
             BoardUpdate Board.DisconnectSelections
 
-        "d" ->
+        [ CharD ] ->
             BoardUpdate Board.DeleteSelections
 
-        "1" ->
+        [ Number1 ] ->
             BoardUpdate <| Board.UpdateBoxColor Dark1
 
-        "2" ->
+        [ Number2 ] ->
             BoardUpdate <| Board.UpdateBoxColor Dark2
 
-        "3" ->
+        [ Number3 ] ->
             BoardUpdate <| Board.UpdateBoxColor Dark3
 
-        "4" ->
-            BoardUpdate <| Board.UpdateBoxColor Dark4
-
-        "shift+1" ->
-            BoardUpdate <| Board.UpdateBoxColor Light1
-
-        "shift+2" ->
-            BoardUpdate <| Board.UpdateBoxColor Light2
-
-        "shift+3" ->
-            BoardUpdate <| Board.UpdateBoxColor Light3
-
-        "shift+4" ->
-            BoardUpdate <| Board.UpdateBoxColor Light4
-
-        "0" ->
-            BoardUpdate <| Board.UpdateBoxColor Black
-
-        "shift+0" ->
-            BoardUpdate <| Board.UpdateBoxColor White
-
-        "shift+=" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
-
-        "-" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
-
-        "ctrl+shift+=" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
-
-        "ctrl+-" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
-
-        "alt+shift+=" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
-
-        "alt+-" ->
-            BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
-
-        "enter" ->
-            BoardUpdate (Board.EditingSelectedBox True)
-
-        "h" ->
-            BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
-
-        "j" ->
-            BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
-
-        "k" ->
-            BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
-
-        "l" ->
-            BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
-
-        "u" ->
-            Undo
-
-        "ctrl+r" ->
-            Redo
-
-        "shift+h" ->
-            BoardUpdate <| Board.MoveBox Box.Push Box.Left
-
-        "shift+j" ->
-            BoardUpdate <| Board.MoveBox Box.Push Box.Down
-
-        "shift+k" ->
-            BoardUpdate <| Board.MoveBox Box.Push Box.Up
-
-        "shift+l" ->
-            BoardUpdate <| Board.MoveBox Box.Push Box.Right
-
-        "alt+shift+h" ->
-            BoardUpdate <| Board.MoveBox Box.Jump Box.Left
-
-        "alt+shift+j" ->
-            BoardUpdate <| Board.MoveBox Box.Jump Box.Down
-
-        "alt+shift+k" ->
-            BoardUpdate <| Board.MoveBox Box.Jump Box.Up
-
-        "alt+shift+l" ->
-            BoardUpdate <| Board.MoveBox Box.Jump Box.Right
-
+        -- "4" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Dark4
+        --
+        -- "shift+1" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Light1
+        --
+        -- "shift+2" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Light2
+        --
+        -- "shift+3" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Light3
+        --
+        -- "shift+4" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Light4
+        --
+        -- "0" ->
+        --     BoardUpdate <| Board.UpdateBoxColor Black
+        --
+        -- "shift+0" ->
+        --     BoardUpdate <| Board.UpdateBoxColor White
+        --
+        -- "shift+=" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
+        --
+        -- "-" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
+        --
+        -- "ctrl+shift+=" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
+        --
+        -- "ctrl+-" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
+        --
+        -- "alt+shift+=" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
+        --
+        -- "alt+-" ->
+        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
+        --
+        -- "enter" ->
+        --     BoardUpdate (Board.EditingSelectedBox True)
+        --
+        -- "h" ->
+        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
+        --
+        -- "j" ->
+        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
+        --
+        -- "k" ->
+        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
+        --
+        -- "l" ->
+        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
+        --
+        -- "u" ->
+        --     Undo
+        --
+        -- "ctrl+r" ->
+        --     Redo
+        --
+        -- "shift+h" ->
+        --     BoardUpdate <| Board.MoveBox Box.Push Box.Left
+        --
+        -- "shift+j" ->
+        --     BoardUpdate <| Board.MoveBox Box.Push Box.Down
+        --
+        -- "shift+k" ->
+        --     BoardUpdate <| Board.MoveBox Box.Push Box.Up
+        --
+        -- "shift+l" ->
+        --     BoardUpdate <| Board.MoveBox Box.Push Box.Right
+        --
+        -- "alt+shift+h" ->
+        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Left
+        --
+        -- "alt+shift+j" ->
+        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Down
+        --
+        -- "alt+shift+k" ->
+        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Up
+        --
+        -- "alt+shift+l" ->
+        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Right
         _ ->
             NoOp
 
@@ -202,9 +214,9 @@ mkState board =
     }
 
 
-decodeAppState : Decode.Decoder AppState
+decodeAppState : Decoder AppState
 decodeAppState =
-    Decode.map mkState
+    map mkState
         (field "currentBoard" Board.decode)
 
 
@@ -218,26 +230,13 @@ extractAppState result =
             Debug.crash s
 
 
-deserializedState : Signal Msg
-deserializedState =
-    let
-        deserializeAppState =
-            Decode.decodeString decodeAppState
-
-        loadedState_ =
-            Signal.keepIf ((/=) "")
-                (Encode.encode 0 <| encodeAppState startingState)
-                loadedState
-    in
-        (HydrateAppState << extractAppState << deserializeAppState) <~ loadedState_
-
-
 subscriptions : model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Interop.serializeState SerializeState
         , Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
+        , Interop.loadedState LoadedState
         ]
 
 
@@ -273,22 +272,20 @@ type Msg
     | Undo
     | Redo
     | SerializeState
+    | LoadedState String
 
 
-userInput =
-    Signal.mergeMany [ drop, dragstart, dragend ]
 
-
-state : Signal.Signal AppState
-state =
-    Signal.foldp step
-        startingState
-        (Signal.mergeMany
-            [ Signal.subscribe updates
-            , deserializedState
-            , Signal.map globalKeyboardShortcuts Mousetrap.keydown
-            ]
-        )
+-- state : Signal.Signal AppState
+-- state =
+--     Signal.foldp step
+--         startingState
+--         (Signal.mergeMany
+--             [ Signal.subscribe updates
+--             , deserializedState
+--             , Signal.map globalKeyboardShortcuts Mousetrap.keydown
+--             ]
+--         )
 
 
 entersEditMode update =
@@ -300,20 +297,23 @@ entersEditMode update =
             False
 
 
-inEditingMode : Sub msg
-inEditingMode =
-    Signal.map entersEditMode (Signal.subscribe updates)
+initTimeMachine : AppState -> AppState
+initTimeMachine appState =
+    let
+        history =
+            TimeMachine.initialize appState.currentBoard
+    in
+        { appState | boardHistory = history }
 
 
 step : Msg -> AppState -> AppState
 step update state =
     case Debug.log "update" update of
-        HydrateAppState state_ ->
-            let
-                history_ =
-                    TimeMachine.initialize state_.currentBoard
-            in
-                { state_ | boardHistory = history_ }
+        LoadedState deserializedState ->
+            deserializedState
+                |> decodeString decodeAppState
+                |> extractAppState
+                |> initTimeMachine
 
         BoardUpdate u ->
             let
