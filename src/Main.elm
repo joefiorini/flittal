@@ -2,19 +2,21 @@ module Main exposing (..)
 
 import Board.Controller as Board
 import Board.Model exposing (Model)
+import Board.Msg
+import Box.Msg
 import Box.Controller as Box
-import DomUtils exposing (DragEvent, class_, linkTo, styleProperty)
+import DomUtils exposing (class_, linkTo, styleProperty)
 import Geometry.Types as Geometry
 import Html exposing (Html, aside, body, div, main_, section, text)
 import Html.Attributes exposing (class, style)
 import Interop
 import Json.Decode exposing (Decoder, decodeString, field, map)
 import Json.Encode as Encode
-import Keyboard.Extra exposing (Key)
-import Keyboard.Extra exposing (..)
+import Keyboard.Extra exposing (Key(..))
 import List
 import Mousetrap
 import Native.App as App
+import Navigation exposing (Location)
 import Partials.About as About
 import Partials.Colophon as Colophon
 import Partials.Footer as Footer
@@ -27,22 +29,47 @@ import Result
 import Routes
 import Style.Color exposing (Color(..))
 import TimeMachine
+import Msg exposing (Msg(..))
 
 
 type alias AppState =
     { currentBoard : Board.Board
     , boardHistory : TimeMachine.History Board.Board
+    , navigationHistory : List Location
+    , currentRoute : Routes.RouteName
     }
 
 
-main : Program Never Model Msg
 main =
-    Html.program
+    Navigation.program processUrlChange
         { init = startingState
         , view = container
         , update = step
         , subscriptions = subscriptions
         }
+
+
+processUrlChange : Location -> Msg
+processUrlChange location =
+    let
+        routeName =
+            case location.pathname of
+                "/" ->
+                    Routes.Root
+
+                "/about" ->
+                    Routes.About
+
+                "/colophon" ->
+                    Routes.Colophon
+
+                "/releases" ->
+                    Routes.Releases
+
+                "/help" ->
+                    Routes.Help
+    in
+        NewPage routeName
 
 
 
@@ -59,31 +86,31 @@ globalKeyboardShortcuts : List Key -> Msg
 globalKeyboardShortcuts keyCommand =
     case Debug.log "keyCommand" keyCommand of
         [ Tab ] ->
-            BoardUpdate Board.SelectNextBox
+            BoardUpdate Board.Msg.SelectNextBox
 
         [ Shift, Tab ] ->
-            BoardUpdate Board.SelectPreviousBox
+            BoardUpdate Board.Msg.SelectPreviousBox
 
         [ CharA ] ->
-            BoardUpdate Board.NewBox
+            BoardUpdate Board.Msg.NewBox
 
         [ CharC ] ->
-            BoardUpdate Board.ConnectSelections
+            BoardUpdate Board.Msg.ConnectSelections
 
         [ CharX ] ->
-            BoardUpdate Board.DisconnectSelections
+            BoardUpdate Board.Msg.DisconnectSelections
 
         [ CharD ] ->
-            BoardUpdate Board.DeleteSelections
+            BoardUpdate Board.Msg.DeleteSelections
 
         [ Number1 ] ->
-            BoardUpdate <| Board.UpdateBoxColor Dark1
+            BoardUpdate <| Board.Msg.UpdateBoxColor Dark1
 
         [ Number2 ] ->
-            BoardUpdate <| Board.UpdateBoxColor Dark2
+            BoardUpdate <| Board.Msg.UpdateBoxColor Dark2
 
         [ Number3 ] ->
-            BoardUpdate <| Board.UpdateBoxColor Dark3
+            BoardUpdate <| Board.Msg.UpdateBoxColor Dark3
 
         -- "4" ->
         --     BoardUpdate <| Board.UpdateBoxColor Dark4
@@ -168,37 +195,17 @@ globalKeyboardShortcuts keyCommand =
         --
         -- "alt+shift+l" ->
         --     BoardUpdate <| Board.MoveBox Box.Jump Box.Right
+        -- TODO: Add toggle help here
         _ ->
             NoOp
 
 
-startingState : AppState
-startingState =
+startingState : Location -> AppState
+startingState location =
     { currentBoard = Board.startingState
     , boardHistory = TimeMachine.initialize Board.startingState
+    , navigationHistory = [ location ]
     }
-
-
-routesMap routeName =
-    let
-        url =
-            case routeName of
-                Routes.Root ->
-                    "/"
-
-                Routes.About ->
-                    "/about"
-
-                Routes.Colophon ->
-                    "/colophon"
-
-                Routes.Releases ->
-                    "/releases"
-
-                Routes.Help ->
-                    "/help"
-    in
-        ( url, routeName )
 
 
 encodeAppState : AppState -> Encode.Value
@@ -233,59 +240,28 @@ extractAppState result =
 subscriptions : model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Interop.serializeState SerializeState
-        , Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
+        [ Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.loadedState LoadedState
         ]
 
 
-toggleHelp =
-    Signal.map
-        (\k ->
-            case k of
-                "shift+/" ->
-                    Routes.Help
 
-                "w" ->
-                    Routes.Root
-
-                _ ->
-                    Routes.Root
-        )
-        Mousetrap.keydown
-
-
-routeHandler =
-    Routes.map routesMap <|
-        Signal.mergeMany
-            [ Signal.subscribe routeChannel
-            , toggleHelp
-            ]
-
-
-type Msg
-    = NoOp
-    | HydrateAppState AppState
-    | BoardUpdate Board.Msg
-    | ToolbarUpdate Toolbar.Msg
-    | Undo
-    | Redo
-    | SerializeState
-    | LoadedState String
-
-
-
--- state : Signal.Signal AppState
--- state =
---     Signal.foldp step
---         startingState
---         (Signal.mergeMany
---             [ Signal.subscribe updates
---             , deserializedState
---             , Signal.map globalKeyboardShortcuts Mousetrap.keydown
---             ]
+-- TODO: Add to main keyboard map
+-- toggleHelp =
+--     Signal.map
+--         (\k ->
+--             case k of
+--                 "shift+/" ->
+--                     Routes.Help
+--
+--                 "w" ->
+--                     Routes.Root
+--
+--                 _ ->
+--                     Routes.Root
 --         )
+--         Mousetrap.keydown
 
 
 entersEditMode update =
@@ -315,6 +291,9 @@ step update state =
                 |> extractAppState
                 |> initTimeMachine
 
+        UrlChange location ->
+            { state | navigationHistory = location :: state.navigationHistory }
+
         BoardUpdate u ->
             let
                 updatedBoard =
@@ -325,31 +304,31 @@ step update state =
 
                 history_ =
                     case u of
-                        Board.NewBox ->
+                        Board.Msg.NewBox ->
                             recordedHistory
 
-                        Board.MoveBox _ _ ->
+                        Board.Msg.MoveBox _ _ ->
                             recordedHistory
 
-                        Board.UpdateBoxColor _ ->
+                        Board.Msg.UpdateBoxColor _ ->
                             recordedHistory
 
-                        Board.DeleteSelections ->
+                        Board.Msg.DeleteSelections ->
                             recordedHistory
 
-                        Board.ConnectSelections ->
+                        Board.Msg.ConnectSelections ->
                             recordedHistory
 
-                        Board.DisconnectSelections ->
+                        Board.Msg.DisconnectSelections ->
                             recordedHistory
 
-                        Board.Drop _ _ ->
+                        Board.Msg.Drop _ _ ->
                             recordedHistory
 
-                        Board.ResizeBox _ ->
+                        Board.Msg.ResizeBox _ ->
                             recordedHistory
 
-                        Board.BoxAction (Box.EditingBox _ _) ->
+                        Board.Msg.BoxAction (Box.Msg.EditingBox _ _) ->
                             recordedHistory
 
                         _ ->
@@ -363,7 +342,7 @@ step update state =
         ToolbarUpdate u ->
             let
                 updatedBoard =
-                    Board.step Board.ClearBoard state.currentBoard
+                    Board.step Board.Msg.ClearBoard state.currentBoard
             in
                 { state | currentBoard = updatedBoard }
 
@@ -409,20 +388,21 @@ step update state =
             state
 
 
-container : AppState -> Routes.Route -> Int -> Html Msg
-container state ( url, route ) screenHeight =
+container : AppState -> Html Msg
+container state =
     let
         sidebar h =
             Sidebar.view h
 
         offsetHeight =
-            screenHeight - 52
+            -- TODO: Don't hard code this. get the actual height, if needed?
+            1024 - 52
 
         board =
-            Board.view state.currentBoard offsetHeight
+            Board.view BoardUpdate state.currentBoard offsetHeight
 
         ( sidebar_, extraClass, sidebarHeight ) =
-            case route of
+            case state.currentRoute of
                 Routes.About ->
                     ( sidebar <| About.view, "l-board--compressed", offsetHeight )
 
@@ -439,24 +419,28 @@ container state ( url, route ) screenHeight =
                     ( text "", "", 0 )
     in
         div []
-            [ Header.view
-            , Toolbar.view
-            , main_
-                [ class "l-container" ]
-                [ section
-                    [ class_ [ "l-board", extraClass ]
-                    ]
-                    [ board ]
-                , section
-                    [ class "l-content"
-                    , style
-                        [ styleProperty "height" <| Geometry.toPx sidebarHeight
-                        ]
-                    ]
-                    [ sidebar_
-                    ]
-                ]
-            , section
-                [ class "l-container" ]
-                [ Footer.view ]
-            ]
+            []
+
+
+
+-- [ Header.view
+-- , Toolbar.view ToolbarUpdate
+-- , main_
+--     [ class "l-container" ]
+--     [ section
+--         [ class_ [ "l-board", extraClass ]
+--         ]
+--         [ board ]
+--     , section
+--         [ class "l-content"
+--         , style
+--             [ styleProperty "height" <| Geometry.toPx sidebarHeight
+--             ]
+--         ]
+--         [ sidebar_
+--         ]
+--     ]
+-- , section
+--     [ class "l-container" ]
+--     [ Footer.view ]
+-- ]

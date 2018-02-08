@@ -6,26 +6,9 @@ import Json.Encode as Encode
 import Json.Decode as Decode
 import Json.Decode exposing (field)
 import Json.Ext as JsonExt
-import Result
-import Result exposing (andThen)
 import List
 import Style
-
-
-type alias BoxKey =
-    Int
-
-
-type alias Model =
-    Geometric
-        { key : BoxKey
-        , label : String
-        , originalLabel : String
-        , isEditing : Bool
-        , isDragging : Bool
-        , selectedIndex : Int
-        , style : Style.Model
-        }
+import Box.Types exposing (Model, BoxKey)
 
 
 mkBox position size label originalLabel key isEditing isDragging selectedIndex style =

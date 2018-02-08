@@ -1,7 +1,5 @@
 module Routes exposing (..)
 
-import Debug
-
 
 type RouteName
     = Root

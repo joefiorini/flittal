@@ -1,6 +1,6 @@
 port module Interop exposing (..)
 
-import DomUtils exposing (DragEvent)
+import Dom.Types exposing (DragEvent)
 
 
 port loadedState : (String -> msg) -> Sub msg

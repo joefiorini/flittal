@@ -1,13 +1,11 @@
 module Connection.Model exposing (..)
 
-import Box.Model as Box
-import Geometry.Types as Geometry
-import Json.Decode as Decode
-import Json.Decode exposing (field, string, succeed, fail, andThen)
+import Box.Types exposing (BoxKey)
 import Geometry.Types exposing (Point, Size)
+import Json.Decode as Decode exposing (andThen, fail, field, string, succeed)
 import Json.Encode as Encode
 import List
-import Result
+import Geometry.Types as Geometry
 
 
 type LineLayout
@@ -36,7 +34,7 @@ type PortLocation
 
 type alias RawPort =
     { location : String
-    , point : Geometry.Point
+    , point : Point
     }
 
 
@@ -51,8 +49,8 @@ type alias Model =
     { segments : List Line
     , startPort : PortLocation
     , endPort : PortLocation
-    , startBox : Box.BoxKey
-    , endBox : Box.BoxKey
+    , startBox : BoxKey
+    , endBox : BoxKey
     }
 
 

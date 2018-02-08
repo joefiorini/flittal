@@ -1,71 +1,15 @@
 module Box.Controller exposing (..)
 
-import DomUtils
-import DomUtils exposing (DragEvent, stopPropagation, styleProperty, class_, boolProperty)
-import Geometry.Types exposing (toPxPoint)
-import Html exposing (..)
-import Html.Attributes exposing (id, class, autofocus, style, property, type_, value)
-import Html.Events exposing (on, keyCode, targetValue, onWithOptions, onInput)
-import Box.Model as Model
-import Debug
-import Json.Decode exposing (field)
-import Json.Decode as Json
-import Style.Color exposing (..)
+import Box.Msg exposing (..)
+import Box.Types exposing (..)
+import Dom.Types exposing (DragEvent)
+import DomUtils exposing (boolProperty, class_, stopPropagation, styleProperty)
 import Geometry.Types as Geometry
-
-
-type alias Model =
-    Model.Model
-
-
-type alias BoxKey =
-    Model.BoxKey
-
-
-type ResizeMode
-    = ResizeUpAll
-    | ResizeDownAll
-    | ResizeUpNS
-    | ResizeDownNS
-    | ResizeUpEW
-    | ResizeDownEW
-
-
-type MoveType
-    = Nudge
-    | Push
-    | Jump
-
-
-type MoveDirection
-    = Up
-    | Down
-    | Left
-    | Right
-
-
-type Msg
-    = Drop DragEvent
-    | Editing Bool
-    | EditingBox Model Bool
-    | CancelEditingBox Model
-    | CancelEditing
-    | SetSelected Int
-    | Dragging
-    | UpdateBox Model String
-    | UpdateColor Color
-    | NoOp
-    | Resize ResizeMode
-    | Update String
-    | Move MoveType MoveDirection
-
-
-filterKey =
-    Model.filterKey
-
-
-isSelected =
-    Model.isSelected
+import Html exposing (..)
+import Html.Attributes exposing (autofocus, class, id, property, style, type_, value)
+import Html.Events exposing (keyCode, on, onInput, onWithOptions, targetValue)
+import Json.Decode as Json exposing (field)
+import Style.Color exposing (..)
 
 
 view : Model -> Html Msg
@@ -73,14 +17,14 @@ view box =
     div
         [ style
             [ styleProperty "position" "absolute"
-            , styleProperty "width" (Tuple.first <| toPxPoint box.size)
-            , styleProperty "height" (Tuple.second <| toPxPoint box.size)
+            , styleProperty "width" (Tuple.first <| Geometry.toPxPoint box.size)
+            , styleProperty "height" (Tuple.second <| Geometry.toPxPoint box.size)
             , if box.selectedIndex > -1 && not box.isDragging then
                 styleProperty "border" "dashed 2px"
               else
                 styleProperty "border" "solid 2px"
-            , styleProperty "left" (Tuple.first <| toPxPoint box.position)
-            , styleProperty "top" (Tuple.second <| toPxPoint box.position)
+            , styleProperty "left" (Tuple.first <| Geometry.toPxPoint box.position)
+            , styleProperty "top" (Tuple.second <| Geometry.toPxPoint box.position)
             , styleProperty "text-align" "center"
             , styleProperty "line-height" "2"
             ]
@@ -150,10 +94,6 @@ entersEditMode update =
 
         otherwise ->
             False
-
-
-encode =
-    Model.encode
 
 
 onKeyDown box =

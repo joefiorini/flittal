@@ -1,37 +1,17 @@
 module DomUtils exposing (..)
 
+import Dom.Types exposing (MouseSelectionEvent)
 import Html exposing (..)
-import Html.Attributes exposing (href, class, property)
+import Html.Attributes exposing (class, href, property)
 import Html.Events exposing (onClick)
-import Native.Custom.Html
+import Json.Decode exposing (Decoder, at, bool, field, map5, string)
 import Json.Encode as Json
-import Json.Decode exposing (string, Decoder, at, field, map5, bool)
 import List exposing (head, reverse)
-import String exposing (split, toInt, join)
+import Msg exposing (..)
+import Native.Custom.Html
+import Result exposing (andThen, fromMaybe, map)
 import Routes exposing (RouteName)
-import Result exposing (fromMaybe, andThen, map)
-
-
-type alias DragEvent =
-    { id : String
-    , isStart : Bool
-    , isEnd : Bool
-    , isDrop : Bool
-    , isMulti : Bool
-    , startX : Int
-    , endX : Int
-    , startY : Int
-    , endY : Int
-    }
-
-
-type alias MouseSelectionEvent =
-    { id : String
-    , metaKey : Bool
-    , altKey : Bool
-    , ctrlKey : Bool
-    , shiftKey : Bool
-    }
+import String exposing (join, split, toInt)
 
 
 styleProperty =
@@ -77,11 +57,11 @@ extractBoxId domId =
         firstItem |> Maybe.andThen (\s -> (toInt s) |> Result.toMaybe)
 
 
-linkTo : String -> String -> RouteName -> Html RouteName
+linkTo : String -> String -> RouteName -> Html Msg
 linkTo title url routeName =
     a
         [ href url
-        , onClick routeName
+        , onClick (NewPage routeName)
         ]
         [ text title ]
 

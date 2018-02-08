@@ -11,12 +11,12 @@ type Msg
     | NoOp
 
 
-clearButton : Html Msg
-clearButton =
+clearButton : (Msg -> msg) -> Html msg
+clearButton tx =
     div
         [ class "clear-board" ]
         [ button
-            [ onClick ClearBoard
+            [ onClick <| tx ClearBoard
             , title "Clear the board"
             ]
             [ img
@@ -26,14 +26,14 @@ clearButton =
         ]
 
 
-shareButton : Html Msg
-shareButton =
+shareButton : (Msg -> msg) -> Html msg
+shareButton tx =
     div
         [ class "share" ]
         [ input
             [ class "share__url"
             , placeholder "Share this board"
-            , onClick ShareBoard
+            , onClick <| tx ShareBoard
             , type_ "text"
             , readonly True
             ]
@@ -49,10 +49,10 @@ shareButton =
         ]
 
 
-view : Html Msg
-view =
+view : (Msg -> msg) -> Html msg
+view tx =
     section
         [ class "l-container" ]
-        [ clearButton
-        , shareButton
+        [ clearButton tx
+        , shareButton tx
         ]

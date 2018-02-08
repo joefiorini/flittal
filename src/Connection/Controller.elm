@@ -1,18 +1,15 @@
 module Connection.Controller exposing (..)
 
+import Box.Types as Box
+import Connection.Model exposing (ConnectionPort, Line, LineLayout(..), Model, PortLocation(..), PortOrder(..))
+import DomUtils exposing (styleProperty)
+import Geometry.Types exposing (Geometric, Point, toPx, toPxPoint)
 import Html exposing (..)
 import Html.Attributes exposing (class, style)
-import Geometry.Types exposing (Geometric, Point, toPxPoint, toPx)
-import Box.Model
-import Connection.Model exposing (Model, Line, LineLayout(..), ConnectionPort, PortLocation(..), PortOrder(..))
-import Debug
-import DomUtils exposing (styleProperty)
-import List
-import List exposing ((::))
 
 
 type alias Box =
-    Box.Model.Model
+    Box.Model
 
 
 renderConnection : Model -> Html msg

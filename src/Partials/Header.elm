@@ -1,13 +1,14 @@
 module Partials.Header exposing (..)
 
-import Html exposing (header, nav, text, a, Html, img, div)
-import Html.Attributes exposing (href, class, src)
 import DomUtils exposing (linkTo)
-import Routes exposing (RouteName)
+import Html exposing (Html, a, div, header, img, nav, text)
+import Html.Attributes exposing (class, href, src)
 import List
+import Msg exposing (Msg)
+import Routes exposing (RouteName)
 
 
-navLinks : List (Html RouteName)
+navLinks : List (Html Msg)
 navLinks =
     List.concat
         [ [ div

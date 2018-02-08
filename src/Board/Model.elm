@@ -1,22 +1,17 @@
 module Board.Model exposing (..)
 
-import List exposing (head, filter, map)
-import Box.Model as Box
-import Json.Encode as Encode
-import Json.Decode as Decode
-import Json.Decode exposing (field)
+import Box.Types as Box
+import Box.Model
 import Connection.Model as Connection
-import Debug
-
-
-type alias BoxKey =
-    Box.BoxKey
+import Json.Decode as Decode exposing (field)
+import Json.Encode as Encode
+import List exposing (filter, head, map)
 
 
 type alias Model =
     { boxes : List Box.Model
     , connections : List Connection.Model
-    , nextIdentifier : BoxKey
+    , nextIdentifier : Box.BoxKey
     }
 
 
@@ -24,7 +19,7 @@ encode : Model -> Encode.Value
 encode board =
     let
         encodedBoxes =
-            map Box.encode board.boxes
+            map Box.Model.encode board.boxes
 
         encodedConnections =
             map Connection.encode board.connections
@@ -39,6 +34,6 @@ encode board =
 decode : Decode.Decoder Model
 decode =
     Decode.map3 Model
-        (Decode.list Box.decode |> field "boxes")
+        (Decode.list Box.Model.decode |> field "boxes")
         (Decode.list Connection.decode |> field "connections")
         (field "nextIdentifier" Decode.int)

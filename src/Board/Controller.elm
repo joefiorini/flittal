@@ -1,60 +1,41 @@
 module Board.Controller exposing (..)
 
-import Debug
-import Maybe
-import Task
-import Html exposing (..)
-import Html.Events exposing (on)
-import Html.Attributes exposing (id, style, property, class)
 import Board.Model
-import Style.Color exposing (Color(..))
+import Board.Msg exposing (..)
 import Box.Controller as Box
-import Connection.Controller as Connection
-import Connection.Controller exposing (leftOf)
+import Box.Types
+import Box.Msg
+import Box.Types
+import Connection.Controller as Connection exposing (leftOf)
 import Connection.Model
-import DomUtils exposing (getTargetId, extractBoxId, getMouseSelectionEvent, styleProperty, DragEvent)
-import Html exposing (Html)
-import List
+import Dom
+import Dom.Types exposing (DragEvent)
+import DomUtils exposing (extractBoxId, getMouseSelectionEvent, getTargetId, styleProperty)
+import Geometry.Types as Geometry
+import Html exposing (..)
+import Html.Attributes exposing (class, id, property, style)
+import Html.Events exposing (on)
+import Json.Decode exposing (map, succeed)
 import List exposing ((::))
 import List.Extra exposing (find)
-import Geometry.Types as Geometry
-import Dom
-import Json.Decode exposing (map, succeed)
+import Maybe
+import Style.Color exposing (Color(..))
+import Box.Model
+import Task
 
 
 type alias Board =
     Board.Model.Model
 
 
-type Msg
-    = NoOp
-    | BoxAction Box.Msg
-    | ClearBoard
-    | UpdateBox Box.Model String
-    | NewBox
-    | MoveBox Box.MoveType Box.MoveDirection
-    | DeselectBoxes
-    | EditingBox Box.BoxKey Bool
-    | EditingSelectedBox Bool
-    | SelectBox Box.BoxKey
-    | SelectBoxMulti Box.BoxKey
-    | CancelEditingBox Box.BoxKey
-    | ConnectSelections
-    | ReconnectSelections
-    | DisconnectSelections
-    | DeleteSelections
-    | SelectNextBox
-    | SelectPreviousBox
-    | DraggingBox Box.BoxKey
-    | UpdateBoxColor Color
-    | ResizeBox Box.ResizeMode
-    | Drop Box.BoxKey DragEvent
-
-
-view channel model height =
+view : (Msg -> msg) -> Board -> Int -> Html msg
+view tx model height =
     let
-        ( boxes, connections ) =
-            widgets model
+        boxes =
+            List.map (\b -> (Box.view b |> Html.map (\a -> tx (BoxAction a)))) model.boxes
+
+        connections =
+            List.map Connection.renderConnection model.connections
     in
         div
             [ style
@@ -62,8 +43,8 @@ view channel model height =
                 ]
             , class "board"
             , id "container"
-            , on "dblclick" (getTargetId |> Json.Decode.map buildEditingAction)
-            , on "mousedown" (getMouseSelectionEvent |> Json.Decode.map buildSelectAction)
+            , on "dblclick" (getTargetId |> Json.Decode.map (\s -> tx <| buildEditingAction s))
+            , on "mousedown" (getMouseSelectionEvent |> (Json.Decode.map (\s -> tx <| buildSelectAction s)))
             ]
             (List.concatMap identity [ boxes, connections ])
 
@@ -90,11 +71,6 @@ encode =
 
 decode =
     Board.Model.decode
-
-
-renderConnections : List Connection.Model.Model -> List (Html Msg)
-renderConnections =
-    List.map Connection.renderConnection
 
 
 buildSelectAction event =
@@ -125,13 +101,6 @@ buildEditingAction id =
 
             Nothing ->
                 NoOp
-
-
-widgets : Board -> ( List (Html Msg), List (Html Msg) )
-widgets board =
-    ( (List.map (\b -> (Box.view b |> Html.map BoxAction)) board.boxes)
-    , (renderConnections board.connections)
-    )
 
 
 toSelector : Int -> String
@@ -170,7 +139,7 @@ isEditing =
 updateStateSelections box state =
     let
         updateBox lastBox _ =
-            Box.step (Box.SetSelected <| lastBox.selectedIndex + 1) box
+            Box.step (Box.Msg.SetSelected <| lastBox.selectedIndex + 1) box
     in
         { state | boxes = List.foldl updateBox state.boxes }
 
@@ -187,18 +156,18 @@ sortRightToLeft =
     List.reverse << sortLeftToRight
 
 
-sortLeftToRight : List Box.Model -> List Box.Model
+sortLeftToRight : List Box.Types.Model -> List Box.Types.Model
 sortLeftToRight boxes =
     List.sortBy (Tuple.first << (.position)) <|
         List.sortBy (Tuple.second << (.position)) boxes
 
 
-boxForKey : Box.BoxKey -> List Box.Model -> Maybe Box.Model
+boxForKey : Box.Types.BoxKey -> List Box.Types.Model -> Maybe Box.Types.Model
 boxForKey key boxes =
     List.head (List.filter (\b -> b.key == key) boxes)
 
 
-makeBox : Box.BoxKey -> Box.Model
+makeBox : Box.Types.BoxKey -> Box.Types.Model
 makeBox identifier =
     let
         style =
@@ -216,7 +185,7 @@ makeBox identifier =
         }
 
 
-replaceBox : List Box.Model -> Box.Model -> List Box.Model
+replaceBox : List Box.Types.Model -> Box.Types.Model -> List Box.Types.Model
 replaceBox boxes withBox =
     List.map
         (\box ->
@@ -228,7 +197,7 @@ replaceBox boxes withBox =
         boxes
 
 
-updateBoxInState : Box.BoxKey -> Box.Msg -> Box.Model -> Box.Model
+updateBoxInState : Box.Types.BoxKey -> Box.Msg.Msg -> Box.Types.Model -> Box.Types.Model
 updateBoxInState boxKey update box =
     if box.key == boxKey then
         Box.step update box
@@ -285,10 +254,10 @@ step update state =
                         , Cmd.none
                         )
 
-            BoxAction (Box.CancelEditingBox box) ->
+            BoxAction (Box.Msg.CancelEditingBox box) ->
                 let
                     box_ =
-                        Box.step Box.CancelEditing box
+                        Box.step Box.Msg.CancelEditing box
 
                     boxes_ =
                         replaceBox state.boxes box_
@@ -298,7 +267,7 @@ step update state =
             DeselectBoxes ->
                 let
                     cancelEditing =
-                        List.map (Box.step Box.CancelEditing)
+                        List.map (Box.step Box.Msg.CancelEditing)
 
                     updateBoxes =
                         cancelEditing >> deselectBoxes
@@ -312,7 +281,7 @@ step update state =
                             state.boxes
                                 |> List.map
                                     (\box ->
-                                        updateBoxInState id (nextSelectedIndex state.boxes |> Box.SetSelected) box
+                                        updateBoxInState id (nextSelectedIndex state.boxes |> Box.Msg.SetSelected) box
                                     )
                     }
                 , Cmd.none
@@ -324,10 +293,10 @@ step update state =
                         boxForKey id state.boxes
 
                     selectedBox boxes =
-                        List.map (\box -> updateBoxInState id (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+                        List.map (\box -> updateBoxInState id (Box.Msg.SetSelected <| nextSelectedIndex boxes) box) boxes
 
                     draggingBox =
-                        List.map (updateSelectedBoxes Box.Dragging)
+                        List.map (updateSelectedBoxes Box.Msg.Dragging)
 
                     updateBoxes =
                         selectedBox >> draggingBox
@@ -337,7 +306,7 @@ step update state =
             SelectBox id ->
                 let
                     selectedBox boxes =
-                        List.map (\box -> updateBoxInState id (Box.SetSelected <| nextSelectedIndex boxes) box) boxes
+                        List.map (\box -> updateBoxInState id (Box.Msg.SetSelected <| nextSelectedIndex boxes) box) boxes
 
                     updateBoxes =
                         deselectBoxes >> selectedBox
@@ -347,7 +316,7 @@ step update state =
             SelectNextBox ->
                 let
                     selections =
-                        List.filter Box.isSelected <| sortLeftToRight state.boxes
+                        List.filter Box.Model.isSelected <| sortLeftToRight state.boxes
 
                     nextBox =
                         let
@@ -377,7 +346,7 @@ step update state =
                                     { state
                                         | boxes =
                                             List.map
-                                                (\box -> updateBoxInState next.key (Box.SetSelected 0) box)
+                                                (\box -> updateBoxInState next.key (Box.Msg.SetSelected 0) box)
                                                 state.boxes
                                     }
                                 )
@@ -389,7 +358,7 @@ step update state =
             SelectPreviousBox ->
                 let
                     selections =
-                        List.filter Box.isSelected <| sortRightToLeft state.boxes
+                        List.filter Box.Model.isSelected <| sortRightToLeft state.boxes
 
                     nextBox =
                         let
@@ -420,7 +389,7 @@ step update state =
                                         | boxes =
                                             deselectBoxes state.boxes
                                                 |> List.map
-                                                    (\box -> updateBoxInState next.key (Box.SetSelected 0) box)
+                                                    (\box -> updateBoxInState next.key (Box.Msg.SetSelected 0) box)
                                     }
                                 )
                 in
@@ -431,17 +400,17 @@ step update state =
             EditingBox boxKey toggle ->
                 let
                     box =
-                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.step (Box.Editing toggle) box)
+                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.step (Box.Msg.Editing toggle) box)
 
                     newState =
                         Maybe.map (\box -> { state | boxes = replaceBox state.boxes box }) box
                 in
                     ( Debug.log "Canceling edit" (Maybe.withDefault state newState), toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp)) )
 
-            BoxAction (Box.EditingBox box toggle) ->
+            BoxAction (Box.Msg.EditingBox box toggle) ->
                 let
                     box_ =
-                        Box.step (Box.Editing toggle) box
+                        Box.step (Box.Msg.Editing toggle) box
                 in
                     ( Debug.log "editing box" { state | boxes = replaceBox state.boxes <| box_ }, Cmd.none )
 
@@ -456,22 +425,22 @@ step update state =
                                 (\box ->
                                     { state
                                         | boxes =
-                                            Box.step (Box.Editing toggle) box |> replaceBox state.boxes
+                                            Box.step (Box.Msg.Editing toggle) box |> replaceBox state.boxes
                                     }
                                 )
                 in
                     ( Maybe.withDefault state newState, Cmd.none )
 
-            BoxAction (Box.UpdateBox box label) ->
-                ( Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Update label) box }, Cmd.none )
+            BoxAction (Box.Msg.UpdateBox box label) ->
+                ( Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Msg.Update label) box }, Cmd.none )
 
             Drop key event ->
                 let
                     draggingBox =
-                        List.map (updateSelectedBoxes Box.Dragging)
+                        List.map (updateSelectedBoxes Box.Msg.Dragging)
 
                     moveAllSelectedBoxes boxes =
-                        List.map (updateSelectedBoxes (Box.Drop event)) boxes
+                        List.map (updateSelectedBoxes (Box.Msg.Drop event)) boxes
 
                     updateBoxes =
                         moveAllSelectedBoxes >> draggingBox
@@ -511,7 +480,7 @@ step update state =
             DisconnectSelections ->
                 let
                     selectedBoxes =
-                        List.filter Box.isSelected state.boxes
+                        List.filter Box.Model.isSelected state.boxes
 
                     connectionish =
                         case selectedBoxes of
@@ -543,12 +512,12 @@ step update state =
             DeleteSelections ->
                 let
                     isSelected boxKey =
-                        List.length (Box.filterKey (not << Box.isSelected) boxKey state.boxes)
+                        List.length (Box.Model.filterKey (not << Box.Model.isSelected) boxKey state.boxes)
                             == 1
                 in
                     ( Debug.log "Deleting Selections"
                         { state
-                            | boxes = List.filter (not << Box.isSelected) state.boxes
+                            | boxes = List.filter (not << Box.Model.isSelected) state.boxes
                             , connections =
                                 List.filter
                                     (\c ->
@@ -563,17 +532,17 @@ step update state =
             ResizeBox mode ->
                 let
                     updateBoxes =
-                        List.map (updateSelectedBoxes (Box.Resize mode))
+                        List.map (updateSelectedBoxes (Box.Msg.Resize mode))
                 in
                     step ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
             UpdateBoxColor color ->
-                ( { state | boxes = List.map (updateSelectedBoxes (Box.UpdateColor color)) state.boxes }, Cmd.none )
+                ( { state | boxes = List.map (updateSelectedBoxes (Box.Msg.UpdateColor color)) state.boxes }, Cmd.none )
 
             MoveBox mode direction ->
                 let
                     updateBoxes =
-                        List.map (updateSelectedBoxes (Box.Move mode direction))
+                        List.map (updateSelectedBoxes (Box.Msg.Move mode direction))
                 in
                     step ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
