@@ -58,19 +58,15 @@
           window.location.href = "http://tinyurl.com/luq57yc";
         }
 
-        var currentUrl = window.location.href;
-        var matches = currentUrl.match(/\/boards\/(.*)$/);
+        var serializedState = decodeURIComponent(window.location.hash.slice(1)) || "";
 
-        if (matches && matches.length && matches.length > 0) {
-          var serializedState = matches[1];
-          var decodedState = decodeURIComponent(serializedState);
-          var deserializedState = JSON.parse(atob(decodedState));
+        if (serializedState.length > 0) {
+          var deserializedState = JSON.parse(atob(serializedState));
           var adaptedState = adapt(deserializedState);
           console.log(adaptedState);
           board.ports.loadedState.send(adaptedState);
           window.history.pushState({}, "", "/");
         }
-
       };
 
       var forms = document.querySelectorAll('form');
@@ -93,7 +89,7 @@
 
       function urlForState(state) {
         var encoded = encodeURIComponent(state);
-        return window.location.protocol + "//" + window.location.host + "/boards/" + encoded
+        return window.location.protocol + "//" + window.location.host + "/#" + encoded
       }
 
       board.ports.serializeState.subscribe(function(state) {

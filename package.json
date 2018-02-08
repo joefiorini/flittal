@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "pushstate-server": "^3.0.1"
+  }
+}
