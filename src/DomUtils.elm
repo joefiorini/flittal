@@ -8,12 +8,12 @@ import Json.Decode exposing (Decoder, at, bool, field, map5, string)
 import Json.Encode as Json
 import List exposing (head, reverse)
 import Msg exposing (..)
-import Native.Custom.Html
 import Result exposing (andThen, fromMaybe, map)
 import Routes exposing (RouteName)
 import String exposing (join, split, toInt)
 
 
+styleProperty : String -> String -> ( String, String )
 styleProperty =
     (,)
 
@@ -31,20 +31,6 @@ getMouseSelectionEvent =
         (field "altKey" bool)
         (field "ctrlKey" bool)
         (field "shiftKey" bool)
-
-
-stopPropagation =
-    { stopPropagation = True
-    , preventDefault = False
-    }
-
-
-setFocus =
-    Native.Custom.Html.setFocus
-
-
-on =
-    Native.Custom.Html.on
 
 
 extractBoxId : String -> Maybe Int

@@ -4,27 +4,20 @@ import Board.Controller as Board
 import Board.Model exposing (Model)
 import Board.Msg
 import Box.Msg
-import Box.Controller as Box
-import DomUtils exposing (class_, linkTo, styleProperty)
-import Geometry.Types as Geometry
 import Html exposing (Html, aside, body, div, main_, section, text)
-import Html.Attributes exposing (class, style)
 import Interop
 import Json.Decode exposing (Decoder, decodeString, field, map)
 import Json.Encode as Encode
 import Keyboard.Extra exposing (Key(..))
+import Task
+import Dom
 import List
-import Mousetrap
-import Native.App as App
 import Navigation exposing (Location)
 import Partials.About as About
 import Partials.Colophon as Colophon
-import Partials.Footer as Footer
-import Partials.Header as Header
 import Partials.Help as Help
 import Partials.Releases as Releases
 import Partials.Sidebar as Sidebar
-import Partials.Toolbar as Toolbar
 import Result
 import Routes
 import Style.Color exposing (Color(..))
@@ -40,6 +33,7 @@ type alias AppState =
     }
 
 
+main : Program Never AppState Msg
 main =
     Navigation.program processUrlChange
         { init = startingState
@@ -68,6 +62,9 @@ processUrlChange location =
 
                 "/help" ->
                     Routes.Help
+
+                _ ->
+                    Routes.Root
     in
         NewPage routeName
 
@@ -200,31 +197,36 @@ globalKeyboardShortcuts keyCommand =
             NoOp
 
 
-startingState : Location -> AppState
+startingState : Location -> ( AppState, Cmd msg )
 startingState location =
     { currentBoard = Board.startingState
     , boardHistory = TimeMachine.initialize Board.startingState
     , navigationHistory = [ location ]
+    , currentRoute = Routes.Root
     }
+        ! []
 
 
 encodeAppState : AppState -> Encode.Value
 encodeAppState state =
     Encode.object
-        [ ( "currentBoard", Board.encode state.currentBoard )
+        [ ( "currentBoard", Board.Model.encode state.currentBoard )
         ]
 
 
+mkState : Model -> AppState
 mkState board =
     { currentBoard = board
     , boardHistory = TimeMachine.initialize Board.startingState
+    , currentRoute = Routes.Root
+    , navigationHistory = []
     }
 
 
 decodeAppState : Decoder AppState
 decodeAppState =
     map mkState
-        (field "currentBoard" Board.decode)
+        (field "currentBoard" Board.Model.decode)
 
 
 extractAppState : Result.Result String AppState -> AppState
@@ -264,6 +266,7 @@ subscriptions model =
 --         Mousetrap.keydown
 
 
+entersEditMode : Msg -> Bool
 entersEditMode update =
     case update of
         BoardUpdate a ->
@@ -282,7 +285,11 @@ initTimeMachine appState =
         { appState | boardHistory = history }
 
 
-step : Msg -> AppState -> AppState
+
+-- restoreStateFromHistory : TimeMachine.History ->
+
+
+step : Msg -> AppState -> ( AppState, Cmd Msg )
 step update state =
     case Debug.log "update" update of
         LoadedState deserializedState ->
@@ -290,9 +297,10 @@ step update state =
                 |> decodeString decodeAppState
                 |> extractAppState
                 |> initTimeMachine
+                |> flip (!) [ Cmd.none ]
 
         UrlChange location ->
-            { state | navigationHistory = location :: state.navigationHistory }
+            { state | navigationHistory = location :: state.navigationHistory } ! [ Navigation.newUrl "/blah" ]
 
         BoardUpdate u ->
             let
@@ -333,48 +341,59 @@ step update state =
 
                         _ ->
                             state.boardHistory
+
+                cmd =
+                    case u of
+                        Board.Msg.EditingBox boxKey toggle ->
+                            Board.toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp))
+
+                        _ ->
+                            Cmd.none
             in
                 { state
                     | currentBoard = updatedBoard
                     , boardHistory = Debug.log "new history" history_
                 }
+                    ! [ cmd ]
 
         ToolbarUpdate u ->
             let
                 updatedBoard =
                     Board.step Board.Msg.ClearBoard state.currentBoard
             in
-                { state | currentBoard = updatedBoard }
+                { state | currentBoard = updatedBoard } ! []
 
         Undo ->
             let
-                history_ =
+                history =
                     TimeMachine.travelBackward state.boardHistory
             in
-                case history_.current of
-                    Just b ->
-                        { state
-                            | currentBoard = b
-                            , boardHistory = history_
-                        }
-
-                    Nothing ->
-                        state
+                history.current
+                    |> Maybe.map
+                        (\board ->
+                            { state
+                                | currentBoard = board
+                                , boardHistory = history
+                            }
+                        )
+                    |> Maybe.withDefault state
+                    |> flip (!) []
 
         Redo ->
             let
-                history_ =
+                history =
                     TimeMachine.travelForward state.boardHistory
             in
-                case history_.current of
-                    Just b ->
-                        { state
-                            | currentBoard = b
-                            , boardHistory = history_
-                        }
-
-                    Nothing ->
-                        state
+                history.current
+                    |> Maybe.map
+                        (\board ->
+                            { state
+                                | currentBoard = board
+                                , boardHistory = history
+                            }
+                        )
+                    |> Maybe.withDefault state
+                    |> flip (!) []
 
         SerializeState ->
             ( state
@@ -385,7 +404,7 @@ step update state =
             )
 
         _ ->
-            state
+            state ! []
 
 
 container : AppState -> Html Msg
@@ -416,7 +435,7 @@ container state =
                     ( sidebar <| Releases.view, "l-board--compressed", offsetHeight )
 
                 _ ->
-                    ( text "", "", 0 )
+                    ( (\_ -> text ""), "", 0 )
     in
         div []
             []

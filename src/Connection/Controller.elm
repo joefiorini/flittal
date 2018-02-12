@@ -40,14 +40,17 @@ drawSegment line =
         []
 
 
+endpointWidth : Int
 endpointWidth =
     10
 
 
+endpointHeight : Int
 endpointHeight =
     10
 
 
+offsetMidpoint : Int -> Int
 offsetMidpoint x =
     if x % 2 /= 0 then
         x - 1
@@ -55,10 +58,12 @@ offsetMidpoint x =
         x
 
 
+endpointMidX : Int
 endpointMidX =
     offsetMidpoint <| endpointWidth // 2
 
 
+endpointMidY : Int
 endpointMidY =
     offsetMidpoint <| endpointHeight // 2
 
@@ -149,6 +154,7 @@ within calculation threshold =
     }
 
 
+onBoxes : Box.Model -> Box.Model -> Model -> Bool
 onBoxes box1 box2 connection =
     (connection.startBox == box1.key || connection.endBox == box1.key)
         && (connection.startBox == box2.key || connection.endBox == box2.key)
@@ -341,6 +347,7 @@ portLocations leftBox rightBox =
             Debug.crash ("cases exhausted in portLocations:\np1:" ++ (toString p1) ++ "\np2:" ++ (toString p2))
 
 
+lineSize : Int
 lineSize =
     2
 

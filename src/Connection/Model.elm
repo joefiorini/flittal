@@ -54,6 +54,7 @@ type alias Model =
     }
 
 
+encodePort : PortLocation -> Encode.Value
 encodePort portLocation =
     let
         ( location, point ) =
@@ -76,12 +77,14 @@ encodePort portLocation =
             ]
 
 
+portRawDecoder : Decode.Decoder RawPort
 portRawDecoder =
     Decode.map2 RawPort
         (field "location" Decode.string)
         (field "point" Geometry.decodePoint)
 
 
+decodePort : Decode.Decoder PortLocation
 decodePort =
     portRawDecoder
         |> andThen
@@ -104,6 +107,7 @@ decodePort =
             )
 
 
+encode : Model -> Encode.Value
 encode connection =
     let
         encodedSegments =
@@ -118,6 +122,7 @@ encode connection =
             ]
 
 
+encodeLineLayout : LineLayout -> Encode.Value
 encodeLineLayout layout =
     case layout of
         Vertical ->
@@ -127,6 +132,7 @@ encodeLineLayout layout =
             Encode.string "Horizontal"
 
 
+decodeLineLayout : Decode.Decoder LineLayout
 decodeLineLayout =
     Decode.string
         |> andThen
@@ -143,6 +149,7 @@ decodeLineLayout =
             )
 
 
+encodeSegment : Line -> Encode.Value
 encodeSegment segment =
     Encode.object
         [ ( "position", Geometry.encodePoint segment.position )
@@ -151,6 +158,7 @@ encodeSegment segment =
         ]
 
 
+decodeSegment : Decode.Decoder Line
 decodeSegment =
     Decode.map3 Line
         (field "position" Geometry.decodePoint)

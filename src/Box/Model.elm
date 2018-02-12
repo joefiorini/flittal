@@ -11,6 +11,7 @@ import Style
 import Box.Types exposing (Model, BoxKey)
 
 
+mkBox : Geometry.Point -> Geometry.Size -> String -> String -> BoxKey -> Bool -> Bool -> Int -> Style.Model -> Model
 mkBox position size label originalLabel key isEditing isDragging selectedIndex style =
     { position = position
     , size = size

@@ -3,7 +3,7 @@ module Box.Controller exposing (..)
 import Box.Msg exposing (..)
 import Box.Types exposing (..)
 import Dom.Types exposing (DragEvent)
-import DomUtils exposing (boolProperty, class_, stopPropagation, styleProperty)
+import DomUtils exposing (boolProperty, class_, styleProperty)
 import Geometry.Types as Geometry
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, id, property, style, type_, value)
@@ -42,6 +42,7 @@ view box =
         ]
 
 
+boxClassForColor : Color -> String
 boxClassForColor color =
     case color of
         Dark1 ->
@@ -75,12 +76,14 @@ boxClassForColor color =
             "box--white"
 
 
+boxClasses : Model -> List String
 boxClasses box =
     [ "box"
     , boxClassForColor box.style.color
     ]
 
 
+entersEditMode : Msg -> Bool
 entersEditMode update =
     case update of
         EditingBox _ toggle ->
@@ -96,6 +99,7 @@ entersEditMode update =
             False
 
 
+onKeyDown : Model -> Attribute Msg
 onKeyDown box =
     let
         checkKeyCode keyCode =
@@ -121,6 +125,7 @@ keyCodeAndValue =
         (Json.at [ "target", "value" ] Json.string)
 
 
+extractLabelUpdate : Model -> ( Int, String ) -> Msg
 extractLabelUpdate box ( keyCode, value ) =
     if keyCode == 13 then
         CancelEditingBox box
@@ -140,7 +145,7 @@ labelField box label =
             , value label
 
             -- , on "input" keyCodeAndValue (\a -> Debug.log "input:keydown" LC.send channel <| extractLabelUpdate box a)
-            , onWithOptions "mousedown" stopPropagation (Json.succeed nullHandler)
+            , onWithOptions "mousedown" { stopPropagation = True, preventDefault = True } (Json.succeed nullHandler)
             ]
             []
 
@@ -275,11 +280,7 @@ step update box =
             }
 
         Editing toggle ->
-            let
-                focusedBox =
-                    Debug.log "focusing box" <| DomUtils.setFocus (labelSelector box) box
-            in
-                { focusedBox | isEditing = toggle, originalLabel = box.label }
+            { box | isEditing = toggle, originalLabel = box.label }
 
         Update newLabel ->
             { box | label = Debug.log "got new label" newLabel }

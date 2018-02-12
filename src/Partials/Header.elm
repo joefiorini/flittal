@@ -29,7 +29,8 @@ navLinks =
         ]
 
 
-view channel =
+view : Html Msg
+view =
     header
         [ class "l-container" ]
         [ nav

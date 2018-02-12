@@ -1,6 +1,5 @@
 module Board.Msg exposing (..)
 
-import Box.Model
 import Box.Msg
 import Box.Types exposing (BoxKey, MoveDirection, MoveType, ResizeMode)
 import Dom.Types exposing (..)
