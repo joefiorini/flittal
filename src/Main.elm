@@ -21,13 +21,13 @@ import Partials.Sidebar as Sidebar
 import Result
 import Routes
 import Style.Color exposing (Color(..))
-import TimeMachine
 import Msg exposing (Msg(..))
+import UndoList exposing (UndoList)
 
 
 type alias AppState =
     { currentBoard : Board.Board
-    , boardHistory : TimeMachine.History Board.Board
+    , boardHistory : UndoList Board.Board
     , navigationHistory : List Location
     , currentRoute : Routes.RouteName
     }
@@ -200,7 +200,7 @@ globalKeyboardShortcuts keyCommand =
 startingState : Location -> ( AppState, Cmd msg )
 startingState location =
     { currentBoard = Board.startingState
-    , boardHistory = TimeMachine.initialize Board.startingState
+    , boardHistory = UndoList.fresh Board.startingState
     , navigationHistory = [ location ]
     , currentRoute = Routes.Root
     }
@@ -217,7 +217,7 @@ encodeAppState state =
 mkState : Model -> AppState
 mkState board =
     { currentBoard = board
-    , boardHistory = TimeMachine.initialize Board.startingState
+    , boardHistory = UndoList.fresh Board.startingState
     , currentRoute = Routes.Root
     , navigationHistory = []
     }
@@ -280,7 +280,7 @@ initTimeMachine : AppState -> AppState
 initTimeMachine appState =
     let
         history =
-            TimeMachine.initialize appState.currentBoard
+            UndoList.fresh appState.currentBoard
     in
         { appState | boardHistory = history }
 
@@ -304,11 +304,8 @@ step update state =
 
         BoardUpdate u ->
             let
-                updatedBoard =
-                    Board.step u state.currentBoard
-
                 recordedHistory =
-                    TimeMachine.record updatedBoard state.boardHistory
+                    UndoList.mapPresent (Board.step u) state.boardHistory
 
                 history_ =
                     case u of
@@ -351,7 +348,7 @@ step update state =
                             Cmd.none
             in
                 { state
-                    | currentBoard = updatedBoard
+                    | currentBoard = (Board.step u history_.present)
                     , boardHistory = Debug.log "new history" history_
                 }
                     ! [ cmd ]
@@ -366,33 +363,29 @@ step update state =
         Undo ->
             let
                 history =
-                    TimeMachine.travelBackward state.boardHistory
+                    UndoList.undo state.boardHistory
             in
-                history.current
-                    |> Maybe.map
-                        (\board ->
+                history.present
+                    |> (\board ->
                             { state
                                 | currentBoard = board
                                 , boardHistory = history
                             }
-                        )
-                    |> Maybe.withDefault state
+                       )
                     |> flip (!) []
 
         Redo ->
             let
                 history =
-                    TimeMachine.travelForward state.boardHistory
+                    UndoList.redo state.boardHistory
             in
-                history.current
-                    |> Maybe.map
-                        (\board ->
+                history.present
+                    |> (\board ->
                             { state
                                 | currentBoard = board
                                 , boardHistory = history
                             }
-                        )
-                    |> Maybe.withDefault state
+                       )
                     |> flip (!) []
 
         SerializeState ->
