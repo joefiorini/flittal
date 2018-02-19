@@ -81,120 +81,113 @@ processUrlChange location =
 
 globalKeyboardShortcuts : List Key -> Msg
 globalKeyboardShortcuts keyCommand =
-    case Debug.log "keyCommand" keyCommand of
-        [ Tab ] ->
-            BoardUpdate Board.Msg.SelectNextBox
+    if Debug.log "keyCommand" keyCommand == [ Tab ] then
+        BoardUpdate Board.Msg.SelectNextBox
+    else if keyCommand == [ Shift, Tab ] then
+        BoardUpdate Board.Msg.SelectPreviousBox
+    else if keyCommand == [ CharA ] then
+        BoardUpdate Board.Msg.NewBox
+    else if keyCommand == [ CharC ] then
+        BoardUpdate Board.Msg.ConnectSelections
+    else if keyCommand == [ CharX ] then
+        BoardUpdate Board.Msg.DisconnectSelections
+    else if keyCommand == [ CharD ] then
+        BoardUpdate Board.Msg.DeleteSelections
+    else if keyCommand == [ Number1 ] then
+        BoardUpdate <| Board.Msg.UpdateBoxColor Dark1
+    else if keyCommand == [ Number2 ] then
+        BoardUpdate <| Board.Msg.UpdateBoxColor Dark2
+    else if keyCommand == [ Number3 ] then
+        BoardUpdate <| Board.Msg.UpdateBoxColor Dark3
+    else
+        NoOp
 
-        [ Shift, Tab ] ->
-            BoardUpdate Board.Msg.SelectPreviousBox
 
-        [ CharA ] ->
-            BoardUpdate Board.Msg.NewBox
 
-        [ CharC ] ->
-            BoardUpdate Board.Msg.ConnectSelections
-
-        [ CharX ] ->
-            BoardUpdate Board.Msg.DisconnectSelections
-
-        [ CharD ] ->
-            BoardUpdate Board.Msg.DeleteSelections
-
-        [ Number1 ] ->
-            BoardUpdate <| Board.Msg.UpdateBoxColor Dark1
-
-        [ Number2 ] ->
-            BoardUpdate <| Board.Msg.UpdateBoxColor Dark2
-
-        [ Number3 ] ->
-            BoardUpdate <| Board.Msg.UpdateBoxColor Dark3
-
-        -- "4" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Dark4
-        --
-        -- "shift+1" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Light1
-        --
-        -- "shift+2" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Light2
-        --
-        -- "shift+3" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Light3
-        --
-        -- "shift+4" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Light4
-        --
-        -- "0" ->
-        --     BoardUpdate <| Board.UpdateBoxColor Black
-        --
-        -- "shift+0" ->
-        --     BoardUpdate <| Board.UpdateBoxColor White
-        --
-        -- "shift+=" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
-        --
-        -- "-" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
-        --
-        -- "ctrl+shift+=" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
-        --
-        -- "ctrl+-" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
-        --
-        -- "alt+shift+=" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
-        --
-        -- "alt+-" ->
-        --     BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
-        --
-        -- "enter" ->
-        --     BoardUpdate (Board.EditingSelectedBox True)
-        --
-        -- "h" ->
-        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
-        --
-        -- "j" ->
-        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
-        --
-        -- "k" ->
-        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
-        --
-        -- "l" ->
-        --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
-        --
-        -- "u" ->
-        --     Undo
-        --
-        -- "ctrl+r" ->
-        --     Redo
-        --
-        -- "shift+h" ->
-        --     BoardUpdate <| Board.MoveBox Box.Push Box.Left
-        --
-        -- "shift+j" ->
-        --     BoardUpdate <| Board.MoveBox Box.Push Box.Down
-        --
-        -- "shift+k" ->
-        --     BoardUpdate <| Board.MoveBox Box.Push Box.Up
-        --
-        -- "shift+l" ->
-        --     BoardUpdate <| Board.MoveBox Box.Push Box.Right
-        --
-        -- "alt+shift+h" ->
-        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Left
-        --
-        -- "alt+shift+j" ->
-        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Down
-        --
-        -- "alt+shift+k" ->
-        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Up
-        --
-        -- "alt+shift+l" ->
-        --     BoardUpdate <| Board.MoveBox Box.Jump Box.Right
-        -- TODO: Add toggle help here
-        _ ->
-            NoOp
+-- "4" ->
+--     BoardUpdate <| Board.UpdateBoxColor Dark4
+--
+-- "shift+1" ->
+--     BoardUpdate <| Board.UpdateBoxColor Light1
+--
+-- "shift+2" ->
+--     BoardUpdate <| Board.UpdateBoxColor Light2
+--
+-- "shift+3" ->
+--     BoardUpdate <| Board.UpdateBoxColor Light3
+--
+-- "shift+4" ->
+--     BoardUpdate <| Board.UpdateBoxColor Light4
+--
+-- "0" ->
+--     BoardUpdate <| Board.UpdateBoxColor Black
+--
+-- "shift+0" ->
+--     BoardUpdate <| Board.UpdateBoxColor White
+--
+-- "shift+=" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
+--
+-- "-" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
+--
+-- "ctrl+shift+=" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
+--
+-- "ctrl+-" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
+--
+-- "alt+shift+=" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
+--
+-- "alt+-" ->
+--     BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
+--
+-- "enter" ->
+--     BoardUpdate (Board.EditingSelectedBox True)
+--
+-- "h" ->
+--     BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
+--
+-- "j" ->
+--     BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
+--
+-- "k" ->
+--     BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
+--
+-- "l" ->
+--     BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
+--
+-- "u" ->
+--     Undo
+--
+-- "ctrl+r" ->
+--     Redo
+--
+-- "shift+h" ->
+--     BoardUpdate <| Board.MoveBox Box.Push Box.Left
+--
+-- "shift+j" ->
+--     BoardUpdate <| Board.MoveBox Box.Push Box.Down
+--
+-- "shift+k" ->
+--     BoardUpdate <| Board.MoveBox Box.Push Box.Up
+--
+-- "shift+l" ->
+--     BoardUpdate <| Board.MoveBox Box.Push Box.Right
+--
+-- "alt+shift+h" ->
+--     BoardUpdate <| Board.MoveBox Box.Jump Box.Left
+--
+-- "alt+shift+j" ->
+--     BoardUpdate <| Board.MoveBox Box.Jump Box.Down
+--
+-- "alt+shift+k" ->
+--     BoardUpdate <| Board.MoveBox Box.Jump Box.Up
+--
+-- "alt+shift+l" ->
+--     BoardUpdate <| Board.MoveBox Box.Jump Box.Right
+-- TODO: Add toggle help here
 
 
 startingState : Location -> ( AppState, Cmd msg )
