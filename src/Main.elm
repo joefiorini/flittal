@@ -193,12 +193,16 @@ globalKeyboardShortcuts keyCommand =
 
 startingState : Location -> ( AppState, Cmd msg )
 startingState location =
-    { currentBoard = Board.startingState
-    , boardHistory = UndoList.fresh Board.startingState
-    , navigationHistory = [ location ]
-    , currentRoute = Routes.Root
-    }
-        ! []
+    let
+        currentRoute =
+            parseLocation location
+    in
+        { currentBoard = Board.startingState
+        , boardHistory = UndoList.fresh Board.startingState
+        , navigationHistory = [ location ]
+        , currentRoute = currentRoute
+        }
+            ! []
 
 
 encodeAppState : AppState -> Encode.Value
