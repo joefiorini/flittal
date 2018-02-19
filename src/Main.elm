@@ -2,14 +2,14 @@ module Main exposing (..)
 
 import Board.Controller as Board
 import Board.Model exposing (Model)
-import Board.Msg
+import Board.Msg as BoardMsg
 import Box.Msg
+import Box.Types as Box
 import Html exposing (Html, aside, body, div, main_, section, text)
 import Html.Attributes exposing (..)
 import Interop
 import Json.Decode as Decode exposing (Decoder, decodeString, field)
 import Json.Encode as Encode
-import Keyboard.Extra exposing (Key(..))
 import Task
 import Dom
 import List
@@ -28,6 +28,7 @@ import Style.Color exposing (Color(..))
 import Msg exposing (Msg(..))
 import UndoList exposing (UndoList)
 import Geometry.Types as Geometry
+import Keyboard.Combo as Keys
 
 
 type alias AppState =
@@ -35,6 +36,7 @@ type alias AppState =
     , boardHistory : UndoList Board.Board
     , navigationHistory : List Location
     , currentRoute : Routes.RouteName
+    , keys : Keys.Model Msg
     }
 
 
@@ -80,73 +82,12 @@ parseLocation location =
 -}
 
 
-globalKeyboardShortcuts : List Key -> Msg
-globalKeyboardShortcuts keyCommand =
-    if Debug.log "keyCommand" keyCommand == [ Tab ] then
-        BoardUpdate Board.Msg.SelectNextBox
-    else if keyCommand == [ Shift, Tab ] then
-        BoardUpdate Board.Msg.SelectPreviousBox
-    else if keyCommand == [ CharA ] then
-        BoardUpdate Board.Msg.NewBox
-    else if keyCommand == [ CharC ] then
-        BoardUpdate Board.Msg.ConnectSelections
-    else if keyCommand == [ CharX ] then
-        BoardUpdate Board.Msg.DisconnectSelections
-    else if keyCommand == [ CharD ] then
-        BoardUpdate Board.Msg.DeleteSelections
-    else if keyCommand == [ Number1 ] then
-        BoardUpdate <| Board.Msg.UpdateBoxColor Dark1
-    else if keyCommand == [ Number2 ] then
-        BoardUpdate <| Board.Msg.UpdateBoxColor Dark2
-    else if keyCommand == [ Number3 ] then
-        BoardUpdate <| Board.Msg.UpdateBoxColor Dark3
-    else
-        NoOp
+boardUpdateCombo1 : Keys.Key -> BoardMsg.Msg -> Keys.KeyCombo Msg
+boardUpdateCombo1 key msg =
+    Keys.combo1 key (BoardUpdate msg)
 
 
 
--- "4" ->
---     BoardUpdate <| Board.UpdateBoxColor Dark4
---
--- "shift+1" ->
---     BoardUpdate <| Board.UpdateBoxColor Light1
---
--- "shift+2" ->
---     BoardUpdate <| Board.UpdateBoxColor Light2
---
--- "shift+3" ->
---     BoardUpdate <| Board.UpdateBoxColor Light3
---
--- "shift+4" ->
---     BoardUpdate <| Board.UpdateBoxColor Light4
---
--- "0" ->
---     BoardUpdate <| Board.UpdateBoxColor Black
---
--- "shift+0" ->
---     BoardUpdate <| Board.UpdateBoxColor White
---
--- "shift+=" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
---
--- "-" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
---
--- "ctrl+shift+=" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
---
--- "ctrl+-" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
---
--- "alt+shift+=" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
---
--- "alt+-" ->
---     BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
---
--- "enter" ->
---     BoardUpdate (Board.EditingSelectedBox True)
---
 -- "h" ->
 --     BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
 --
@@ -161,34 +102,94 @@ globalKeyboardShortcuts keyCommand =
 --
 -- "u" ->
 --     Undo
---
--- "ctrl+r" ->
---     Redo
---
--- "shift+h" ->
---     BoardUpdate <| Board.MoveBox Box.Push Box.Left
---
--- "shift+j" ->
---     BoardUpdate <| Board.MoveBox Box.Push Box.Down
---
--- "shift+k" ->
---     BoardUpdate <| Board.MoveBox Box.Push Box.Up
---
--- "shift+l" ->
---     BoardUpdate <| Board.MoveBox Box.Push Box.Right
---
--- "alt+shift+h" ->
---     BoardUpdate <| Board.MoveBox Box.Jump Box.Left
---
--- "alt+shift+j" ->
---     BoardUpdate <| Board.MoveBox Box.Jump Box.Down
---
--- "alt+shift+k" ->
---     BoardUpdate <| Board.MoveBox Box.Jump Box.Up
---
--- "alt+shift+l" ->
---     BoardUpdate <| Board.MoveBox Box.Jump Box.Right
--- TODO: Add toggle help here
+
+
+movementKeys : List ( Keys.Key, Box.MoveDirection )
+movementKeys =
+    [ ( Keys.h, Box.Left )
+    , ( Keys.j, Box.Down )
+    , ( Keys.k, Box.Up )
+    , ( Keys.l, Box.Right )
+    ]
+
+
+styleCombos : List (Keys.KeyCombo Msg)
+styleCombos =
+    let
+        updateColor color =
+            BoardUpdate <| BoardMsg.UpdateBoxColor color
+    in
+        [ Keys.combo1 Keys.one <| updateColor Dark1
+        , Keys.combo1 Keys.two <| updateColor Dark2
+        , Keys.combo1 Keys.three <| updateColor Dark3
+        , Keys.combo1 Keys.four <| updateColor Dark4
+        , Keys.combo2 ( Keys.one, Keys.shift ) <| updateColor Light1
+        , Keys.combo2 ( Keys.two, Keys.shift ) <| updateColor Light2
+        , Keys.combo2 ( Keys.three, Keys.shift ) <| updateColor Light3
+        , Keys.combo2 ( Keys.four, Keys.shift ) <| updateColor Light4
+        , Keys.combo1 Keys.zero <| updateColor White
+        , Keys.combo2 ( Keys.zero, Keys.shift ) <| updateColor Black
+        ]
+
+
+movementCombos : List (Keys.KeyCombo Msg)
+movementCombos =
+    let
+        moveAction movement direction =
+            BoardUpdate (BoardMsg.MoveBox movement direction)
+    in
+        List.concatMap
+            (\( key, direction ) ->
+                [ Keys.combo1 key <| moveAction Box.Nudge direction
+                , Keys.combo2 ( Keys.shift, key ) <| moveAction Box.Push direction
+                , Keys.combo3 ( Keys.shift, Keys.alt, key ) <| moveAction Box.Jump direction
+                ]
+            )
+            movementKeys
+
+
+selectionCombos : List (Keys.KeyCombo Msg)
+selectionCombos =
+    [ Keys.combo1 Keys.tab <| BoardUpdate BoardMsg.SelectNextBox
+    , Keys.combo2 ( Keys.tab, Keys.shift ) <| BoardUpdate BoardMsg.SelectPreviousBox
+    , Keys.combo1 Keys.d <| BoardUpdate BoardMsg.DeleteSelections
+    , Keys.combo1 Keys.c <| BoardUpdate BoardMsg.ConnectSelections
+    , Keys.combo1 Keys.x <| BoardUpdate BoardMsg.DisconnectSelections
+    ]
+
+
+boardCombos : List (Keys.KeyCombo Msg)
+boardCombos =
+    [ Keys.combo1 Keys.a <| BoardUpdate BoardMsg.NewBox
+    , Keys.combo1 Keys.enter <| BoardUpdate (BoardMsg.EditingSelectedBox True)
+    , Keys.combo1 Keys.u Undo
+    , Keys.combo2 ( Keys.r, Keys.control ) Redo
+    ]
+
+
+sizingCombos : List (Keys.KeyCombo Msg)
+sizingCombos =
+    let
+        updateSize size =
+            BoardUpdate <| BoardMsg.ResizeBox size
+    in
+        [ Keys.combo2 ( Keys.equals, Keys.shift ) <| updateSize Box.ResizeUpAll
+        , Keys.combo3 ( Keys.equals, Keys.shift, Keys.control ) <| updateSize Box.ResizeUpNS
+        , Keys.combo3 ( Keys.equals, Keys.shift, Keys.alt ) <| updateSize Box.ResizeUpEW
+        , Keys.combo1 Keys.minus <| updateSize Box.ResizeDownAll
+        , Keys.combo2 ( Keys.minus, Keys.control ) <| updateSize Box.ResizeDownNS
+        , Keys.combo2 ( Keys.minus, Keys.alt ) <| updateSize Box.ResizeDownEW
+        ]
+
+
+keyboardCombos : List (Keys.KeyCombo Msg)
+keyboardCombos =
+    movementCombos
+        ++ styleCombos
+        ++ selectionCombos
+        ++ boardCombos
+        ++ sizingCombos
+        ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp ]
 
 
 startingState : Location -> ( AppState, Cmd msg )
@@ -197,11 +198,7 @@ startingState location =
         currentRoute =
             parseLocation location
     in
-        { currentBoard = Board.startingState
-        , boardHistory = UndoList.fresh Board.startingState
-        , navigationHistory = [ location ]
-        , currentRoute = currentRoute
-        }
+        mkState [ location ] Board.startingState
             ! []
 
 
@@ -212,18 +209,19 @@ encodeAppState state =
         ]
 
 
-mkState : Model -> AppState
-mkState board =
+mkState : List Location -> Model -> AppState
+mkState navigationHistory board =
     { currentBoard = board
     , boardHistory = UndoList.fresh Board.startingState
     , currentRoute = Routes.Root
-    , navigationHistory = []
+    , navigationHistory = navigationHistory
+    , keys = Keys.init keyboardCombos KeyCombo
     }
 
 
 decodeAppState : Decoder AppState
 decodeAppState =
-    Decode.map mkState
+    Decode.map (mkState [])
         (field "currentBoard" Board.Model.decode)
 
 
@@ -237,12 +235,13 @@ extractAppState result =
             Debug.crash s
 
 
-subscriptions : model -> Sub Msg
+subscriptions : AppState -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.loadedState LoadedState
+        , Keys.subscriptions model.keys
         ]
 
 
@@ -314,31 +313,31 @@ step update state =
 
                 history_ =
                     case u of
-                        Board.Msg.NewBox ->
+                        BoardMsg.NewBox ->
                             recordedHistory
 
-                        Board.Msg.MoveBox _ _ ->
+                        BoardMsg.MoveBox _ _ ->
                             recordedHistory
 
-                        Board.Msg.UpdateBoxColor _ ->
+                        BoardMsg.UpdateBoxColor _ ->
                             recordedHistory
 
-                        Board.Msg.DeleteSelections ->
+                        BoardMsg.DeleteSelections ->
                             recordedHistory
 
-                        Board.Msg.ConnectSelections ->
+                        BoardMsg.ConnectSelections ->
                             recordedHistory
 
-                        Board.Msg.DisconnectSelections ->
+                        BoardMsg.DisconnectSelections ->
                             recordedHistory
 
-                        Board.Msg.Drop _ _ ->
+                        BoardMsg.Drop _ _ ->
                             recordedHistory
 
-                        Board.Msg.ResizeBox _ ->
+                        BoardMsg.ResizeBox _ ->
                             recordedHistory
 
-                        Board.Msg.BoxAction (Box.Msg.EditingBox _ _) ->
+                        BoardMsg.BoxAction (Box.Msg.EditingBox _ _) ->
                             recordedHistory
 
                         _ ->
@@ -346,7 +345,7 @@ step update state =
 
                 cmd =
                     case u of
-                        Board.Msg.EditingBox boxKey toggle ->
+                        BoardMsg.EditingBox boxKey toggle ->
                             Board.toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp))
 
                         _ ->
@@ -361,7 +360,7 @@ step update state =
         ToolbarUpdate u ->
             let
                 updatedBoard =
-                    Board.step Board.Msg.ClearBoard state.currentBoard
+                    Board.step BoardMsg.ClearBoard state.currentBoard
             in
                 { state | currentBoard = updatedBoard } ! []
 
@@ -401,7 +400,22 @@ step update state =
                 |> Interop.serializeState
             )
 
-        _ ->
+        KeyCombo combo ->
+            let
+                ( keys, cmd ) =
+                    Keys.update combo state.keys
+            in
+                ( { state | keys = keys }, cmd )
+
+        ToggleHelp ->
+            case state.currentRoute of
+                Routes.Help ->
+                    state ! [ Navigation.newUrl "/" ]
+
+                _ ->
+                    state ! [ Navigation.newUrl "/help" ]
+
+        NoOp ->
             state ! []
 
 

@@ -1,9 +1,9 @@
 module Msg exposing (..)
 
-import Routes exposing (RouteName)
 import Board.Msg
 import Partials.Toolbar as Toolbar
 import Navigation
+import Keyboard.Combo
 
 
 type Msg
@@ -16,3 +16,5 @@ type Msg
     | LoadedState String
     | UrlChange Navigation.Location
     | NewPage String
+    | KeyCombo Keyboard.Combo.Msg
+    | ToggleHelp
