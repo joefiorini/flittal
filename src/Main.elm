@@ -72,20 +72,6 @@ parseLocation location =
             Routes.Root
 
 
-boardUpdateCombo1 : Keys.Key -> BoardMsg.Msg -> Keys.KeyCombo Msg
-boardUpdateCombo1 key msg =
-    Keys.combo1 key (BoardUpdate msg)
-
-
-movementKeys : List ( Keys.Key, Box.MoveDirection )
-movementKeys =
-    [ ( Keys.h, Box.Left )
-    , ( Keys.j, Box.Down )
-    , ( Keys.k, Box.Up )
-    , ( Keys.l, Box.Right )
-    ]
-
-
 styleCombos : List (Keys.KeyCombo Msg)
 styleCombos =
     let
@@ -110,6 +96,13 @@ movementCombos =
     let
         moveAction movement direction =
             BoardUpdate (BoardMsg.MoveBox movement direction)
+
+        movementKeys =
+            [ ( Keys.h, Box.Left )
+            , ( Keys.j, Box.Down )
+            , ( Keys.k, Box.Up )
+            , ( Keys.l, Box.Right )
+            ]
     in
         List.concatMap
             (\( key, direction ) ->

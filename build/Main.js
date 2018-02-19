@@ -19948,8 +19948,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 203, column: 5},
-				end: {line: 208, column: 26}
+				start: {line: 196, column: 5},
+				end: {line: 201, column: 26}
 			},
 			_p3)(_p3._0);
 	}
@@ -20078,6 +20078,60 @@ var _joefiorini$flittal$Main$selectionCombos = {
 		}
 	}
 };
+var _joefiorini$flittal$Main$movementCombos = function () {
+	var movementKeys = {
+		ctor: '::',
+		_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$h, _1: _joefiorini$flittal$Box_Types$Left},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$j, _1: _joefiorini$flittal$Box_Types$Down},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$k, _1: _joefiorini$flittal$Box_Types$Up},
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$l, _1: _joefiorini$flittal$Box_Types$Right},
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	};
+	var moveAction = F2(
+		function (movement, direction) {
+			return _joefiorini$flittal$Msg$BoardUpdate(
+				A2(_joefiorini$flittal$Board_Msg$MoveBox, movement, direction));
+		});
+	return A2(
+		_elm_lang$core$List$concatMap,
+		function (_p5) {
+			var _p6 = _p5;
+			var _p8 = _p6._0;
+			var _p7 = _p6._1;
+			return {
+				ctor: '::',
+				_0: A2(
+					_scottcorgan$keyboard_combo$Keyboard_Combo$combo1,
+					_p8,
+					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p7)),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_scottcorgan$keyboard_combo$Keyboard_Combo$combo2,
+						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p8},
+						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p7)),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_scottcorgan$keyboard_combo$Keyboard_Combo$combo3,
+							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p8},
+							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p7)),
+						_1: {ctor: '[]'}
+					}
+				}
+			};
+		},
+		movementKeys);
+}();
 var _joefiorini$flittal$Main$styleCombos = function () {
 	var updateColor = function (color) {
 		return _joefiorini$flittal$Msg$BoardUpdate(
@@ -20155,60 +20209,6 @@ var _joefiorini$flittal$Main$styleCombos = function () {
 		}
 	};
 }();
-var _joefiorini$flittal$Main$movementKeys = {
-	ctor: '::',
-	_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$h, _1: _joefiorini$flittal$Box_Types$Left},
-	_1: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$j, _1: _joefiorini$flittal$Box_Types$Down},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$k, _1: _joefiorini$flittal$Box_Types$Up},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$l, _1: _joefiorini$flittal$Box_Types$Right},
-				_1: {ctor: '[]'}
-			}
-		}
-	}
-};
-var _joefiorini$flittal$Main$movementCombos = function () {
-	var moveAction = F2(
-		function (movement, direction) {
-			return _joefiorini$flittal$Msg$BoardUpdate(
-				A2(_joefiorini$flittal$Board_Msg$MoveBox, movement, direction));
-		});
-	return A2(
-		_elm_lang$core$List$concatMap,
-		function (_p5) {
-			var _p6 = _p5;
-			var _p8 = _p6._0;
-			var _p7 = _p6._1;
-			return {
-				ctor: '::',
-				_0: A2(
-					_scottcorgan$keyboard_combo$Keyboard_Combo$combo1,
-					_p8,
-					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p7)),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_scottcorgan$keyboard_combo$Keyboard_Combo$combo2,
-						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p8},
-						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p7)),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_scottcorgan$keyboard_combo$Keyboard_Combo$combo3,
-							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p8},
-							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p7)),
-						_1: {ctor: '[]'}
-					}
-				}
-			};
-		},
-		_joefiorini$flittal$Main$movementKeys);
-}();
 var _joefiorini$flittal$Main$keyboardCombos = A2(
 	_elm_lang$core$Basics_ops['++'],
 	_joefiorini$flittal$Main$movementCombos,
@@ -20247,13 +20247,6 @@ var _joefiorini$flittal$Main$decodeAppState = A2(
 	_joefiorini$flittal$Main$mkState(
 		{ctor: '[]'}),
 	A2(_elm_lang$core$Json_Decode$field, 'currentBoard', _joefiorini$flittal$Board_Model$decode));
-var _joefiorini$flittal$Main$boardUpdateCombo1 = F2(
-	function (key, msg) {
-		return A2(
-			_scottcorgan$keyboard_combo$Keyboard_Combo$combo1,
-			key,
-			_joefiorini$flittal$Msg$BoardUpdate(msg));
-	});
 var _joefiorini$flittal$Main$parseLocation = function (location) {
 	var _p9 = location.pathname;
 	switch (_p9) {
