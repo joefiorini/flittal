@@ -2,9 +2,10 @@ module DomUtils exposing (..)
 
 import Dom.Types exposing (MouseSelectionEvent)
 import Html exposing (..)
+import Html.Events exposing (onWithOptions)
 import Html.Attributes exposing (class, href, property)
 import Html.Events exposing (onClick)
-import Json.Decode exposing (Decoder, at, bool, field, map5, string)
+import Json.Decode as Decode exposing (Decoder, at, bool, field, map5, string)
 import Json.Encode as Json
 import List exposing (head, reverse)
 import Msg exposing (..)
@@ -43,11 +44,22 @@ extractBoxId domId =
         firstItem |> Maybe.andThen (\s -> (toInt s) |> Result.toMaybe)
 
 
-linkTo : String -> String -> RouteName -> Html Msg
-linkTo title url routeName =
+onLinkClick : Msg -> Attribute Msg
+onLinkClick msg =
+    let
+        options =
+            { stopPropagation = False
+            , preventDefault = True
+            }
+    in
+        onWithOptions "click" options (Decode.succeed msg)
+
+
+linkTo : String -> String -> Html Msg
+linkTo title url =
     a
         [ href url
-        , onClick (NewPage routeName)
+        , onLinkClick (NewPage url)
         ]
         [ text title ]
 

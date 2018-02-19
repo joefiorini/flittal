@@ -15,4 +15,4 @@ type Msg
     | SerializeState
     | LoadedState String
     | UrlChange Navigation.Location
-    | NewPage RouteName
+    | NewPage String

@@ -11,6 +11,6 @@ view : Html Msg -> Html Msg
 view child =
     aside
         [ class "sidebar" ]
-        [ linkTo "x" "#" Routes.Root
+        [ linkTo "x" "/"
         , child
         ]

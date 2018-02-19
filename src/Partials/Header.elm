@@ -5,7 +5,6 @@ import Html exposing (Html, a, div, header, img, nav, text)
 import Html.Attributes exposing (class, href, src)
 import List
 import Msg exposing (Msg)
-import Routes exposing (RouteName)
 
 
 navLinks : List (Html Msg)
@@ -20,10 +19,10 @@ navLinks =
           ]
         , [ div
                 [ class "nav-bar__links" ]
-                [ linkTo "About" "#" Routes.About
-                , linkTo "Colophon" "#" Routes.Colophon
-                , linkTo "What's New" "#" Routes.Releases
-                , linkTo "Help" "#" Routes.Help
+                [ linkTo "About" "/about"
+                , linkTo "Colophon" "/colophon"
+                , linkTo "What's New" "/releases"
+                , linkTo "Help" "/help"
                 ]
           ]
         ]

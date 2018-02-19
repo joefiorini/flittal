@@ -40,7 +40,7 @@ type alias AppState =
 
 main : Program Never AppState Msg
 main =
-    Navigation.program processUrlChange
+    Navigation.program UrlChange
         { init = startingState
         , view = container
         , update = step
@@ -48,30 +48,26 @@ main =
         }
 
 
-processUrlChange : Location -> Msg
-processUrlChange location =
-    let
-        routeName =
-            case location.pathname of
-                "/" ->
-                    Routes.Root
+parseLocation : Location -> Routes.RouteName
+parseLocation location =
+    case location.pathname of
+        "/" ->
+            Routes.Root
 
-                "/about" ->
-                    Routes.About
+        "/about" ->
+            Routes.About
 
-                "/colophon" ->
-                    Routes.Colophon
+        "/colophon" ->
+            Routes.Colophon
 
-                "/releases" ->
-                    Routes.Releases
+        "/releases" ->
+            Routes.Releases
 
-                "/help" ->
-                    Routes.Help
+        "/help" ->
+            Routes.Help
 
-                _ ->
-                    Routes.Root
-    in
-        NewPage routeName
+        _ ->
+            Routes.Root
 
 
 
@@ -297,8 +293,15 @@ step update state =
                 |> initTimeMachine
                 |> flip (!) [ Cmd.none ]
 
+        NewPage path ->
+            state ! [ Navigation.newUrl path ]
+
         UrlChange location ->
-            { state | navigationHistory = location :: state.navigationHistory } ! [ Navigation.newUrl "/blah" ]
+            let
+                newRoute =
+                    parseLocation location
+            in
+                { state | currentRoute = newRoute, navigationHistory = location :: state.navigationHistory } ! []
 
         BoardUpdate u ->
             let
