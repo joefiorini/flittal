@@ -1,24 +1,24 @@
 @import url(http://fonts.googleapis.com/css?family=Tienne:400,700|Muli:300,400,400italic);
 
-@import "normalize";
-@import "bourbon";
+@import 'normalize';
+@import 'bourbon';
 
-@import "base/settings";
-@import "base/base";
-@import "base/forms";
-@import "base/links";
-@import "base/headings";
+@import 'base/settings';
+@import 'base/base';
+@import 'base/forms';
+@import 'base/links';
+@import 'base/headings';
 
-@import "layout/containers";
+@import 'layout/containers';
 
-@import "modules/board";
-@import "modules/logo";
-@import "modules/sidebar";
-@import "modules/cheatsheet";
-@import "modules/share";
-@import "modules/buttons";
+@import 'modules/board';
+@import 'modules/logo';
+@import 'modules/sidebar';
+@import 'modules/cheatsheet';
+@import 'modules/share';
+@import 'modules/buttons';
 
-@import "themes/default/box";
+@import 'themes/default/box';
 
 * {
   -webkit-box-sizing: border-box;
@@ -27,7 +27,7 @@
 
 .nav-bar {
   @include clearfix;
-  @include transition(height 0.25s ease-out);
+  transition: height 0.25s ease-out;
   display: inline-block;
   vertical-align: middle;
   width: 100%;
@@ -45,11 +45,10 @@
       width: 24px;
       height: 28px;
     }
-
   }
 
   &__links {
-    @include transition(padding 0.25s ease-out, font-size 0.25s ease-out);
+    transition: padding 0.25s ease-out, font-size 0.25s ease-out;
     float: right;
     padding: 2.25em 0;
     > a {

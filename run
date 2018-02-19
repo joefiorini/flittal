@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-(cd build && ../node_modules/.bin/pushstate-server . 8000 &)
-find src | entr -drc make dist

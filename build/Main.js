@@ -19608,8 +19608,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 237, column: 5},
-				end: {line: 242, column: 26}
+				start: {line: 232, column: 5},
+				end: {line: 237, column: 26}
 			},
 			_p3)(_p3._0);
 	}
@@ -19904,9 +19904,6 @@ var _joefiorini$flittal$Main$AppState = F4(
 	function (a, b, c, d) {
 		return {currentBoard: a, boardHistory: b, navigationHistory: c, currentRoute: d};
 	});
-var _joefiorini$flittal$Main$Flags = function (a) {
-	return {imagePathPrefix: a};
-};
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};

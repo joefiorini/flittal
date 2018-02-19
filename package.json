@@ -1,10 +1,24 @@
 {
+  "private": true,
+  "scripts": {
+    "start":
+      "elm-live --dir=build src/Main.elm --output=build/Main.js --pushstate --debug",
+    "build": "elm-make src/Main.elm --output=build/Main.js",
+    "deploy":
+      "yarn build && git add . && git commit -m \"Deploy :tada:\" && git subtree push --prefix build alpha master",
+    "build:css":
+      "node-sass --output-style compressed --include-path node_modules/normalize-scss/sass --include-path node_modules/bourbon/core src/styles/main.scss build/main.css"
+  },
   "dependencies": {
     "pushstate-server": "^3.0.1"
   },
   "devDependencies": {
+    "bourbon": "^5.0.0",
     "elm": "^0.18.0",
     "elm-analyse": "^0.13.3",
-    "elm-format": "^0.6.1-alpha"
+    "elm-format": "^0.6.1-alpha",
+    "elm-live": "^2.7.5",
+    "node-sass": "^4.7.2",
+    "normalize-scss": "^7.0.1"
   }
 }
