@@ -5,8 +5,9 @@ import Board.Model exposing (Model)
 import Board.Msg
 import Box.Msg
 import Html exposing (Html, aside, body, div, main_, section, text)
+import Html.Attributes exposing (..)
 import Interop
-import Json.Decode exposing (Decoder, decodeString, field, map)
+import Json.Decode as Decode exposing (Decoder, decodeString, field)
 import Json.Encode as Encode
 import Keyboard.Extra exposing (Key(..))
 import Task
@@ -18,11 +19,15 @@ import Partials.Colophon as Colophon
 import Partials.Help as Help
 import Partials.Releases as Releases
 import Partials.Sidebar as Sidebar
+import Partials.Header as Header
+import Partials.Footer as Footer
+import Partials.Toolbar as Toolbar
 import Result
 import Routes
 import Style.Color exposing (Color(..))
 import Msg exposing (Msg(..))
 import UndoList exposing (UndoList)
+import Geometry.Types as Geometry
 
 
 type alias AppState =
@@ -218,7 +223,7 @@ mkState board =
 
 decodeAppState : Decoder AppState
 decodeAppState =
-    map mkState
+    Decode.map mkState
         (field "currentBoard" Board.Model.decode)
 
 
@@ -421,31 +426,27 @@ container state =
                     ( sidebar <| Releases.view, "l-board--compressed", offsetHeight )
 
                 _ ->
-                    ( (\_ -> text ""), "", 0 )
+                    ( text "", "", 0 )
     in
-        div []
-            []
-
-
-
--- [ Header.view
--- , Toolbar.view ToolbarUpdate
--- , main_
---     [ class "l-container" ]
---     [ section
---         [ class_ [ "l-board", extraClass ]
---         ]
---         [ board ]
---     , section
---         [ class "l-content"
---         , style
---             [ styleProperty "height" <| Geometry.toPx sidebarHeight
---             ]
---         ]
---         [ sidebar_
---         ]
---     ]
--- , section
---     [ class "l-container" ]
---     [ Footer.view ]
--- ]
+        section []
+            [ Header.view
+            , Toolbar.view ToolbarUpdate
+            , main_
+                [ class "l-container" ]
+                [ section
+                    [ classList [ ( "l-board", True ), ( extraClass, extraClass /= "" ) ]
+                    ]
+                    [ board ]
+                , section
+                    [ class "l-content"
+                    , style
+                        [ ( "height", (Geometry.toPx sidebarHeight) )
+                        ]
+                    ]
+                    [ sidebar_
+                    ]
+                ]
+            , section
+                [ class "l-container" ]
+                [ Footer.view ]
+            ]
