@@ -19948,8 +19948,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 230, column: 5},
-				end: {line: 235, column: 26}
+				start: {line: 203, column: 5},
+				end: {line: 208, column: 26}
 			},
 			_p3)(_p3._0);
 	}

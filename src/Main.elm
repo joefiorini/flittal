@@ -72,36 +72,9 @@ parseLocation location =
             Routes.Root
 
 
-
-{-
-   Use http://package.elm-lang.org/packages/ohanhi/keyboard-extra/latest to get
-   the keys that were pressed in a list, so use those lists for the case clauses
-   instead of mousetrap strings; then in the update function, we'll call this
-   as part of the (a -> Msg) in Task.perform (might have to use Task.succeed
-   with the list of pressed keys to get them into the function)
--}
-
-
 boardUpdateCombo1 : Keys.Key -> BoardMsg.Msg -> Keys.KeyCombo Msg
 boardUpdateCombo1 key msg =
     Keys.combo1 key (BoardUpdate msg)
-
-
-
--- "h" ->
---     BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
---
--- "j" ->
---     BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
---
--- "k" ->
---     BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
---
--- "l" ->
---     BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
---
--- "u" ->
---     Undo
 
 
 movementKeys : List ( Keys.Key, Box.MoveDirection )
@@ -243,24 +216,6 @@ subscriptions model =
         , Interop.loadedState LoadedState
         , Keys.subscriptions model.keys
         ]
-
-
-
--- TODO: Add to main keyboard map
--- toggleHelp =
---     Signal.map
---         (\k ->
---             case k of
---                 "shift+/" ->
---                     Routes.Help
---
---                 "w" ->
---                     Routes.Root
---
---                 _ ->
---                     Routes.Root
---         )
---         Mousetrap.keydown
 
 
 entersEditMode : Msg -> Bool
