@@ -7087,6 +7087,185 @@ var _elm_community$list_extra$List_Extra$last = function (items) {
 	}
 };
 
+var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
+	function (item, list) {
+		var _p0 = item;
+		if (_p0.ctor === 'Nothing') {
+			return list;
+		} else {
+			return {ctor: '::', _0: _p0._0, _1: list};
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$values = A2(
+	_elm_lang$core$List$foldr,
+	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
+	{ctor: '[]'});
+var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
+	function (f, m) {
+		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
+		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
+			return m;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p2 = f(e);
+			if (_p2.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$Array$push(_p2._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$Array$foldl,
+		step,
+		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p3 = f(e);
+			if (_p3.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						})(_p3._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$List$foldr,
+		step,
+		_elm_lang$core$Maybe$Just(
+			{ctor: '[]'}));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$toArray = function (m) {
+	var _p4 = m;
+	if (_p4.ctor === 'Nothing') {
+		return _elm_lang$core$Array$empty;
+	} else {
+		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$toList = function (m) {
+	var _p5 = m;
+	if (_p5.ctor === 'Nothing') {
+		return {ctor: '[]'};
+	} else {
+		return {
+			ctor: '::',
+			_0: _p5._0,
+			_1: {ctor: '[]'}
+		};
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
+	function (ma, mb) {
+		var _p6 = mb;
+		if (_p6.ctor === 'Nothing') {
+			return ma;
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
+	function (fma, mb) {
+		var _p7 = mb;
+		if (_p7.ctor === 'Nothing') {
+			return fma(
+				{ctor: '_Tuple0'});
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
+	function (ma, fmb) {
+		var _p8 = ma;
+		if (_p8.ctor === 'Nothing') {
+			return fmb(
+				{ctor: '_Tuple0'});
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$or = F2(
+	function (ma, mb) {
+		var _p9 = ma;
+		if (_p9.ctor === 'Nothing') {
+			return mb;
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
+var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
+	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
+var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
+	function (d, f, m) {
+		var _p10 = m;
+		if (_p10.ctor === 'Nothing') {
+			return d(
+				{ctor: '_Tuple0'});
+		} else {
+			return f(_p10._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
+	function (d, f, m) {
+		var _p11 = m;
+		if (_p11.ctor === 'Nothing') {
+			return d;
+		} else {
+			return f(_p11._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
+	var _p12 = m;
+	if (_p12.ctor === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
+	var _p13 = m;
+	if (_p13.ctor === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
+	var _p14 = mx;
+	if (_p14.ctor === 'Just') {
+		return _p14._0;
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
+_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
+	function (mx, x) {
+		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
+	});
+
 var _elm_community$undo_redo$UndoList$toList = function (_p0) {
 	var _p1 = _p0;
 	return A2(
@@ -17941,6 +18120,35 @@ var _joefiorini$flittal$Box_Controller$view = function (box) {
 		});
 };
 
+var _joefiorini$flittal$Connection_Controller$boxMap = F3(
+	function (f, boxes, connections) {
+		return _elm_community$maybe_extra$Maybe_Extra$values(
+			A2(
+				_elm_lang$core$List$map,
+				function (c) {
+					var endBox = A2(
+						_elm_community$list_extra$List_Extra$find,
+						function (b) {
+							return _elm_lang$core$Native_Utils.eq(b.key, c.endBox);
+						},
+						boxes);
+					var startBox = A2(
+						_elm_community$list_extra$List_Extra$find,
+						function (b) {
+							return _elm_lang$core$Native_Utils.eq(b.key, c.startBox);
+						},
+						boxes);
+					return A3(
+						_elm_lang$core$Maybe$map2,
+						F2(
+							function (start, end) {
+								return A2(f, start, end);
+							}),
+						startBox,
+						endBox);
+				},
+				connections));
+	});
 var _joefiorini$flittal$Connection_Controller$lineSize = 2;
 var _joefiorini$flittal$Connection_Controller$midPoint = function (c) {
 	var offset = function (n) {
@@ -18198,8 +18406,8 @@ var _joefiorini$flittal$Connection_Controller$portLocations = F2(
 			}) : _elm_lang$core$Native_Utils.crash(
 			'Connection.Controller',
 			{
-				start: {line: 347, column: 13},
-				end: {line: 347, column: 24}
+				start: {line: 349, column: 13},
+				end: {line: 349, column: 24}
 			})(
 			A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -18575,8 +18783,8 @@ var _joefiorini$flittal$Connection_Controller$buildSegments = function (_p35) {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Connection.Controller',
 				{
-					start: {line: 383, column: 13},
-					end: {line: 499, column: 96}
+					start: {line: 385, column: 13},
+					end: {line: 501, column: 96}
 				},
 				_p50)(
 				A2(
@@ -18627,6 +18835,20 @@ var _joefiorini$flittal$Connection_Controller$connectBoxesFold = F2(
 			_1: {ctor: '::', _0: newConnection, _1: _p82._1}
 		};
 	});
+var _joefiorini$flittal$Connection_Controller$buildConnections = F2(
+	function (connections, boxes) {
+		var _p84 = boxes;
+		if (_p84.ctor === '::') {
+			return _elm_lang$core$Tuple$second(
+				A3(
+					_elm_lang$core$List$foldl,
+					_joefiorini$flittal$Connection_Controller$connectBoxesFold,
+					{ctor: '_Tuple2', _0: _p84._0, _1: connections},
+					_p84._1));
+		} else {
+			return {ctor: '[]'};
+		}
+	});
 var _joefiorini$flittal$Connection_Controller$offsetMidpoint = function (x) {
 	return (!_elm_lang$core$Native_Utils.eq(
 		A2(_elm_lang$core$Basics_ops['%'], x, 2),
@@ -18638,16 +18860,16 @@ var _joefiorini$flittal$Connection_Controller$endpointWidth = 10;
 var _joefiorini$flittal$Connection_Controller$endpointMidX = _joefiorini$flittal$Connection_Controller$offsetMidpoint((_joefiorini$flittal$Connection_Controller$endpointWidth / 2) | 0);
 var _joefiorini$flittal$Connection_Controller$drawEndpoint = function (p) {
 	var points = function () {
-		var _p84 = p;
-		switch (_p84.ctor) {
+		var _p85 = p;
+		switch (_p85.ctor) {
 			case 'Top':
-				return {ctor: '_Tuple2', _0: _p84._0._0 - _joefiorini$flittal$Connection_Controller$endpointMidX, _1: _p84._0._1 - _joefiorini$flittal$Connection_Controller$endpointHeight};
+				return {ctor: '_Tuple2', _0: _p85._0._0 - _joefiorini$flittal$Connection_Controller$endpointMidX, _1: _p85._0._1 - _joefiorini$flittal$Connection_Controller$endpointHeight};
 			case 'Right':
-				return {ctor: '_Tuple2', _0: _p84._0._0, _1: _p84._0._1 - _joefiorini$flittal$Connection_Controller$endpointMidY};
+				return {ctor: '_Tuple2', _0: _p85._0._0, _1: _p85._0._1 - _joefiorini$flittal$Connection_Controller$endpointMidY};
 			case 'Bottom':
-				return {ctor: '_Tuple2', _0: _p84._0._0 - _joefiorini$flittal$Connection_Controller$endpointMidX, _1: _p84._0._1};
+				return {ctor: '_Tuple2', _0: _p85._0._0 - _joefiorini$flittal$Connection_Controller$endpointMidX, _1: _p85._0._1};
 			default:
-				return {ctor: '_Tuple2', _0: _p84._0._0 - _joefiorini$flittal$Connection_Controller$endpointWidth, _1: _p84._0._1 - _joefiorini$flittal$Connection_Controller$endpointMidY};
+				return {ctor: '_Tuple2', _0: _p85._0._0 - _joefiorini$flittal$Connection_Controller$endpointWidth, _1: _p85._0._1 - _joefiorini$flittal$Connection_Controller$endpointMidY};
 		}
 	}();
 	return A2(
@@ -18767,6 +18989,133 @@ var _joefiorini$flittal$Connection_Controller$Calculation = F6(
 	function (a, b, c, d, e, f) {
 		return {result: a, clampedResult: b, location1: c, location2: d, lowerClamp: e, upperClamp: f};
 	});
+
+var _mpizenberg$elm_pointer_events$Internal_Decode$screenPos = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(_elm_lang$core$Json_Decode$field, 'screenX', _elm_lang$core$Json_Decode$float),
+	A2(_elm_lang$core$Json_Decode$field, 'screenY', _elm_lang$core$Json_Decode$float));
+var _mpizenberg$elm_pointer_events$Internal_Decode$pagePos = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(_elm_lang$core$Json_Decode$field, 'pageX', _elm_lang$core$Json_Decode$float),
+	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$float));
+var _mpizenberg$elm_pointer_events$Internal_Decode$offsetPos = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(_elm_lang$core$Json_Decode$field, 'offsetX', _elm_lang$core$Json_Decode$float),
+	A2(_elm_lang$core$Json_Decode$field, 'offsetY', _elm_lang$core$Json_Decode$float));
+var _mpizenberg$elm_pointer_events$Internal_Decode$clientPos = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(_elm_lang$core$Json_Decode$field, 'clientX', _elm_lang$core$Json_Decode$float),
+	A2(_elm_lang$core$Json_Decode$field, 'clientY', _elm_lang$core$Json_Decode$float));
+var _mpizenberg$elm_pointer_events$Internal_Decode$all = A2(
+	_elm_lang$core$List$foldr,
+	_elm_lang$core$Json_Decode$map2(
+		F2(
+			function (x, y) {
+				return {ctor: '::', _0: x, _1: y};
+			})),
+	_elm_lang$core$Json_Decode$succeed(
+		{ctor: '[]'}));
+var _mpizenberg$elm_pointer_events$Internal_Decode$dynamicListOf = function (itemDecoder) {
+	var decodeOne = function (n) {
+		return A2(
+			_elm_lang$core$Json_Decode$field,
+			_elm_lang$core$Basics$toString(n),
+			itemDecoder);
+	};
+	var decodeN = function (n) {
+		return _mpizenberg$elm_pointer_events$Internal_Decode$all(
+			A2(
+				_elm_lang$core$List$map,
+				decodeOne,
+				A2(_elm_lang$core$List$range, 0, n - 1)));
+	};
+	return A2(
+		_elm_lang$core$Json_Decode$andThen,
+		decodeN,
+		A2(_elm_lang$core$Json_Decode$field, 'length', _elm_lang$core$Json_Decode$int));
+};
+var _mpizenberg$elm_pointer_events$Internal_Decode$Keys = F3(
+	function (a, b, c) {
+		return {alt: a, ctrl: b, shift: c};
+	});
+var _mpizenberg$elm_pointer_events$Internal_Decode$keys = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_mpizenberg$elm_pointer_events$Internal_Decode$Keys,
+	A2(_elm_lang$core$Json_Decode$field, 'altKey', _elm_lang$core$Json_Decode$bool),
+	A2(_elm_lang$core$Json_Decode$field, 'ctrlKey', _elm_lang$core$Json_Decode$bool),
+	A2(_elm_lang$core$Json_Decode$field, 'shiftKey', _elm_lang$core$Json_Decode$bool));
+
+var _mpizenberg$elm_pointer_events$Mouse$stopOptions = {stopPropagation: true, preventDefault: true};
+var _mpizenberg$elm_pointer_events$Mouse$Event = F6(
+	function (a, b, c, d, e, f) {
+		return {keys: a, button: b, clientPos: c, offsetPos: d, pagePos: e, screenPos: f};
+	});
+var _mpizenberg$elm_pointer_events$Mouse$Keys = F3(
+	function (a, b, c) {
+		return {alt: a, ctrl: b, shift: c};
+	});
+var _mpizenberg$elm_pointer_events$Mouse$ForwardButton = {ctor: 'ForwardButton'};
+var _mpizenberg$elm_pointer_events$Mouse$BackButton = {ctor: 'BackButton'};
+var _mpizenberg$elm_pointer_events$Mouse$SecondButton = {ctor: 'SecondButton'};
+var _mpizenberg$elm_pointer_events$Mouse$MiddleButton = {ctor: 'MiddleButton'};
+var _mpizenberg$elm_pointer_events$Mouse$MainButton = {ctor: 'MainButton'};
+var _mpizenberg$elm_pointer_events$Mouse$ErrorButton = {ctor: 'ErrorButton'};
+var _mpizenberg$elm_pointer_events$Mouse$buttonFromId = function (id) {
+	var _p0 = id;
+	switch (_p0) {
+		case 0:
+			return _mpizenberg$elm_pointer_events$Mouse$MainButton;
+		case 1:
+			return _mpizenberg$elm_pointer_events$Mouse$MiddleButton;
+		case 2:
+			return _mpizenberg$elm_pointer_events$Mouse$SecondButton;
+		case 3:
+			return _mpizenberg$elm_pointer_events$Mouse$BackButton;
+		case 4:
+			return _mpizenberg$elm_pointer_events$Mouse$ForwardButton;
+		default:
+			return _mpizenberg$elm_pointer_events$Mouse$ErrorButton;
+	}
+};
+var _mpizenberg$elm_pointer_events$Mouse$buttonDecoder = A2(
+	_elm_lang$core$Json_Decode$map,
+	_mpizenberg$elm_pointer_events$Mouse$buttonFromId,
+	A2(_elm_lang$core$Json_Decode$field, 'button', _elm_lang$core$Json_Decode$int));
+var _mpizenberg$elm_pointer_events$Mouse$eventDecoder = A7(_elm_lang$core$Json_Decode$map6, _mpizenberg$elm_pointer_events$Mouse$Event, _mpizenberg$elm_pointer_events$Internal_Decode$keys, _mpizenberg$elm_pointer_events$Mouse$buttonDecoder, _mpizenberg$elm_pointer_events$Internal_Decode$clientPos, _mpizenberg$elm_pointer_events$Internal_Decode$offsetPos, _mpizenberg$elm_pointer_events$Internal_Decode$pagePos, _mpizenberg$elm_pointer_events$Internal_Decode$screenPos);
+var _mpizenberg$elm_pointer_events$Mouse$onWithOptions = F3(
+	function (event, options, tag) {
+		return A3(
+			_elm_lang$html$Html_Events$onWithOptions,
+			event,
+			options,
+			A2(_elm_lang$core$Json_Decode$map, tag, _mpizenberg$elm_pointer_events$Mouse$eventDecoder));
+	});
+var _mpizenberg$elm_pointer_events$Mouse$onDown = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mousedown', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onMove = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mousemove', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onUp = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mouseup', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onClick = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'click', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onDoubleClick = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'dblclick', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onEnter = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mouseenter', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onOver = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mouseover', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onLeave = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mouseleave', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onOut = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'mouseout', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
+var _mpizenberg$elm_pointer_events$Mouse$onContextMenu = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'contextmenu', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
 
 var _joefiorini$flittal$Board_Controller$updateBoxInState = F3(
 	function (boxKey, update, box) {
@@ -19212,9 +19561,29 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 									boxes: updateBoxes(state.boxes)
 								}));
 					case 'ReconnectSelections':
-						return state;
+						return _elm_lang$core$Native_Utils.update(
+							state,
+							{
+								connections: A3(_joefiorini$flittal$Connection_Controller$boxMap, _joefiorini$flittal$Connection_Controller$connectBoxes, state.boxes, state.connections)
+							});
 					case 'ConnectSelections':
-						return state;
+						return (_elm_lang$core$Native_Utils.cmp(
+							_elm_lang$core$List$length(
+								selectedBoxes(state.boxes)),
+							2) < 0) ? state : A2(
+							_elm_lang$core$Debug$log,
+							'Connecting Selections',
+							_elm_lang$core$Native_Utils.update(
+								state,
+								{
+									connections: A2(
+										_joefiorini$flittal$Connection_Controller$buildConnections,
+										state.connections,
+										A2(
+											_elm_lang$core$Debug$log,
+											'Selected Boxes',
+											selectedBoxes(state.boxes)))
+								}));
 					case 'DisconnectSelections':
 						var selectedBoxes = A2(_elm_lang$core$List$filter, _joefiorini$flittal$Box_Model$isSelected, state.boxes);
 						var connectionish = function () {
@@ -19360,11 +19729,11 @@ var _joefiorini$flittal$Board_Controller$buildEditingAction = function (id) {
 	}
 };
 var _joefiorini$flittal$Board_Controller$buildSelectAction = function (event) {
-	var boxIdM = _joefiorini$flittal$DomUtils$extractBoxId(event.id);
+	var boxIdM = _joefiorini$flittal$DomUtils$extractBoxId(event.targetId);
 	var _p21 = boxIdM;
 	if (_p21.ctor === 'Just') {
 		var _p22 = _p21._0;
-		return event.shiftKey ? _joefiorini$flittal$Board_Msg$SelectBoxMulti(_p22) : _joefiorini$flittal$Board_Msg$SelectBox(_p22);
+		return event.mouseEvent.keys.shift ? _joefiorini$flittal$Board_Msg$SelectBoxMulti(_p22) : _joefiorini$flittal$Board_Msg$SelectBox(_p22);
 	} else {
 		return A2(_elm_lang$core$Debug$log, 'deselect', _joefiorini$flittal$Board_Msg$DeselectBoxes);
 	}
@@ -19387,6 +19756,23 @@ var _joefiorini$flittal$Board_Controller$entersEditMode = function (update) {
 			}
 		}());
 };
+var _joefiorini$flittal$Board_Controller$targetDecoder = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'target',
+		_1: {
+			ctor: '::',
+			_0: 'id',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _joefiorini$flittal$Board_Controller$MouseWithTarget = F2(
+	function (a, b) {
+		return {mouseEvent: a, targetId: b};
+	});
+var _joefiorini$flittal$Board_Controller$decodeWithTarget = A3(_elm_lang$core$Json_Decode$map2, _joefiorini$flittal$Board_Controller$MouseWithTarget, _mpizenberg$elm_pointer_events$Mouse$eventDecoder, _joefiorini$flittal$Board_Controller$targetDecoder);
 var _joefiorini$flittal$Board_Controller$view = F3(
 	function (tx, model, height) {
 		var connections = A2(_elm_lang$core$List$map, _joefiorini$flittal$Connection_Controller$renderConnection, model.connections);
@@ -19440,11 +19826,11 @@ var _joefiorini$flittal$Board_Controller$view = F3(
 									'mousedown',
 									A2(
 										_elm_lang$core$Json_Decode$map,
-										function (s) {
+										function (event) {
 											return tx(
-												_joefiorini$flittal$Board_Controller$buildSelectAction(s));
+												_joefiorini$flittal$Board_Controller$buildSelectAction(event));
 										},
-										_joefiorini$flittal$DomUtils$getMouseSelectionEvent)),
+										_joefiorini$flittal$Board_Controller$decodeWithTarget)),
 								_1: {ctor: '[]'}
 							}
 						}

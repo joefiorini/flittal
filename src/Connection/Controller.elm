@@ -6,6 +6,8 @@ import DomUtils exposing (styleProperty)
 import Geometry.Types exposing (Geometric, Point, toPx, toPxPoint)
 import Html exposing (..)
 import Html.Attributes exposing (class, style)
+import List.Extra exposing (find)
+import Maybe.Extra exposing (combine)
 
 
 type alias Box =
@@ -499,27 +501,40 @@ buildSegments { start, end, order } =
                     Debug.crash ("cases exhausted in buildSegments" ++ toString ( start, end ))
 
 
+boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model
+boxMap f boxes connections =
+    List.map
+        (\c ->
+            let
+                startBox =
+                    find (\b -> b.key == c.startBox) boxes
 
--- TODO: Fix the type error in "f startBox endBox"
--- boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model
--- boxMap f boxes connections =
---     List.map
---         (\c ->
---             let
---                 startBox =
---                     List.head <|
---                         List.filter (\b -> b.key == c.startBox) boxes
---                 endBox =
---                     List.head <|
---                         List.filter (\b -> b.key == c.endBox) boxes
---             in
---                 f startBox endBox
---         )
---         connections
+                endBox =
+                    find (\b -> b.key == c.endBox) boxes
+            in
+                Maybe.map2
+                    (\start end ->
+                        f start end
+                    )
+                    startBox
+                    endBox
+        )
+        connections
+        |> Maybe.Extra.values
+
+
+
 -- TODO: Fix type error in List.foldl
--- buildConnections : List Model -> List Box -> List Model
--- buildConnections connections boxes =
---     Tuple.second (List.foldl connectBoxesFold ( List.head boxes, connections ) (List.tail boxes))
+
+
+buildConnections : List Model -> List Box -> List Model
+buildConnections connections boxes =
+    case boxes of
+        head :: tail ->
+            Tuple.second (List.foldl connectBoxesFold ( head, connections ) (tail))
+
+        [] ->
+            []
 
 
 connectBoxes : Box -> Box -> Model

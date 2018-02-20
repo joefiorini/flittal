@@ -19,6 +19,8 @@ import List.Extra exposing (find)
 import Maybe
 import Style.Color exposing (Color(..))
 import Box.Model
+import Mouse
+import Json.Decode as Decode exposing (Decoder)
 
 
 type alias Board =
@@ -41,9 +43,27 @@ view tx model height =
             , class "board"
             , id "container"
             , on "dblclick" (getTargetId |> Json.Decode.map (\s -> tx <| buildEditingAction s))
-            , on "mousedown" (getMouseSelectionEvent |> (Json.Decode.map (\s -> tx <| buildSelectAction s)))
+            , on "mousedown" (Decode.map (\event -> buildSelectAction event |> tx) decodeWithTarget)
             ]
             (List.concatMap identity [ boxes, connections ])
+
+
+type alias MouseWithTarget =
+    { mouseEvent : Mouse.Event
+    , targetId : String
+    }
+
+
+decodeWithTarget : Decoder MouseWithTarget
+decodeWithTarget =
+    Decode.map2 MouseWithTarget
+        Mouse.eventDecoder
+        targetDecoder
+
+
+targetDecoder : Decoder String
+targetDecoder =
+    Decode.at [ "target", "id" ] Decode.string
 
 
 entersEditMode : Msg -> Bool
@@ -63,15 +83,15 @@ entersEditMode update =
                 False
 
 
-buildSelectAction : Dom.Types.MouseSelectionEvent -> Msg
+buildSelectAction : MouseWithTarget -> Msg
 buildSelectAction event =
     let
         boxIdM =
-            extractBoxId event.id
+            extractBoxId event.targetId
     in
         case boxIdM of
             Just key ->
-                if event.shiftKey then
+                if event.mouseEvent.keys.shift then
                     SelectBoxMulti key
                 else
                     SelectBox key
@@ -431,30 +451,26 @@ step update state =
                         { state | boxes = updateBoxes state.boxes }
 
             ReconnectSelections ->
-                state
+                { state
+                    | connections =
+                        Connection.boxMap
+                            Connection.connectBoxes
+                            state.boxes
+                            state.connections
+                }
 
-            -- TODO: Fix reconnect selections!
-            -- { state
-            --     | connections =
-            --         Connection.boxMap
-            --             Connection.connectBoxes
-            --             state.boxes
-            --             state.connections
-            -- }
             ConnectSelections ->
-                --  if List.length (selectedBoxes state.boxes) < 2 then
-                state
+                if List.length (selectedBoxes state.boxes) < 2 then
+                    state
+                else
+                    Debug.log "Connecting Selections"
+                        { state
+                            | connections =
+                                Connection.buildConnections state.connections <|
+                                    Debug.log "Selected Boxes" <|
+                                        selectedBoxes state.boxes
+                        }
 
-            --  else
-            --    state
-            -- TODO: Fix connect selections
-            -- Debug.log "Connecting Selections"
-            --     { state
-            --         | connections =
-            --             Connection.buildConnections state.connections <|
-            --                 Debug.log "Selected Boxes" <|
-            --                     selectedBoxes state.boxes
-            --     }
             DisconnectSelections ->
                 let
                     selectedBoxes =
