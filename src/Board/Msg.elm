@@ -10,7 +10,6 @@ type Msg
     = NoOp
     | BoxAction Box.Msg.Msg
     | ClearBoard
-    | UpdateBox Box.Types.Model String
     | NewBox
     | MoveBox MoveType MoveDirection
     | DeselectBoxes
@@ -18,7 +17,6 @@ type Msg
     | EditingSelectedBox Bool
     | SelectBox BoxKey
     | SelectBoxMulti BoxKey
-    | CancelEditingBox BoxKey
     | ConnectSelections
     | ReconnectSelections
     | DisconnectSelections

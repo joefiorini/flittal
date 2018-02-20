@@ -115,7 +115,7 @@ onKeyDown box =
                     NoOp
             )
     in
-        on "keydown" (Json.map (Debug.log "box:keydown" <| checkKeyCode) keyCode)
+        on "keydown" (Json.map checkKeyCode keyCode)
 
 
 keyCodeAndValue : Json.Decoder ( Int, String )
@@ -130,7 +130,7 @@ extractLabelUpdate box ( keyCode, value ) =
     if keyCode == 13 then
         CancelEditingBox box
     else
-        Debug.log "UpdateBox" <| UpdateBox box value
+        UpdateBox box value
 
 
 labelField : Model -> String -> Html Msg
@@ -143,8 +143,6 @@ labelField box label =
             [ id <| "box-" ++ toString box.key ++ "-label"
             , type_ "text"
             , value label
-
-            -- , on "input" keyCodeAndValue (\a -> Debug.log "input:keydown" LC.send channel <| extractLabelUpdate box a)
             , onWithOptions "mousedown" { stopPropagation = True, preventDefault = True } (Json.succeed nullHandler)
             ]
             []
@@ -268,7 +266,7 @@ step : Msg -> Model -> Model
 step update box =
     case update of
         Drop event ->
-            Debug.log "Moved a box" <| moveBoxDrag event box
+            moveBoxDrag event box
 
         SetSelected index ->
             { box | selectedIndex = index }
@@ -283,7 +281,7 @@ step update box =
             { box | isEditing = toggle, originalLabel = box.label }
 
         Update newLabel ->
-            { box | label = Debug.log "got new label" newLabel }
+            { box | label = newLabel }
 
         Dragging ->
             { box
@@ -302,7 +300,7 @@ step update box =
                 style_ =
                     { style | color = color }
             in
-                Debug.log "updated color" { box | style = style_ }
+                { box | style = style_ }
 
         Resize mode ->
             let

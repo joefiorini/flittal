@@ -16265,9 +16265,6 @@ var _joefiorini$flittal$Board_Msg$DeleteSelections = {ctor: 'DeleteSelections'};
 var _joefiorini$flittal$Board_Msg$DisconnectSelections = {ctor: 'DisconnectSelections'};
 var _joefiorini$flittal$Board_Msg$ReconnectSelections = {ctor: 'ReconnectSelections'};
 var _joefiorini$flittal$Board_Msg$ConnectSelections = {ctor: 'ConnectSelections'};
-var _joefiorini$flittal$Board_Msg$CancelEditingBox = function (a) {
-	return {ctor: 'CancelEditingBox', _0: a};
-};
 var _joefiorini$flittal$Board_Msg$SelectBoxMulti = function (a) {
 	return {ctor: 'SelectBoxMulti', _0: a};
 };
@@ -16287,10 +16284,6 @@ var _joefiorini$flittal$Board_Msg$MoveBox = F2(
 		return {ctor: 'MoveBox', _0: a, _1: b};
 	});
 var _joefiorini$flittal$Board_Msg$NewBox = {ctor: 'NewBox'};
-var _joefiorini$flittal$Board_Msg$UpdateBox = F2(
-	function (a, b) {
-		return {ctor: 'UpdateBox', _0: a, _1: b};
-	});
 var _joefiorini$flittal$Board_Msg$ClearBoard = {ctor: 'ClearBoard'};
 var _joefiorini$flittal$Board_Msg$BoxAction = function (a) {
 	return {ctor: 'BoxAction', _0: a};
@@ -17945,10 +17938,7 @@ var _joefiorini$flittal$Box_Controller$step = F2(
 		var _p7 = update;
 		switch (_p7.ctor) {
 			case 'Drop':
-				return A2(
-					_elm_lang$core$Debug$log,
-					'Moved a box',
-					A2(_joefiorini$flittal$Box_Controller$moveBoxDrag, _p7._0, box));
+				return A2(_joefiorini$flittal$Box_Controller$moveBoxDrag, _p7._0, box);
 			case 'SetSelected':
 				return _elm_lang$core$Native_Utils.update(
 					box,
@@ -17964,9 +17954,7 @@ var _joefiorini$flittal$Box_Controller$step = F2(
 			case 'Update':
 				return _elm_lang$core$Native_Utils.update(
 					box,
-					{
-						label: A2(_elm_lang$core$Debug$log, 'got new label', _p7._0)
-					});
+					{label: _p7._0});
 			case 'Dragging':
 				return _elm_lang$core$Native_Utils.update(
 					box,
@@ -17978,12 +17966,9 @@ var _joefiorini$flittal$Box_Controller$step = F2(
 				var style_ = _elm_lang$core$Native_Utils.update(
 					style,
 					{color: _p7._0});
-				return A2(
-					_elm_lang$core$Debug$log,
-					'updated color',
-					_elm_lang$core$Native_Utils.update(
-						box,
-						{style: style_}));
+				return _elm_lang$core$Native_Utils.update(
+					box,
+					{style: style_});
 			case 'Resize':
 				var _p8 = A2(_joefiorini$flittal$Box_Controller$resize, _p7._0, box);
 				var position_ = _p8._0;
@@ -18056,10 +18041,7 @@ var _joefiorini$flittal$Box_Controller$labelField = F2(
 var _joefiorini$flittal$Box_Controller$extractLabelUpdate = F2(
 	function (box, _p10) {
 		var _p11 = _p10;
-		return _elm_lang$core$Native_Utils.eq(_p11._0, 13) ? _joefiorini$flittal$Box_Msg$CancelEditingBox(box) : A2(
-			_elm_lang$core$Debug$log,
-			'UpdateBox',
-			A2(_joefiorini$flittal$Box_Msg$UpdateBox, box, _p11._1));
+		return _elm_lang$core$Native_Utils.eq(_p11._0, 13) ? _joefiorini$flittal$Box_Msg$CancelEditingBox(box) : A2(_joefiorini$flittal$Box_Msg$UpdateBox, box, _p11._1);
 	});
 var _joefiorini$flittal$Box_Controller$keyCodeAndValue = A3(
 	_elm_lang$core$Json_Decode$map2,
@@ -18095,10 +18077,7 @@ var _joefiorini$flittal$Box_Controller$onKeyDown = function (box) {
 	return A2(
 		_elm_lang$html$Html_Events$on,
 		'keydown',
-		A2(
-			_elm_lang$core$Json_Decode$map,
-			A2(_elm_lang$core$Debug$log, 'box:keydown', checkKeyCode),
-			_elm_lang$html$Html_Events$keyCode));
+		A2(_elm_lang$core$Json_Decode$map, checkKeyCode, _elm_lang$html$Html_Events$keyCode));
 };
 var _joefiorini$flittal$Box_Controller$entersEditMode = function (update) {
 	var _p13 = update;
@@ -18352,10 +18331,8 @@ var _joefiorini$flittal$Connection_Controller$within = F2(
 		return _elm_lang$core$Native_Utils.update(
 			calculation,
 			{
-				lowerClamp: _elm_lang$core$Maybe$Just(
-					A2(_elm_lang$core$Debug$log, 'lowerClamp', calculation.location1 - threshold)),
-				upperClamp: _elm_lang$core$Maybe$Just(
-					A2(_elm_lang$core$Debug$log, 'upperClamp', calculation.location2 + threshold))
+				lowerClamp: _elm_lang$core$Maybe$Just(calculation.location1 - threshold),
+				upperClamp: _elm_lang$core$Maybe$Just(calculation.location2 + threshold)
 			});
 	});
 var _joefiorini$flittal$Connection_Controller$map2 = F3(
@@ -18440,99 +18417,75 @@ var _joefiorini$flittal$Connection_Controller$portLocations = F2(
 		var heightDiff = _elm_lang$core$Basics$abs(y1 - y2);
 		var widthDiff = _elm_lang$core$Basics$abs(x1 - x2);
 		var output = {ctor: '_Tuple2', _0: p1, _1: p2};
-		return (A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2)) ? A2(
-			_elm_lang$core$Debug$log,
-			'p1 below p2 && p1 leftOf p2',
-			(_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
-				start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
-				start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			} : {
-				start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1)) ? A2(
-			_elm_lang$core$Debug$log,
-			'p1 below p2 && p2 leftOf p1',
-			(_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
-				start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
-				start: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			} : {
-				start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2)) ? A2(
-			_elm_lang$core$Debug$log,
-			'p2 below p1 && p1 leftOf p2',
-			(_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
-				start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
-				start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			} : {
-				start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1)) ? A2(
-			_elm_lang$core$Debug$log,
-			'p2 below p1 && p2 leftOf p1',
-			(_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
-				start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
-				start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			} : {
-				start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			})) : (A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2) ? A2(
-			_elm_lang$core$Debug$log,
-			'p1 leftOf p2',
-			{
-				start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			}) : (A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1) ? A2(
-			_elm_lang$core$Debug$log,
-			'p2 leftOf p1',
-			{
-				start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
-				end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			}) : (A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) ? A2(
-			_elm_lang$core$Debug$log,
-			'p1 below p2',
-			{
-				start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$EndStart
-			}) : (A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) ? A2(
-			_elm_lang$core$Debug$log,
-			'p2 below p1',
-			{
-				start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
-				end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
-				order: _joefiorini$flittal$Connection_Model$StartEnd
-			}) : _elm_lang$core$Native_Utils.crash(
+		return (A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2)) ? ((_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
+			start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1)) ? ((_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
+			start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
+			start: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2)) ? ((_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
+			start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
+			start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		})) : ((A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) && A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1)) ? ((_elm_lang$core$Native_Utils.cmp(widthDiff, maxWidth) < 1) ? {
+			start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : ((_elm_lang$core$Native_Utils.cmp(heightDiff, maxHeight) > 0) ? {
+			start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		})) : (A2(_joefiorini$flittal$Connection_Controller$leftOf, p1, p2) ? {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : (A2(_joefiorini$flittal$Connection_Controller$leftOf, p2, p1) ? {
+			start: _joefiorini$flittal$Connection_Controller$rightPort(rightBox),
+			end: _joefiorini$flittal$Connection_Controller$leftPort(leftBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : (A2(_joefiorini$flittal$Connection_Controller$below, p1, p2) ? {
+			start: _joefiorini$flittal$Connection_Controller$topPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$bottomPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$EndStart
+		} : (A2(_joefiorini$flittal$Connection_Controller$below, p2, p1) ? {
+			start: _joefiorini$flittal$Connection_Controller$bottomPort(leftBox),
+			end: _joefiorini$flittal$Connection_Controller$topPort(rightBox),
+			order: _joefiorini$flittal$Connection_Model$StartEnd
+		} : _elm_lang$core$Native_Utils.crash(
 			'Connection.Controller',
 			{
-				start: {line: 349, column: 13},
-				end: {line: 349, column: 24}
+				start: {line: 343, column: 13},
+				end: {line: 343, column: 24}
 			})(
 			A2(
 				_elm_lang$core$Basics_ops['++'],
@@ -18594,330 +18547,319 @@ var _joefiorini$flittal$Connection_Controller$buildSegments = function (_p35) {
 				layout: _joefiorini$flittal$Connection_Model$Horizontal
 			};
 		});
-	return A2(
-		_elm_lang$core$Debug$log,
-		'drawing segments',
-		function () {
-			var _p50 = A2(
-				_elm_lang$core$Debug$log,
-				'buildSegments from',
-				{ctor: '_Tuple2', _0: _p80, _1: _p79});
-			_v17_7:
-			do {
-				if (_p50.ctor === '_Tuple2') {
-					switch (_p50._0.ctor) {
-						case 'Right':
-							switch (_p50._1.ctor) {
-								case 'Left':
-									var _p55 = _p50._1._0;
-									var _p54 = _p50._0._0;
-									var _p51 = _p55;
-									var x2 = _p51._0;
-									var y2 = _p51._1;
-									var _p52 = _p54;
-									var x1 = _p52._0;
-									var y1 = _p52._1;
-									var midx = _joefiorini$flittal$Connection_Controller$midPoint(x2 + x1);
-									var yVals = function () {
-										var _p53 = _p36.order;
-										if (_p53.ctor === 'StartEnd') {
-											return {ctor: '_Tuple2', _0: y1, _1: y2};
-										} else {
-											return {ctor: '_Tuple2', _0: y2, _1: y1};
-										}
-									}();
-									return A2(
-										_elm_lang$core$Debug$log,
-										'StartEnd',
-										_elm_lang$core$Native_Utils.eq(y1, y2) ? {
-											ctor: '::',
-											_0: A2(horizontalSegment, _p54, _p55),
-											_1: {ctor: '[]'}
-										} : ((_elm_lang$core$Native_Utils.cmp(y1, y2) > 0) ? {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												_p54,
-												{ctor: '_Tuple2', _0: midx, _1: y1}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													verticalSegment,
-													{
-														ctor: '_Tuple2',
-														_0: midx,
-														_1: _elm_lang$core$Tuple$first(yVals)
-													},
-													{
-														ctor: '_Tuple2',
-														_0: midx,
-														_1: _elm_lang$core$Tuple$second(yVals)
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														horizontalSegment,
-														{ctor: '_Tuple2', _0: midx, _1: y2},
-														_p55),
-													_1: {ctor: '[]'}
-												}
-											}
-										} : {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												_p54,
-												{ctor: '_Tuple2', _0: midx, _1: y1}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													verticalSegment,
-													{
-														ctor: '_Tuple2',
-														_0: midx,
-														_1: _elm_lang$core$Tuple$second(yVals)
-													},
-													{
-														ctor: '_Tuple2',
-														_0: midx,
-														_1: _elm_lang$core$Tuple$first(yVals)
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														horizontalSegment,
-														{ctor: '_Tuple2', _0: midx, _1: y2},
-														_p55),
-													_1: {ctor: '[]'}
-												}
-											}
-										}));
-								case 'Bottom':
-									var _p57 = _p50._1._0;
-									var _p56 = _p50._0._0;
-									return {
-										ctor: '::',
-										_0: A2(horizontalSegment, _p56, _p57),
-										_1: {
-											ctor: '::',
-											_0: A2(verticalSegment, _p56, _p57),
-											_1: {ctor: '[]'}
-										}
-									};
-								default:
-									break _v17_7;
-							}
+	var _p50 = {ctor: '_Tuple2', _0: _p80, _1: _p79};
+	_v17_7:
+	do {
+		if (_p50.ctor === '_Tuple2') {
+			switch (_p50._0.ctor) {
+				case 'Right':
+					switch (_p50._1.ctor) {
 						case 'Left':
-							if (_p50._1.ctor === 'Bottom') {
-								var _p69 = _p50._1._0;
-								var _p68 = _p50._0._0;
-								var _p66 = _p69;
-								var x2 = _p66._0;
-								var y2 = _p66._1;
-								var _p67 = _p68;
-								var x1 = _p67._0;
-								var y1 = _p67._1;
-								return {
+							var _p55 = _p50._1._0;
+							var _p54 = _p50._0._0;
+							var _p51 = _p55;
+							var x2 = _p51._0;
+							var y2 = _p51._1;
+							var _p52 = _p54;
+							var x1 = _p52._0;
+							var y1 = _p52._1;
+							var midx = _joefiorini$flittal$Connection_Controller$midPoint(x2 + x1);
+							var yVals = function () {
+								var _p53 = _p36.order;
+								if (_p53.ctor === 'StartEnd') {
+									return {ctor: '_Tuple2', _0: y1, _1: y2};
+								} else {
+									return {ctor: '_Tuple2', _0: y2, _1: y1};
+								}
+							}();
+							return _elm_lang$core$Native_Utils.eq(y1, y2) ? {
+								ctor: '::',
+								_0: A2(horizontalSegment, _p54, _p55),
+								_1: {ctor: '[]'}
+							} : ((_elm_lang$core$Native_Utils.cmp(y1, y2) > 0) ? {
+								ctor: '::',
+								_0: A2(
+									horizontalSegment,
+									_p54,
+									{ctor: '_Tuple2', _0: midx, _1: y1}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										verticalSegment,
+										{
+											ctor: '_Tuple2',
+											_0: midx,
+											_1: _elm_lang$core$Tuple$first(yVals)
+										},
+										{
+											ctor: '_Tuple2',
+											_0: midx,
+											_1: _elm_lang$core$Tuple$second(yVals)
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											horizontalSegment,
+											{ctor: '_Tuple2', _0: midx, _1: y2},
+											_p55),
+										_1: {ctor: '[]'}
+									}
+								}
+							} : {
+								ctor: '::',
+								_0: A2(
+									horizontalSegment,
+									_p54,
+									{ctor: '_Tuple2', _0: midx, _1: y1}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										verticalSegment,
+										{
+											ctor: '_Tuple2',
+											_0: midx,
+											_1: _elm_lang$core$Tuple$second(yVals)
+										},
+										{
+											ctor: '_Tuple2',
+											_0: midx,
+											_1: _elm_lang$core$Tuple$first(yVals)
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											horizontalSegment,
+											{ctor: '_Tuple2', _0: midx, _1: y2},
+											_p55),
+										_1: {ctor: '[]'}
+									}
+								}
+							});
+						case 'Bottom':
+							var _p57 = _p50._1._0;
+							var _p56 = _p50._0._0;
+							return {
+								ctor: '::',
+								_0: A2(horizontalSegment, _p56, _p57),
+								_1: {
+									ctor: '::',
+									_0: A2(verticalSegment, _p56, _p57),
+									_1: {ctor: '[]'}
+								}
+							};
+						default:
+							break _v17_7;
+					}
+				case 'Left':
+					if (_p50._1.ctor === 'Bottom') {
+						var _p69 = _p50._1._0;
+						var _p68 = _p50._0._0;
+						var _p66 = _p69;
+						var x2 = _p66._0;
+						var y2 = _p66._1;
+						var _p67 = _p68;
+						var x1 = _p67._0;
+						var y1 = _p67._1;
+						return {
+							ctor: '::',
+							_0: A2(
+								horizontalSegment,
+								{ctor: '_Tuple2', _0: x2, _1: y1},
+								_p68),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									verticalSegment,
+									{ctor: '_Tuple2', _0: x2, _1: y1},
+									_p69),
+								_1: {ctor: '[]'}
+							}
+						};
+					} else {
+						break _v17_7;
+					}
+				case 'Bottom':
+					switch (_p50._1.ctor) {
+						case 'Right':
+							var _p61 = _p50._1._0;
+							var _p60 = _p50._0._0;
+							var _p58 = _p61;
+							var x2 = _p58._0;
+							var y2 = _p58._1;
+							var _p59 = _p60;
+							var x1 = _p59._0;
+							var y1 = _p59._1;
+							return {
+								ctor: '::',
+								_0: A2(verticalSegment, _p60, _p61),
+								_1: {
 									ctor: '::',
 									_0: A2(
 										horizontalSegment,
-										{ctor: '_Tuple2', _0: x2, _1: y1},
-										_p68),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											verticalSegment,
-											{ctor: '_Tuple2', _0: x2, _1: y1},
-											_p69),
-										_1: {ctor: '[]'}
-									}
-								};
-							} else {
-								break _v17_7;
-							}
-						case 'Bottom':
-							switch (_p50._1.ctor) {
-								case 'Right':
-									var _p61 = _p50._1._0;
-									var _p60 = _p50._0._0;
-									var _p58 = _p61;
-									var x2 = _p58._0;
-									var y2 = _p58._1;
-									var _p59 = _p60;
-									var x1 = _p59._0;
-									var y1 = _p59._1;
-									return {
-										ctor: '::',
-										_0: A2(verticalSegment, _p60, _p61),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												{ctor: '_Tuple2', _0: x2, _1: y2},
-												{ctor: '_Tuple2', _0: x1, _1: y2}),
-											_1: {ctor: '[]'}
-										}
-									};
-								case 'Left':
-									var _p65 = _p50._1._0;
-									var _p64 = _p50._0._0;
-									var _p62 = _p65;
-									var x2 = _p62._0;
-									var y2 = _p62._1;
-									var _p63 = _p64;
-									var x1 = _p63._0;
-									var y1 = _p63._1;
-									return {
-										ctor: '::',
-										_0: A2(verticalSegment, _p64, _p65),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												{ctor: '_Tuple2', _0: x1, _1: y2},
-												_p65),
-											_1: {ctor: '[]'}
-										}
-									};
-								case 'Top':
-									var _p73 = _p50._1._0;
-									var _p72 = _p50._0._0;
-									var _p70 = _p73;
-									var x2 = _p70._0;
-									var y2 = _p70._1;
-									var _p71 = _p72;
-									var x1 = _p71._0;
-									var y1 = _p71._1;
-									var midy = _joefiorini$flittal$Connection_Controller$midPoint(y2 + y1);
-									return _elm_lang$core$Native_Utils.eq(x1, x2) ? {
-										ctor: '::',
-										_0: A2(verticalSegment, _p72, _p73),
-										_1: {ctor: '[]'}
-									} : ((_elm_lang$core$Native_Utils.cmp(x1, x2) > 0) ? {
-										ctor: '::',
-										_0: A2(
-											verticalSegment,
-											_p72,
-											{ctor: '_Tuple2', _0: x1, _1: midy}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												{ctor: '_Tuple2', _0: x2, _1: midy},
-												{ctor: '_Tuple2', _0: x1, _1: midy}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													verticalSegment,
-													{ctor: '_Tuple2', _0: x2, _1: midy},
-													_p73),
-												_1: {ctor: '[]'}
-											}
-										}
-									} : {
-										ctor: '::',
-										_0: A2(
-											verticalSegment,
-											_p72,
-											{ctor: '_Tuple2', _0: x1, _1: midy}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												horizontalSegment,
-												{ctor: '_Tuple2', _0: x1, _1: midy},
-												{ctor: '_Tuple2', _0: x2, _1: midy}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													verticalSegment,
-													{ctor: '_Tuple2', _0: x2, _1: midy},
-													_p73),
-												_1: {ctor: '[]'}
-											}
-										}
-									});
-								default:
-									break _v17_7;
-							}
-						default:
-							if (_p50._1.ctor === 'Bottom') {
-								var _p77 = _p50._1._0;
-								var _p76 = _p50._0._0;
-								var _p74 = _p77;
-								var x2 = _p74._0;
-								var y2 = _p74._1;
-								var _p75 = _p76;
-								var x1 = _p75._0;
-								var y1 = _p75._1;
-								var midy = _joefiorini$flittal$Connection_Controller$midPoint(y2 + y1);
-								return _elm_lang$core$Native_Utils.eq(x1, x2) ? {
-									ctor: '::',
-									_0: A2(verticalSegment, _p76, _p77),
+										{ctor: '_Tuple2', _0: x2, _1: y2},
+										{ctor: '_Tuple2', _0: x1, _1: y2}),
 									_1: {ctor: '[]'}
-								} : ((_elm_lang$core$Native_Utils.cmp(x1, x2) > 0) ? {
+								}
+							};
+						case 'Left':
+							var _p65 = _p50._1._0;
+							var _p64 = _p50._0._0;
+							var _p62 = _p65;
+							var x2 = _p62._0;
+							var y2 = _p62._1;
+							var _p63 = _p64;
+							var x1 = _p63._0;
+							var y1 = _p63._1;
+							return {
+								ctor: '::',
+								_0: A2(verticalSegment, _p64, _p65),
+								_1: {
 									ctor: '::',
 									_0: A2(
-										verticalSegment,
-										_p76,
+										horizontalSegment,
+										{ctor: '_Tuple2', _0: x1, _1: y2},
+										_p65),
+									_1: {ctor: '[]'}
+								}
+							};
+						case 'Top':
+							var _p73 = _p50._1._0;
+							var _p72 = _p50._0._0;
+							var _p70 = _p73;
+							var x2 = _p70._0;
+							var y2 = _p70._1;
+							var _p71 = _p72;
+							var x1 = _p71._0;
+							var y1 = _p71._1;
+							var midy = _joefiorini$flittal$Connection_Controller$midPoint(y2 + y1);
+							return _elm_lang$core$Native_Utils.eq(x1, x2) ? {
+								ctor: '::',
+								_0: A2(verticalSegment, _p72, _p73),
+								_1: {ctor: '[]'}
+							} : ((_elm_lang$core$Native_Utils.cmp(x1, x2) > 0) ? {
+								ctor: '::',
+								_0: A2(
+									verticalSegment,
+									_p72,
+									{ctor: '_Tuple2', _0: x1, _1: midy}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										horizontalSegment,
+										{ctor: '_Tuple2', _0: x2, _1: midy},
 										{ctor: '_Tuple2', _0: x1, _1: midy}),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											horizontalSegment,
+											verticalSegment,
 											{ctor: '_Tuple2', _0: x2, _1: midy},
-											{ctor: '_Tuple2', _0: x1, _1: midy}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												verticalSegment,
-												{ctor: '_Tuple2', _0: x2, _1: midy},
-												_p77),
-											_1: {ctor: '[]'}
-										}
+											_p73),
+										_1: {ctor: '[]'}
 									}
-								} : {
+								}
+							} : {
+								ctor: '::',
+								_0: A2(
+									verticalSegment,
+									_p72,
+									{ctor: '_Tuple2', _0: x1, _1: midy}),
+								_1: {
 									ctor: '::',
 									_0: A2(
-										verticalSegment,
-										_p76,
-										{ctor: '_Tuple2', _0: x1, _1: midy}),
+										horizontalSegment,
+										{ctor: '_Tuple2', _0: x1, _1: midy},
+										{ctor: '_Tuple2', _0: x2, _1: midy}),
 									_1: {
 										ctor: '::',
 										_0: A2(
-											horizontalSegment,
-											{ctor: '_Tuple2', _0: x1, _1: midy},
-											{ctor: '_Tuple2', _0: x2, _1: midy}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												verticalSegment,
-												{ctor: '_Tuple2', _0: x2, _1: midy},
-												_p77),
-											_1: {ctor: '[]'}
-										}
+											verticalSegment,
+											{ctor: '_Tuple2', _0: x2, _1: midy},
+											_p73),
+										_1: {ctor: '[]'}
 									}
-								});
-							} else {
-								break _v17_7;
-							}
+								}
+							});
+						default:
+							break _v17_7;
 					}
-				} else {
-					break _v17_7;
-				}
-			} while(false);
-			return _elm_lang$core$Native_Utils.crashCase(
-				'Connection.Controller',
-				{
-					start: {line: 385, column: 13},
-					end: {line: 501, column: 96}
-				},
-				_p50)(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'cases exhausted in buildSegments',
-					_elm_lang$core$Basics$toString(
-						{ctor: '_Tuple2', _0: _p80, _1: _p79})));
-		}());
+				default:
+					if (_p50._1.ctor === 'Bottom') {
+						var _p77 = _p50._1._0;
+						var _p76 = _p50._0._0;
+						var _p74 = _p77;
+						var x2 = _p74._0;
+						var y2 = _p74._1;
+						var _p75 = _p76;
+						var x1 = _p75._0;
+						var y1 = _p75._1;
+						var midy = _joefiorini$flittal$Connection_Controller$midPoint(y2 + y1);
+						return _elm_lang$core$Native_Utils.eq(x1, x2) ? {
+							ctor: '::',
+							_0: A2(verticalSegment, _p76, _p77),
+							_1: {ctor: '[]'}
+						} : ((_elm_lang$core$Native_Utils.cmp(x1, x2) > 0) ? {
+							ctor: '::',
+							_0: A2(
+								verticalSegment,
+								_p76,
+								{ctor: '_Tuple2', _0: x1, _1: midy}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									horizontalSegment,
+									{ctor: '_Tuple2', _0: x2, _1: midy},
+									{ctor: '_Tuple2', _0: x1, _1: midy}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										verticalSegment,
+										{ctor: '_Tuple2', _0: x2, _1: midy},
+										_p77),
+									_1: {ctor: '[]'}
+								}
+							}
+						} : {
+							ctor: '::',
+							_0: A2(
+								verticalSegment,
+								_p76,
+								{ctor: '_Tuple2', _0: x1, _1: midy}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									horizontalSegment,
+									{ctor: '_Tuple2', _0: x1, _1: midy},
+									{ctor: '_Tuple2', _0: x2, _1: midy}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										verticalSegment,
+										{ctor: '_Tuple2', _0: x2, _1: midy},
+										_p77),
+									_1: {ctor: '[]'}
+								}
+							}
+						});
+					} else {
+						break _v17_7;
+					}
+			}
+		} else {
+			break _v17_7;
+		}
+	} while(false);
+	return _elm_lang$core$Native_Utils.crashCase(
+		'Connection.Controller',
+		{
+			start: {line: 378, column: 9},
+			end: {line: 493, column: 92}
+		},
+		_p50)(
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'cases exhausted in buildSegments',
+			_elm_lang$core$Basics$toString(
+				{ctor: '_Tuple2', _0: _p80, _1: _p79})));
 };
 var _joefiorini$flittal$Connection_Controller$connectBoxes = F2(
 	function (startBox, endBox) {
@@ -19369,46 +19311,131 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 				function (update, iterator) {
 					return (_elm_lang$core$Native_Utils.cmp(iterator.selectedIndex, -1) > 0) ? A2(_joefiorini$flittal$Box_Controller$step, update, iterator) : iterator;
 				});
-			var _p3 = A2(_elm_lang$core$Debug$log, 'Performing update', update);
-			_v0_21:
-			do {
-				switch (_p3.ctor) {
-					case 'NewBox':
-						if (_joefiorini$flittal$Board_Controller$isEditing(state.boxes)) {
-							return state;
-						} else {
-							var newBox = _joefiorini$flittal$Board_Controller$makeBox(state.nextIdentifier);
-							return A2(
-								_elm_lang$core$Debug$log,
-								'newBox',
-								_elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: {
-											ctor: '::',
-											_0: newBox,
-											_1: deselectBoxes(state.boxes)
-										},
-										nextIdentifier: state.nextIdentifier + 1
-									}));
-						}
-					case 'DeselectBoxes':
-						var cancelEditing = _elm_lang$core$List$map(
-							_joefiorini$flittal$Box_Controller$step(_joefiorini$flittal$Box_Msg$CancelEditing));
-						var updateBoxes = function (_p4) {
-							return deselectBoxes(
-								cancelEditing(_p4));
-						};
+			var _p3 = update;
+			switch (_p3.ctor) {
+				case 'NewBox':
+					if (_joefiorini$flittal$Board_Controller$isEditing(state.boxes)) {
+						return state;
+					} else {
+						var newBox = _joefiorini$flittal$Board_Controller$makeBox(state.nextIdentifier);
 						return _elm_lang$core$Native_Utils.update(
 							state,
 							{
-								boxes: updateBoxes(state.boxes)
+								boxes: {
+									ctor: '::',
+									_0: newBox,
+									_1: deselectBoxes(state.boxes)
+								},
+								nextIdentifier: state.nextIdentifier + 1
 							});
-					case 'SelectBoxMulti':
+					}
+				case 'DeselectBoxes':
+					var cancelEditing = _elm_lang$core$List$map(
+						_joefiorini$flittal$Box_Controller$step(_joefiorini$flittal$Box_Msg$CancelEditing));
+					var updateBoxes = function (_p4) {
+						return deselectBoxes(
+							cancelEditing(_p4));
+					};
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+				case 'SelectBoxMulti':
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: A2(
+								_elm_lang$core$List$map,
+								function (box) {
+									return A3(
+										_joefiorini$flittal$Board_Controller$updateBoxInState,
+										_p3._0,
+										_joefiorini$flittal$Box_Msg$SetSelected(
+											nextSelectedIndex(state.boxes)),
+										box);
+								},
+								state.boxes)
+						});
+				case 'DraggingBox':
+					var _p6 = _p3._0;
+					var draggingBox = _elm_lang$core$List$map(
+						updateSelectedBoxes(_joefiorini$flittal$Box_Msg$Dragging));
+					var selectedBox = function (boxes) {
 						return A2(
-							_elm_lang$core$Debug$log,
-							'adding box to selection',
-							_elm_lang$core$Native_Utils.update(
+							_elm_lang$core$List$map,
+							function (box) {
+								return A3(
+									_joefiorini$flittal$Board_Controller$updateBoxInState,
+									_p6,
+									_joefiorini$flittal$Box_Msg$SetSelected(
+										nextSelectedIndex(boxes)),
+									box);
+							},
+							boxes);
+					};
+					var updateBoxes = function (_p5) {
+						return draggingBox(
+							selectedBox(_p5));
+					};
+					var box = A2(_joefiorini$flittal$Board_Controller$boxForKey, _p6, state.boxes);
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+				case 'SelectBox':
+					var selectedBox = function (boxes) {
+						return A2(
+							_elm_lang$core$List$map,
+							function (box) {
+								return A3(
+									_joefiorini$flittal$Board_Controller$updateBoxInState,
+									_p3._0,
+									_joefiorini$flittal$Box_Msg$SetSelected(
+										nextSelectedIndex(boxes)),
+									box);
+							},
+							boxes);
+					};
+					var updateBoxes = function (_p7) {
+						return selectedBox(
+							deselectBoxes(_p7));
+					};
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+				case 'SelectNextBox':
+					var selections = A2(
+						_elm_lang$core$List$filter,
+						_joefiorini$flittal$Box_Model$isSelected,
+						_joefiorini$flittal$Board_Controller$sortLeftToRight(state.boxes));
+					var nextBox = function () {
+						var sortedBoxes = _joefiorini$flittal$Board_Controller$sortLeftToRight(state.boxes);
+						var _p8 = selections;
+						if (_p8.ctor === '[]') {
+							return _elm_lang$core$List$head(sortedBoxes);
+						} else {
+							var rightBoxes = A2(
+								_elm_lang$core$List$filter,
+								function (box) {
+									return A2(_joefiorini$flittal$Connection_Controller$leftOf, _p8._0.position, box.position);
+								},
+								sortedBoxes);
+							var _p9 = rightBoxes;
+							if (_p9.ctor === '[]') {
+								return _elm_lang$core$List$head(sortedBoxes);
+							} else {
+								return _elm_lang$core$Maybe$Just(_p9._0);
+							}
+						}
+					}();
+					var newState = A2(
+						_elm_lang$core$Maybe$map,
+						function (next) {
+							return _elm_lang$core$Native_Utils.update(
 								state,
 								{
 									boxes: A2(
@@ -19416,413 +19443,291 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 										function (box) {
 											return A3(
 												_joefiorini$flittal$Board_Controller$updateBoxInState,
-												_p3._0,
-												_joefiorini$flittal$Box_Msg$SetSelected(
-													nextSelectedIndex(state.boxes)),
+												next.key,
+												_joefiorini$flittal$Box_Msg$SetSelected(0),
 												box);
 										},
 										state.boxes)
-								}));
-					case 'DraggingBox':
-						var _p6 = _p3._0;
-						var draggingBox = _elm_lang$core$List$map(
-							updateSelectedBoxes(_joefiorini$flittal$Box_Msg$Dragging));
-						var selectedBox = function (boxes) {
-							return A2(
-								_elm_lang$core$List$map,
-								function (box) {
-									return A3(
-										_joefiorini$flittal$Board_Controller$updateBoxInState,
-										_p6,
-										_joefiorini$flittal$Box_Msg$SetSelected(
-											nextSelectedIndex(boxes)),
-										box);
-								},
-								boxes);
-						};
-						var updateBoxes = function (_p5) {
-							return draggingBox(
-								selectedBox(_p5));
-						};
-						var box = A2(_joefiorini$flittal$Board_Controller$boxForKey, _p6, state.boxes);
-						return A2(
-							_elm_lang$core$Debug$log,
-							'started dragging',
-							_elm_lang$core$Native_Utils.update(
-								state,
-								{
-									boxes: updateBoxes(state.boxes)
-								}));
-					case 'SelectBox':
-						var selectedBox = function (boxes) {
-							return A2(
-								_elm_lang$core$List$map,
-								function (box) {
-									return A3(
-										_joefiorini$flittal$Board_Controller$updateBoxInState,
-										_p3._0,
-										_joefiorini$flittal$Box_Msg$SetSelected(
-											nextSelectedIndex(boxes)),
-										box);
-								},
-								boxes);
-						};
-						var updateBoxes = function (_p7) {
-							return selectedBox(
-								deselectBoxes(_p7));
-						};
-						return A2(
-							_elm_lang$core$Debug$log,
-							'selecting box',
-							_elm_lang$core$Native_Utils.update(
-								state,
-								{
-									boxes: updateBoxes(state.boxes)
-								}));
-					case 'SelectNextBox':
-						var selections = A2(
-							_elm_lang$core$List$filter,
-							_joefiorini$flittal$Box_Model$isSelected,
-							_joefiorini$flittal$Board_Controller$sortLeftToRight(state.boxes));
-						var nextBox = function () {
-							var sortedBoxes = _joefiorini$flittal$Board_Controller$sortLeftToRight(state.boxes);
-							var _p8 = A2(_elm_lang$core$Debug$log, 'selections', selections);
-							if (_p8.ctor === '[]') {
-								return _elm_lang$core$List$head(
-									A2(_elm_lang$core$Debug$log, 'all sorted', sortedBoxes));
-							} else {
-								var rightBoxes = A2(
-									_elm_lang$core$List$filter,
-									function (box) {
-										return A2(_joefiorini$flittal$Connection_Controller$leftOf, _p8._0.position, box.position);
-									},
-									sortedBoxes);
-								var _p9 = rightBoxes;
-								if (_p9.ctor === '[]') {
-									return _elm_lang$core$List$head(sortedBoxes);
-								} else {
-									return _elm_lang$core$Maybe$Just(_p9._0);
-								}
-							}
-						}();
-						var newState = A2(
-							_elm_lang$core$Maybe$map,
-							function (next) {
-								return _elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: A2(
-											_elm_lang$core$List$map,
-											function (box) {
-												return A3(
-													_joefiorini$flittal$Board_Controller$updateBoxInState,
-													next.key,
-													_joefiorini$flittal$Box_Msg$SetSelected(0),
-													box);
-											},
-											state.boxes)
-									});
-							},
-							nextBox);
-						return A2(_elm_lang$core$Maybe$withDefault, state, newState);
-					case 'SelectPreviousBox':
-						var selections = A2(
-							_elm_lang$core$List$filter,
-							_joefiorini$flittal$Box_Model$isSelected,
-							_joefiorini$flittal$Board_Controller$sortRightToLeft(state.boxes));
-						var nextBox = function () {
-							var sortedBoxes = _joefiorini$flittal$Board_Controller$sortRightToLeft(state.boxes);
-							var _p10 = A2(_elm_lang$core$Debug$log, 'selections', selections);
-							if (_p10.ctor === '[]') {
-								return _elm_lang$core$List$head(
-									A2(_elm_lang$core$Debug$log, 'all sorted', sortedBoxes));
-							} else {
-								var firstRight = A2(
-									_elm_community$list_extra$List_Extra$find,
-									function (box) {
-										return A2(_joefiorini$flittal$Connection_Controller$leftOf, box.position, _p10._0.position);
-									},
-									sortedBoxes);
-								var _p11 = firstRight;
-								if (_p11.ctor === 'Nothing') {
-									return _elm_lang$core$List$head(sortedBoxes);
-								} else {
-									return firstRight;
-								}
-							}
-						}();
-						var newState = A2(
-							_elm_lang$core$Maybe$map,
-							function (next) {
-								return _elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: A2(
-											_elm_lang$core$List$map,
-											function (box) {
-												return A3(
-													_joefiorini$flittal$Board_Controller$updateBoxInState,
-													next.key,
-													_joefiorini$flittal$Box_Msg$SetSelected(0),
-													box);
-											},
-											deselectBoxes(state.boxes))
-									});
-							},
-							nextBox);
-						return A2(_elm_lang$core$Maybe$withDefault, state, newState);
-					case 'EditingBox':
-						var box = A2(
-							_elm_lang$core$Maybe$map,
-							function (box) {
-								return A2(
-									_joefiorini$flittal$Box_Controller$step,
-									_joefiorini$flittal$Box_Msg$Editing(_p3._1),
-									box);
-							},
-							A2(_joefiorini$flittal$Board_Controller$boxForKey, _p3._0, state.boxes));
-						var newState = A2(
-							_elm_lang$core$Maybe$map,
-							function (box) {
-								return _elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box)
-									});
-							},
-							box);
-						return A2(
-							_elm_lang$core$Debug$log,
-							'Canceling edit',
-							A2(_elm_lang$core$Maybe$withDefault, state, newState));
-					case 'EditingSelectedBox':
-						var selectedBox = _elm_lang$core$List$head(
-							A2(
-								_elm_lang$core$List$filter,
-								function (b) {
-									return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
-								},
-								state.boxes));
-						var newState = A2(
-							_elm_lang$core$Maybe$map,
-							function (box) {
-								return _elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: A2(
-											_joefiorini$flittal$Board_Controller$replaceBox,
-											state.boxes,
-											A2(
-												_joefiorini$flittal$Box_Controller$step,
-												_joefiorini$flittal$Box_Msg$Editing(_p3._0),
-												box))
-									});
-							},
-							selectedBox);
-						return A2(_elm_lang$core$Maybe$withDefault, state, newState);
-					case 'BoxAction':
-						switch (_p3._0.ctor) {
-							case 'CancelEditingBox':
-								var box_ = A2(_joefiorini$flittal$Box_Controller$step, _joefiorini$flittal$Box_Msg$CancelEditing, _p3._0._0);
-								var boxes_ = A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box_);
-								return _elm_lang$core$Native_Utils.update(
-									state,
-									{
-										boxes: deselectBoxes(boxes_)
-									});
-							case 'EditingBox':
-								var box_ = A2(
-									_joefiorini$flittal$Box_Controller$step,
-									_joefiorini$flittal$Box_Msg$Editing(_p3._0._1),
-									_p3._0._0);
-								return A2(
-									_elm_lang$core$Debug$log,
-									'editing box',
-									_elm_lang$core$Native_Utils.update(
-										state,
-										{
-											boxes: A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box_)
-										}));
-							case 'UpdateBox':
-								return A2(
-									_elm_lang$core$Debug$log,
-									'Box.UpdateBox',
-									_elm_lang$core$Native_Utils.update(
-										state,
-										{
-											boxes: A2(
-												_joefiorini$flittal$Board_Controller$replaceBox,
-												state.boxes,
-												A2(
-													_joefiorini$flittal$Box_Controller$step,
-													_joefiorini$flittal$Box_Msg$Update(_p3._0._1),
-													_p3._0._0))
-										}));
-							default:
-								break _v0_21;
-						}
-					case 'Drop':
-						var moveAllSelectedBoxes = function (boxes) {
-							return A2(
-								_elm_lang$core$List$map,
-								updateSelectedBoxes(
-									_joefiorini$flittal$Box_Msg$Drop(_p3._1)),
-								boxes);
-						};
-						var draggingBox = _elm_lang$core$List$map(
-							updateSelectedBoxes(_joefiorini$flittal$Box_Msg$Dragging));
-						var updateBoxes = function (_p12) {
-							return draggingBox(
-								moveAllSelectedBoxes(_p12));
-						};
-						return A4(
-							_elm_lang$core$Debug$log,
-							'moved box',
-							_joefiorini$flittal$Board_Controller$step,
-							_joefiorini$flittal$Board_Msg$ReconnectSelections,
-							_elm_lang$core$Native_Utils.update(
-								state,
-								{
-									boxes: updateBoxes(state.boxes)
-								}));
-					case 'ReconnectSelections':
-						return _elm_lang$core$Native_Utils.update(
-							state,
-							{
-								connections: A3(_joefiorini$flittal$Connection_Controller$boxMap, _joefiorini$flittal$Connection_Controller$connectBoxes, state.boxes, state.connections)
-							});
-					case 'ConnectSelections':
-						return (_elm_lang$core$Native_Utils.cmp(
-							_elm_lang$core$List$length(
-								selectedBoxes(state.boxes)),
-							2) < 0) ? state : A2(
-							_elm_lang$core$Debug$log,
-							'Connecting Selections',
-							_elm_lang$core$Native_Utils.update(
-								state,
-								{
-									connections: A2(
-										_joefiorini$flittal$Connection_Controller$buildConnections,
-										state.connections,
-										A2(
-											_elm_lang$core$Debug$log,
-											'Selected Boxes',
-											selectedBoxes(state.boxes)))
-								}));
-					case 'DisconnectSelections':
-						var selectedBoxes = A2(_elm_lang$core$List$filter, _joefiorini$flittal$Box_Model$isSelected, state.boxes);
-						var connectionish = function () {
-							var _p13 = selectedBoxes;
-							if (((_p13.ctor === '::') && (_p13._1.ctor === '::')) && (_p13._1._1.ctor === '[]')) {
-								return _elm_lang$core$Maybe$Just(
-									A2(
-										_elm_lang$core$List$filter,
-										A2(_joefiorini$flittal$Connection_Controller$onBoxes, _p13._0, _p13._1._0),
-										state.connections));
-							} else {
-								return _elm_lang$core$Maybe$Nothing;
-							}
-						}();
-						var filtered = A2(
-							_elm_lang$core$Maybe$map,
-							function (c) {
-								var _p14 = c;
-								if (_p14.ctor === '[]') {
-									return state.connections;
-								} else {
-									return A2(
-										_elm_lang$core$List$filter,
-										F2(
-											function (x, y) {
-												return !_elm_lang$core$Native_Utils.eq(x, y);
-											})(_p14._0),
-										state.connections);
-								}
-							},
-							connectionish);
-						var _p15 = filtered;
-						if (_p15.ctor === 'Just') {
-							return _elm_lang$core$Native_Utils.update(
-								state,
-								{connections: _p15._0});
+								});
+						},
+						nextBox);
+					return A2(_elm_lang$core$Maybe$withDefault, state, newState);
+				case 'SelectPreviousBox':
+					var selections = A2(
+						_elm_lang$core$List$filter,
+						_joefiorini$flittal$Box_Model$isSelected,
+						_joefiorini$flittal$Board_Controller$sortRightToLeft(state.boxes));
+					var nextBox = function () {
+						var sortedBoxes = _joefiorini$flittal$Board_Controller$sortRightToLeft(state.boxes);
+						var _p10 = selections;
+						if (_p10.ctor === '[]') {
+							return _elm_lang$core$List$head(sortedBoxes);
 						} else {
-							return state;
+							var firstRight = A2(
+								_elm_community$list_extra$List_Extra$find,
+								function (box) {
+									return A2(_joefiorini$flittal$Connection_Controller$leftOf, box.position, _p10._0.position);
+								},
+								sortedBoxes);
+							var _p11 = firstRight;
+							if (_p11.ctor === 'Nothing') {
+								return _elm_lang$core$List$head(sortedBoxes);
+							} else {
+								return firstRight;
+							}
 						}
-					case 'DeleteSelections':
-						var isSelected = function (boxKey) {
-							return _elm_lang$core$Native_Utils.eq(
-								_elm_lang$core$List$length(
-									A3(
-										_joefiorini$flittal$Box_Model$filterKey,
-										function (_p16) {
-											return !_joefiorini$flittal$Box_Model$isSelected(_p16);
-										},
-										boxKey,
-										state.boxes)),
-								1);
-						};
-						return A2(
-							_elm_lang$core$Debug$log,
-							'Deleting Selections',
-							_elm_lang$core$Native_Utils.update(
+					}();
+					var newState = A2(
+						_elm_lang$core$Maybe$map,
+						function (next) {
+							return _elm_lang$core$Native_Utils.update(
 								state,
 								{
 									boxes: A2(
-										_elm_lang$core$List$filter,
-										function (_p17) {
-											return !_joefiorini$flittal$Box_Model$isSelected(_p17);
+										_elm_lang$core$List$map,
+										function (box) {
+											return A3(
+												_joefiorini$flittal$Board_Controller$updateBoxInState,
+												next.key,
+												_joefiorini$flittal$Box_Msg$SetSelected(0),
+												box);
 										},
-										state.boxes),
-									connections: A2(
-										_elm_lang$core$List$filter,
-										function (c) {
-											return isSelected(c.startBox) && isSelected(c.endBox);
-										},
-										state.connections)
-								}));
-					case 'ResizeBox':
-						var updateBoxes = _elm_lang$core$List$map(
+										deselectBoxes(state.boxes))
+								});
+						},
+						nextBox);
+					return A2(_elm_lang$core$Maybe$withDefault, state, newState);
+				case 'EditingBox':
+					var box = A2(
+						_elm_lang$core$Maybe$map,
+						function (box) {
+							return A2(
+								_joefiorini$flittal$Box_Controller$step,
+								_joefiorini$flittal$Box_Msg$Editing(_p3._1),
+								box);
+						},
+						A2(_joefiorini$flittal$Board_Controller$boxForKey, _p3._0, state.boxes));
+					var newState = A2(
+						_elm_lang$core$Maybe$map,
+						function (box) {
+							return _elm_lang$core$Native_Utils.update(
+								state,
+								{
+									boxes: A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box)
+								});
+						},
+						box);
+					return A2(_elm_lang$core$Maybe$withDefault, state, newState);
+				case 'EditingSelectedBox':
+					var selectedBox = _elm_lang$core$List$head(
+						A2(
+							_elm_lang$core$List$filter,
+							function (b) {
+								return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
+							},
+							state.boxes));
+					var newState = A2(
+						_elm_lang$core$Maybe$map,
+						function (box) {
+							return _elm_lang$core$Native_Utils.update(
+								state,
+								{
+									boxes: A2(
+										_joefiorini$flittal$Board_Controller$replaceBox,
+										state.boxes,
+										A2(
+											_joefiorini$flittal$Box_Controller$step,
+											_joefiorini$flittal$Box_Msg$Editing(_p3._0),
+											box))
+								});
+						},
+						selectedBox);
+					return A2(_elm_lang$core$Maybe$withDefault, state, newState);
+				case 'Drop':
+					var moveAllSelectedBoxes = function (boxes) {
+						return A2(
+							_elm_lang$core$List$map,
 							updateSelectedBoxes(
-								_joefiorini$flittal$Box_Msg$Resize(_p3._0)));
-						var _v8 = _joefiorini$flittal$Board_Msg$ReconnectSelections,
-							_v9 = _elm_lang$core$Native_Utils.update(
-							state,
-							{
-								boxes: updateBoxes(state.boxes)
-							});
-						update = _v8;
-						state = _v9;
-						continue step;
-					case 'UpdateBoxColor':
+								_joefiorini$flittal$Box_Msg$Drop(_p3._1)),
+							boxes);
+					};
+					var draggingBox = _elm_lang$core$List$map(
+						updateSelectedBoxes(_joefiorini$flittal$Box_Msg$Dragging));
+					var updateBoxes = function (_p12) {
+						return draggingBox(
+							moveAllSelectedBoxes(_p12));
+					};
+					var _v5 = _joefiorini$flittal$Board_Msg$ReconnectSelections,
+						_v6 = _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+					update = _v5;
+					state = _v6;
+					continue step;
+				case 'ReconnectSelections':
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							connections: A3(_joefiorini$flittal$Connection_Controller$boxMap, _joefiorini$flittal$Connection_Controller$connectBoxes, state.boxes, state.connections)
+						});
+				case 'ConnectSelections':
+					return (_elm_lang$core$Native_Utils.cmp(
+						_elm_lang$core$List$length(
+							selectedBoxes(state.boxes)),
+						2) < 0) ? state : _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							connections: A2(
+								_joefiorini$flittal$Connection_Controller$buildConnections,
+								state.connections,
+								selectedBoxes(state.boxes))
+						});
+				case 'DisconnectSelections':
+					var selectedBoxes = A2(_elm_lang$core$List$filter, _joefiorini$flittal$Box_Model$isSelected, state.boxes);
+					var connectionish = function () {
+						var _p13 = selectedBoxes;
+						if (((_p13.ctor === '::') && (_p13._1.ctor === '::')) && (_p13._1._1.ctor === '[]')) {
+							return _elm_lang$core$Maybe$Just(
+								A2(
+									_elm_lang$core$List$filter,
+									A2(_joefiorini$flittal$Connection_Controller$onBoxes, _p13._0, _p13._1._0),
+									state.connections));
+						} else {
+							return _elm_lang$core$Maybe$Nothing;
+						}
+					}();
+					var filtered = A2(
+						_elm_lang$core$Maybe$map,
+						function (c) {
+							var _p14 = c;
+							if (_p14.ctor === '[]') {
+								return state.connections;
+							} else {
+								return A2(
+									_elm_lang$core$List$filter,
+									F2(
+										function (x, y) {
+											return !_elm_lang$core$Native_Utils.eq(x, y);
+										})(_p14._0),
+									state.connections);
+							}
+						},
+						connectionish);
+					var _p15 = filtered;
+					if (_p15.ctor === 'Just') {
 						return _elm_lang$core$Native_Utils.update(
 							state,
-							{
-								boxes: A2(
-									_elm_lang$core$List$map,
-									updateSelectedBoxes(
-										_joefiorini$flittal$Box_Msg$UpdateColor(_p3._0)),
-									state.boxes)
-							});
-					case 'MoveBox':
-						var updateBoxes = _elm_lang$core$List$map(
-							updateSelectedBoxes(
-								A2(_joefiorini$flittal$Box_Msg$Move, _p3._0, _p3._1)));
-						var _v10 = _joefiorini$flittal$Board_Msg$ReconnectSelections,
-							_v11 = _elm_lang$core$Native_Utils.update(
-							state,
-							{
-								boxes: updateBoxes(state.boxes)
-							});
-						update = _v10;
-						state = _v11;
-						continue step;
-					case 'ClearBoard':
-						return _joefiorini$flittal$Board_Controller$startingState;
-					default:
-						break _v0_21;
-				}
-			} while(false);
-			return state;
+							{connections: _p15._0});
+					} else {
+						return state;
+					}
+				case 'DeleteSelections':
+					var isSelected = function (boxKey) {
+						return _elm_lang$core$Native_Utils.eq(
+							_elm_lang$core$List$length(
+								A3(
+									_joefiorini$flittal$Box_Model$filterKey,
+									function (_p16) {
+										return !_joefiorini$flittal$Box_Model$isSelected(_p16);
+									},
+									boxKey,
+									state.boxes)),
+							1);
+					};
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: A2(
+								_elm_lang$core$List$filter,
+								function (_p17) {
+									return !_joefiorini$flittal$Box_Model$isSelected(_p17);
+								},
+								state.boxes),
+							connections: A2(
+								_elm_lang$core$List$filter,
+								function (c) {
+									return isSelected(c.startBox) && isSelected(c.endBox);
+								},
+								state.connections)
+						});
+				case 'ResizeBox':
+					var updateBoxes = _elm_lang$core$List$map(
+						updateSelectedBoxes(
+							_joefiorini$flittal$Box_Msg$Resize(_p3._0)));
+					var _v10 = _joefiorini$flittal$Board_Msg$ReconnectSelections,
+						_v11 = _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+					update = _v10;
+					state = _v11;
+					continue step;
+				case 'UpdateBoxColor':
+					return _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: A2(
+								_elm_lang$core$List$map,
+								updateSelectedBoxes(
+									_joefiorini$flittal$Box_Msg$UpdateColor(_p3._0)),
+								state.boxes)
+						});
+				case 'MoveBox':
+					var updateBoxes = _elm_lang$core$List$map(
+						updateSelectedBoxes(
+							A2(_joefiorini$flittal$Box_Msg$Move, _p3._0, _p3._1)));
+					var _v12 = _joefiorini$flittal$Board_Msg$ReconnectSelections,
+						_v13 = _elm_lang$core$Native_Utils.update(
+						state,
+						{
+							boxes: updateBoxes(state.boxes)
+						});
+					update = _v12;
+					state = _v13;
+					continue step;
+				case 'ClearBoard':
+					return _joefiorini$flittal$Board_Controller$startingState;
+				case 'BoxAction':
+					switch (_p3._0.ctor) {
+						case 'CancelEditingBox':
+							var box_ = A2(_joefiorini$flittal$Box_Controller$step, _joefiorini$flittal$Box_Msg$CancelEditing, _p3._0._0);
+							var boxes_ = A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box_);
+							return _elm_lang$core$Native_Utils.update(
+								state,
+								{
+									boxes: deselectBoxes(boxes_)
+								});
+						case 'EditingBox':
+							var box_ = A2(
+								_joefiorini$flittal$Box_Controller$step,
+								_joefiorini$flittal$Box_Msg$Editing(_p3._0._1),
+								_p3._0._0);
+							return _elm_lang$core$Native_Utils.update(
+								state,
+								{
+									boxes: A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box_)
+								});
+						case 'UpdateBox':
+							return _elm_lang$core$Native_Utils.update(
+								state,
+								{
+									boxes: A2(
+										_joefiorini$flittal$Board_Controller$replaceBox,
+										state.boxes,
+										A2(
+											_joefiorini$flittal$Box_Controller$step,
+											_joefiorini$flittal$Box_Msg$Update(_p3._0._1),
+											_p3._0._0))
+								});
+						default:
+							return state;
+					}
+				default:
+					return state;
+			}
 		}
 	});
 var _joefiorini$flittal$Board_Controller$moveBoxAction = function (event) {
@@ -19860,26 +19765,21 @@ var _joefiorini$flittal$Board_Controller$buildSelectAction = function (event) {
 		var _p22 = _p21._0;
 		return event.mouseEvent.keys.shift ? _joefiorini$flittal$Board_Msg$SelectBoxMulti(_p22) : _joefiorini$flittal$Board_Msg$SelectBox(_p22);
 	} else {
-		return A2(_elm_lang$core$Debug$log, 'deselect', _joefiorini$flittal$Board_Msg$DeselectBoxes);
+		return _joefiorini$flittal$Board_Msg$DeselectBoxes;
 	}
 };
 var _joefiorini$flittal$Board_Controller$entersEditMode = function (update) {
-	return A2(
-		_elm_lang$core$Debug$log,
-		'entersEditMode',
-		function () {
-			var _p23 = update;
-			switch (_p23.ctor) {
-				case 'EditingBox':
-					return _p23._1;
-				case 'EditingSelectedBox':
-					return _p23._0;
-				case 'BoxAction':
-					return _joefiorini$flittal$Box_Controller$entersEditMode(_p23._0);
-				default:
-					return false;
-			}
-		}());
+	var _p23 = update;
+	switch (_p23.ctor) {
+		case 'EditingBox':
+			return _p23._1;
+		case 'EditingSelectedBox':
+			return _p23._0;
+		case 'BoxAction':
+			return _joefiorini$flittal$Box_Controller$entersEditMode(_p23._0);
+		default:
+			return false;
+	}
 };
 var _joefiorini$flittal$Board_Controller$targetDecoder = A2(
 	_elm_lang$core$Json_Decode$at,
@@ -20800,7 +20700,7 @@ var _joefiorini$flittal$Main$startingState = F2(
 	});
 var _joefiorini$flittal$Main$step = F2(
 	function (update, state) {
-		var _p10 = A2(_elm_lang$core$Debug$log, 'update', update);
+		var _p10 = update;
 		switch (_p10.ctor) {
 			case 'LoadedState':
 				return A3(
@@ -20897,7 +20797,7 @@ var _joefiorini$flittal$Main$step = F2(
 						state,
 						{
 							currentBoard: A2(_joefiorini$flittal$Board_Controller$step, _p15, history_.present),
-							boardHistory: A2(_elm_lang$core$Debug$log, 'new history', history_)
+							boardHistory: history_
 						}),
 					{
 						ctor: '::',
@@ -21034,7 +20934,7 @@ var _joefiorini$flittal$Main$AppState = F6(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _joefiorini$flittal$Main$main !== 'undefined') {
-    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Partials.Toolbar.Msg":{"args":[],"tags":{"ShareBoard":[],"ClearBoard":[],"NoOp":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ToolbarUpdate":["Partials.Toolbar.Msg"],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"SerializeState":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"CancelEditingBox":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
+    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Partials.Toolbar.Msg":{"args":[],"tags":{"ShareBoard":[],"ClearBoard":[],"NoOp":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ToolbarUpdate":["Partials.Toolbar.Msg"],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"SerializeState":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

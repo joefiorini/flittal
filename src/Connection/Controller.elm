@@ -151,8 +151,8 @@ mlt a b =
 within : Calculation -> Int -> Calculation
 within calculation threshold =
     { calculation
-        | lowerClamp = Just <| Debug.log "lowerClamp" (calculation.location1 - threshold)
-        , upperClamp = Just <| Debug.log "upperClamp" (calculation.location2 + threshold)
+        | lowerClamp = Just <| calculation.location1 - threshold
+        , upperClamp = Just <| calculation.location2 + threshold
     }
 
 
@@ -300,51 +300,45 @@ portLocations leftBox rightBox =
             (max w1 w2)
     in
         if below p1 p2 && leftOf p1 p2 then
-            Debug.log "p1 below p2 && p1 leftOf p2" <|
-                (if widthDiff <= maxWidth then
-                    { start = topPort leftBox, end = bottomPort rightBox, order = StartEnd }
-                 else if heightDiff > maxHeight then
-                    { start = rightPort leftBox, end = bottomPort rightBox, order = StartEnd }
-                 else
-                    { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
-                )
+            (if widthDiff <= maxWidth then
+                { start = topPort leftBox, end = bottomPort rightBox, order = StartEnd }
+             else if heightDiff > maxHeight then
+                { start = rightPort leftBox, end = bottomPort rightBox, order = StartEnd }
+             else
+                { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
+            )
         else if below p1 p2 && leftOf p2 p1 then
-            -- left leftBox - bottom rightBox
-            -- left leftBox - right rightBox
-            Debug.log "p1 below p2 && p2 leftOf p1" <|
-                (if widthDiff <= maxWidth then
-                    { start = topPort leftBox, end = bottomPort rightBox, order = EndStart }
-                 else if heightDiff > maxHeight then
-                    { start = leftPort leftBox, end = bottomPort rightBox, order = EndStart }
-                 else
-                    { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
-                )
+            (if widthDiff <= maxWidth then
+                { start = topPort leftBox, end = bottomPort rightBox, order = EndStart }
+             else if heightDiff > maxHeight then
+                { start = leftPort leftBox, end = bottomPort rightBox, order = EndStart }
+             else
+                { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
+            )
         else if below p2 p1 && leftOf p1 p2 then
-            Debug.log "p2 below p1 && p1 leftOf p2" <|
-                (if widthDiff <= maxWidth then
-                    { start = bottomPort leftBox, end = topPort rightBox, order = StartEnd }
-                 else if heightDiff > maxHeight then
-                    { start = bottomPort leftBox, end = leftPort rightBox, order = StartEnd }
-                 else
-                    { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
-                )
+            (if widthDiff <= maxWidth then
+                { start = bottomPort leftBox, end = topPort rightBox, order = StartEnd }
+             else if heightDiff > maxHeight then
+                { start = bottomPort leftBox, end = leftPort rightBox, order = StartEnd }
+             else
+                { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
+            )
         else if below p2 p1 && leftOf p2 p1 then
-            Debug.log "p2 below p1 && p2 leftOf p1" <|
-                (if widthDiff <= maxWidth then
-                    { start = bottomPort leftBox, end = topPort rightBox, order = EndStart }
-                 else if heightDiff > maxHeight then
-                    { start = bottomPort leftBox, end = rightPort rightBox, order = EndStart }
-                 else
-                    { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
-                )
+            (if widthDiff <= maxWidth then
+                { start = bottomPort leftBox, end = topPort rightBox, order = EndStart }
+             else if heightDiff > maxHeight then
+                { start = bottomPort leftBox, end = rightPort rightBox, order = EndStart }
+             else
+                { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
+            )
         else if leftOf p1 p2 then
-            Debug.log "p1 leftOf p2" { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
+            { start = rightPort leftBox, end = leftPort rightBox, order = StartEnd }
         else if leftOf p2 p1 then
-            Debug.log "p2 leftOf p1" { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
+            { start = rightPort rightBox, end = leftPort leftBox, order = EndStart }
         else if below p1 p2 then
-            Debug.log "p1 below p2" { start = topPort leftBox, end = bottomPort rightBox, order = EndStart }
+            { start = topPort leftBox, end = bottomPort rightBox, order = EndStart }
         else if below p2 p1 then
-            Debug.log "p2 below p1" { start = bottomPort leftBox, end = topPort rightBox, order = StartEnd }
+            { start = bottomPort leftBox, end = topPort rightBox, order = StartEnd }
         else
             Debug.crash ("cases exhausted in portLocations:\np1:" ++ (toString p1) ++ "\np2:" ++ (toString p2))
 
@@ -381,124 +375,122 @@ buildSegments { start, end, order } =
             , layout = Vertical
             }
     in
-        Debug.log "drawing segments" <|
-            case Debug.log "buildSegments from" ( start, end ) of
-                ( Right p1, Left p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+        case ( start, end ) of
+            ( Right p1, Left p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
+                    ( x2, y2 ) =
+                        p2
 
-                        midx =
-                            midPoint <| x2 + x1
+                    midx =
+                        midPoint <| x2 + x1
 
-                        yVals =
-                            case order of
-                                StartEnd ->
-                                    ( y1, y2 )
+                    yVals =
+                        case order of
+                            StartEnd ->
+                                ( y1, y2 )
 
-                                EndStart ->
-                                    ( y2, y1 )
-                    in
-                        Debug.log "StartEnd" <|
-                            if y1 == y2 then
-                                [ horizontalSegment p1 p2 ]
-                            else if y1 > y2 then
-                                [ horizontalSegment p1 ( midx, y1 )
-                                , verticalSegment ( midx, Tuple.first yVals ) ( midx, Tuple.second yVals )
-                                , horizontalSegment ( midx, y2 ) p2
-                                ]
-                            else
-                                [ horizontalSegment p1 ( midx, y1 )
-                                , verticalSegment ( midx, Tuple.second yVals ) ( midx, Tuple.first yVals )
-                                , horizontalSegment ( midx, y2 ) p2
-                                ]
+                            EndStart ->
+                                ( y2, y1 )
+                in
+                    if y1 == y2 then
+                        [ horizontalSegment p1 p2 ]
+                    else if y1 > y2 then
+                        [ horizontalSegment p1 ( midx, y1 )
+                        , verticalSegment ( midx, Tuple.first yVals ) ( midx, Tuple.second yVals )
+                        , horizontalSegment ( midx, y2 ) p2
+                        ]
+                    else
+                        [ horizontalSegment p1 ( midx, y1 )
+                        , verticalSegment ( midx, Tuple.second yVals ) ( midx, Tuple.first yVals )
+                        , horizontalSegment ( midx, y2 ) p2
+                        ]
 
-                ( Right p1, Bottom p2 ) ->
-                    [ horizontalSegment p1 p2, verticalSegment p1 p2 ]
+            ( Right p1, Bottom p2 ) ->
+                [ horizontalSegment p1 p2, verticalSegment p1 p2 ]
 
-                ( Bottom p1, Right p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+            ( Bottom p1, Right p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
-                    in
-                        [ verticalSegment p1 p2, horizontalSegment ( x2, y2 ) ( x1, y2 ) ]
+                    ( x2, y2 ) =
+                        p2
+                in
+                    [ verticalSegment p1 p2, horizontalSegment ( x2, y2 ) ( x1, y2 ) ]
 
-                ( Bottom p1, Left p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+            ( Bottom p1, Left p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
-                    in
-                        [ verticalSegment p1 p2, horizontalSegment ( x1, y2 ) p2 ]
+                    ( x2, y2 ) =
+                        p2
+                in
+                    [ verticalSegment p1 p2, horizontalSegment ( x1, y2 ) p2 ]
 
-                ( Left p1, Bottom p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+            ( Left p1, Bottom p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
-                    in
-                        [ horizontalSegment ( x2, y1 ) p1, verticalSegment ( x2, y1 ) p2 ]
+                    ( x2, y2 ) =
+                        p2
+                in
+                    [ horizontalSegment ( x2, y1 ) p1, verticalSegment ( x2, y1 ) p2 ]
 
-                ( Bottom p1, Top p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+            ( Bottom p1, Top p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
+                    ( x2, y2 ) =
+                        p2
 
-                        midy =
-                            midPoint <| y2 + y1
-                    in
-                        if x1 == x2 then
-                            [ verticalSegment p1 p2 ]
-                        else if x1 > x2 then
-                            [ verticalSegment p1 ( x1, midy )
-                            , horizontalSegment ( x2, midy ) ( x1, midy )
-                            , verticalSegment ( x2, midy ) p2
-                            ]
-                        else
-                            [ verticalSegment p1 ( x1, midy )
-                            , horizontalSegment ( x1, midy ) ( x2, midy )
-                            , verticalSegment ( x2, midy ) p2
-                            ]
+                    midy =
+                        midPoint <| y2 + y1
+                in
+                    if x1 == x2 then
+                        [ verticalSegment p1 p2 ]
+                    else if x1 > x2 then
+                        [ verticalSegment p1 ( x1, midy )
+                        , horizontalSegment ( x2, midy ) ( x1, midy )
+                        , verticalSegment ( x2, midy ) p2
+                        ]
+                    else
+                        [ verticalSegment p1 ( x1, midy )
+                        , horizontalSegment ( x1, midy ) ( x2, midy )
+                        , verticalSegment ( x2, midy ) p2
+                        ]
 
-                ( Top p1, Bottom p2 ) ->
-                    let
-                        ( x1, y1 ) =
-                            p1
+            ( Top p1, Bottom p2 ) ->
+                let
+                    ( x1, y1 ) =
+                        p1
 
-                        ( x2, y2 ) =
-                            p2
+                    ( x2, y2 ) =
+                        p2
 
-                        midy =
-                            midPoint <| y2 + y1
-                    in
-                        if x1 == x2 then
-                            [ verticalSegment p1 p2 ]
-                        else if x1 > x2 then
-                            [ verticalSegment p1 ( x1, midy )
-                            , horizontalSegment ( x2, midy ) ( x1, midy )
-                            , verticalSegment ( x2, midy ) p2
-                            ]
-                        else
-                            [ verticalSegment p1 ( x1, midy )
-                            , horizontalSegment ( x1, midy ) ( x2, midy )
-                            , verticalSegment ( x2, midy ) p2
-                            ]
+                    midy =
+                        midPoint <| y2 + y1
+                in
+                    if x1 == x2 then
+                        [ verticalSegment p1 p2 ]
+                    else if x1 > x2 then
+                        [ verticalSegment p1 ( x1, midy )
+                        , horizontalSegment ( x2, midy ) ( x1, midy )
+                        , verticalSegment ( x2, midy ) p2
+                        ]
+                    else
+                        [ verticalSegment p1 ( x1, midy )
+                        , horizontalSegment ( x1, midy ) ( x2, midy )
+                        , verticalSegment ( x2, midy ) p2
+                        ]
 
-                otherwise ->
-                    Debug.crash ("cases exhausted in buildSegments" ++ toString ( start, end ))
+            otherwise ->
+                Debug.crash ("cases exhausted in buildSegments" ++ toString ( start, end ))
 
 
 boxMap : (Box -> Box -> Model) -> List Box -> List Model -> List Model

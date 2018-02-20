@@ -239,13 +239,9 @@ initTimeMachine appState =
         { appState | boardHistory = history }
 
 
-
--- restoreStateFromHistory : TimeMachine.History ->
-
-
 step : Msg -> AppState -> ( AppState, Cmd Msg )
 step update state =
-    case Debug.log "update" update of
+    case update of
         LoadedState deserializedState ->
             deserializedState
                 |> decodeString decodeAppState
@@ -310,7 +306,7 @@ step update state =
             in
                 { state
                     | currentBoard = (Board.step u history_.present)
-                    , boardHistory = Debug.log "new history" history_
+                    , boardHistory = history_
                 }
                     ! [ cmd ]
 

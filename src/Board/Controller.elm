@@ -68,19 +68,18 @@ targetDecoder =
 
 entersEditMode : Msg -> Bool
 entersEditMode update =
-    Debug.log "entersEditMode" <|
-        case update of
-            EditingBox _ toggle ->
-                toggle
+    case update of
+        EditingBox _ toggle ->
+            toggle
 
-            EditingSelectedBox toggle ->
-                toggle
+        EditingSelectedBox toggle ->
+            toggle
 
-            BoxAction a ->
-                Box.entersEditMode a
+        BoxAction a ->
+            Box.entersEditMode a
 
-            otherwise ->
-                False
+        otherwise ->
+            False
 
 
 buildSelectAction : MouseWithTarget -> Msg
@@ -97,7 +96,7 @@ buildSelectAction event =
                     SelectBox key
 
             Nothing ->
-                Debug.log "deselect" DeselectBoxes
+                DeselectBoxes
 
 
 buildEditingAction : String -> Msg
@@ -245,7 +244,7 @@ step update state =
         deselectBoxes =
             List.map (\box -> { box | selectedIndex = -1 })
     in
-        case Debug.log "Performing update" update of
+        case update of
             NewBox ->
                 if isEditing state.boxes then
                     state
@@ -254,11 +253,10 @@ step update state =
                         newBox =
                             makeBox state.nextIdentifier
                     in
-                        Debug.log "newBox"
-                            { state
-                                | boxes = newBox :: (deselectBoxes state.boxes)
-                                , nextIdentifier = state.nextIdentifier + 1
-                            }
+                        { state
+                            | boxes = newBox :: (deselectBoxes state.boxes)
+                            , nextIdentifier = state.nextIdentifier + 1
+                        }
 
             BoxAction (Box.Msg.CancelEditingBox box) ->
                 let
@@ -281,15 +279,14 @@ step update state =
                     { state | boxes = updateBoxes state.boxes }
 
             SelectBoxMulti id ->
-                Debug.log "adding box to selection"
-                    { state
-                        | boxes =
-                            state.boxes
-                                |> List.map
-                                    (\box ->
-                                        updateBoxInState id (nextSelectedIndex state.boxes |> Box.Msg.SetSelected) box
-                                    )
-                    }
+                { state
+                    | boxes =
+                        state.boxes
+                            |> List.map
+                                (\box ->
+                                    updateBoxInState id (nextSelectedIndex state.boxes |> Box.Msg.SetSelected) box
+                                )
+                }
 
             DraggingBox id ->
                 let
@@ -305,7 +302,7 @@ step update state =
                     updateBoxes =
                         selectedBox >> draggingBox
                 in
-                    Debug.log "started dragging" { state | boxes = updateBoxes state.boxes }
+                    { state | boxes = updateBoxes state.boxes }
 
             SelectBox id ->
                 let
@@ -315,7 +312,7 @@ step update state =
                     updateBoxes =
                         deselectBoxes >> selectedBox
                 in
-                    Debug.log "selecting box" { state | boxes = updateBoxes state.boxes }
+                    { state | boxes = updateBoxes state.boxes }
 
             SelectNextBox ->
                 let
@@ -327,9 +324,9 @@ step update state =
                             sortedBoxes =
                                 sortLeftToRight state.boxes
                         in
-                            case Debug.log "selections" selections of
+                            case selections of
                                 [] ->
-                                    List.head <| Debug.log "all sorted" sortedBoxes
+                                    List.head <| sortedBoxes
 
                                 current :: _ ->
                                     let
@@ -367,9 +364,9 @@ step update state =
                             sortedBoxes =
                                 sortRightToLeft state.boxes
                         in
-                            case Debug.log "selections" selections of
+                            case selections of
                                 [] ->
-                                    List.head <| Debug.log "all sorted" sortedBoxes
+                                    List.head <| sortedBoxes
 
                                 current :: _ ->
                                     let
@@ -405,14 +402,14 @@ step update state =
                     newState =
                         Maybe.map (\box -> { state | boxes = replaceBox state.boxes box }) box
                 in
-                    Debug.log "Canceling edit" (Maybe.withDefault state newState)
+                    (Maybe.withDefault state newState)
 
             BoxAction (Box.Msg.EditingBox box toggle) ->
                 let
                     box_ =
                         Box.step (Box.Msg.Editing toggle) box
                 in
-                    Debug.log "editing box" { state | boxes = replaceBox state.boxes <| box_ }
+                    { state | boxes = replaceBox state.boxes <| box_ }
 
             EditingSelectedBox toggle ->
                 let
@@ -432,7 +429,7 @@ step update state =
                     Maybe.withDefault state newState
 
             BoxAction (Box.Msg.UpdateBox box label) ->
-                Debug.log "Box.UpdateBox" { state | boxes = replaceBox state.boxes <| Box.step (Box.Msg.Update label) box }
+                { state | boxes = replaceBox state.boxes <| Box.step (Box.Msg.Update label) box }
 
             Drop key event ->
                 let
@@ -445,8 +442,7 @@ step update state =
                     updateBoxes =
                         moveAllSelectedBoxes >> draggingBox
                 in
-                    Debug.log "moved box"
-                        step
+                    step
                         ReconnectSelections
                         { state | boxes = updateBoxes state.boxes }
 
@@ -463,13 +459,11 @@ step update state =
                 if List.length (selectedBoxes state.boxes) < 2 then
                     state
                 else
-                    Debug.log "Connecting Selections"
-                        { state
-                            | connections =
-                                Connection.buildConnections state.connections <|
-                                    Debug.log "Selected Boxes" <|
-                                        selectedBoxes state.boxes
-                        }
+                    { state
+                        | connections =
+                            Connection.buildConnections state.connections <|
+                                selectedBoxes state.boxes
+                    }
 
             DisconnectSelections ->
                 let
@@ -509,17 +503,16 @@ step update state =
                         List.length (Box.Model.filterKey (not << Box.Model.isSelected) boxKey state.boxes)
                             == 1
                 in
-                    Debug.log "Deleting Selections"
-                        { state
-                            | boxes = List.filter (not << Box.Model.isSelected) state.boxes
-                            , connections =
-                                List.filter
-                                    (\c ->
-                                        (isSelected c.startBox)
-                                            && (isSelected c.endBox)
-                                    )
-                                    state.connections
-                        }
+                    { state
+                        | boxes = List.filter (not << Box.Model.isSelected) state.boxes
+                        , connections =
+                            List.filter
+                                (\c ->
+                                    (isSelected c.startBox)
+                                        && (isSelected c.endBox)
+                                )
+                                state.connections
+                    }
 
             ResizeBox mode ->
                 let
@@ -541,5 +534,8 @@ step update state =
             ClearBoard ->
                 startingState
 
-            _ ->
+            BoxAction _ ->
+                state
+
+            NoOp ->
                 state
