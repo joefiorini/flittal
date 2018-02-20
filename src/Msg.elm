@@ -4,6 +4,7 @@ import Board.Msg
 import Partials.Toolbar as Toolbar
 import Navigation
 import Keyboard.Combo
+import Window exposing (Size)
 
 
 type Msg
@@ -18,3 +19,4 @@ type Msg
     | NewPage String
     | KeyCombo Keyboard.Combo.Msg
     | ToggleHelp
+    | ResizeWindow Size

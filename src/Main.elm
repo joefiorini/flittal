@@ -13,6 +13,7 @@ import Json.Encode as Encode
 import Task
 import Dom
 import List
+import Window
 import Navigation exposing (Location)
 import Partials.About as About
 import Partials.Colophon as Colophon
@@ -31,18 +32,24 @@ import Geometry.Types as Geometry
 import Keyboard.Combo as Keys
 
 
+type alias Flags =
+    { windowSize : Window.Size
+    }
+
+
 type alias AppState =
     { currentBoard : Board.Board
     , boardHistory : UndoList Board.Board
     , navigationHistory : List Location
     , currentRoute : Routes.RouteName
     , keys : Keys.Model Msg
+    , windowSize : Window.Size
     }
 
 
-main : Program Never AppState Msg
+main : Program Flags AppState Msg
 main =
-    Navigation.program UrlChange
+    Navigation.programWithFlags UrlChange
         { init = startingState
         , view = container
         , update = step
@@ -158,13 +165,13 @@ keyboardCombos =
         ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp ]
 
 
-startingState : Location -> ( AppState, Cmd msg )
-startingState location =
+startingState : Flags -> Location -> ( AppState, Cmd msg )
+startingState flags location =
     let
         currentRoute =
             parseLocation location
     in
-        mkState [ location ] Board.startingState
+        mkState [ location ] flags.windowSize Board.startingState
             ! []
 
 
@@ -175,19 +182,20 @@ encodeAppState state =
         ]
 
 
-mkState : List Location -> Model -> AppState
-mkState navigationHistory board =
+mkState : List Location -> Window.Size -> Model -> AppState
+mkState navigationHistory windowSize board =
     { currentBoard = board
     , boardHistory = UndoList.fresh Board.startingState
     , currentRoute = Routes.Root
     , navigationHistory = navigationHistory
     , keys = Keys.init keyboardCombos KeyCombo
+    , windowSize = windowSize
     }
 
 
 decodeAppState : Decoder AppState
 decodeAppState =
-    Decode.map (mkState [])
+    Decode.map (mkState [] { width = 0, height = 0 })
         (field "currentBoard" Board.Model.decode)
 
 
@@ -208,6 +216,7 @@ subscriptions model =
         , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.loadedState LoadedState
         , Keys.subscriptions model.keys
+        , Window.resizes ResizeWindow
         ]
 
 
@@ -363,6 +372,9 @@ step update state =
                 _ ->
                     state ! [ Navigation.newUrl "/help" ]
 
+        ResizeWindow size ->
+            { state | windowSize = size } ! []
+
         NoOp ->
             state ! []
 
@@ -374,8 +386,7 @@ container state =
             Sidebar.view h
 
         offsetHeight =
-            -- TODO: Don't hard code this. get the actual height, if needed?
-            1024 - 52
+            state.windowSize.height - 52
 
         board =
             Board.view BoardUpdate state.currentBoard offsetHeight

@@ -180,7 +180,7 @@ function updateImgPaths(prefix) {
 }
 
 function start(flags) {
-  var board = Elm.Main.fullscreen();
+  var board = Elm.Main.fullscreen(flags);
 
   window.onload = () => {
     runApp(board);

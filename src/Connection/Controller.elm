@@ -523,10 +523,6 @@ boxMap f boxes connections =
         |> Maybe.Extra.values
 
 
-
--- TODO: Fix type error in List.foldl
-
-
 buildConnections : List Model -> List Box -> List Model
 buildConnections connections boxes =
     case boxes of

@@ -15415,6 +15415,128 @@ var _elm_lang$navigation$Navigation$onEffects = F4(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Navigation'] = {pkg: 'elm-lang/navigation', init: _elm_lang$navigation$Navigation$init, onEffects: _elm_lang$navigation$Navigation$onEffects, onSelfMsg: _elm_lang$navigation$Navigation$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$navigation$Navigation$cmdMap, subMap: _elm_lang$navigation$Navigation$subMap};
 
+var _elm_lang$window$Native_Window = function()
+{
+
+var size = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)	{
+	callback(_elm_lang$core$Native_Scheduler.succeed({
+		width: window.innerWidth,
+		height: window.innerHeight
+	}));
+});
+
+return {
+	size: size
+};
+
+}();
+var _elm_lang$window$Window_ops = _elm_lang$window$Window_ops || {};
+_elm_lang$window$Window_ops['&>'] = F2(
+	function (task1, task2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return task2;
+			},
+			task1);
+	});
+var _elm_lang$window$Window$onSelfMsg = F3(
+	function (router, dimensions, state) {
+		var _p1 = state;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var send = function (_p2) {
+				var _p3 = _p2;
+				return A2(
+					_elm_lang$core$Platform$sendToApp,
+					router,
+					_p3._0(dimensions));
+			};
+			return A2(
+				_elm_lang$window$Window_ops['&>'],
+				_elm_lang$core$Task$sequence(
+					A2(_elm_lang$core$List$map, send, _p1._0.subs)),
+				_elm_lang$core$Task$succeed(state));
+		}
+	});
+var _elm_lang$window$Window$init = _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
+var _elm_lang$window$Window$size = _elm_lang$window$Native_Window.size;
+var _elm_lang$window$Window$width = A2(
+	_elm_lang$core$Task$map,
+	function (_) {
+		return _.width;
+	},
+	_elm_lang$window$Window$size);
+var _elm_lang$window$Window$height = A2(
+	_elm_lang$core$Task$map,
+	function (_) {
+		return _.height;
+	},
+	_elm_lang$window$Window$size);
+var _elm_lang$window$Window$onEffects = F3(
+	function (router, newSubs, oldState) {
+		var _p4 = {ctor: '_Tuple2', _0: oldState, _1: newSubs};
+		if (_p4._0.ctor === 'Nothing') {
+			if (_p4._1.ctor === '[]') {
+				return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
+			} else {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (pid) {
+						return _elm_lang$core$Task$succeed(
+							_elm_lang$core$Maybe$Just(
+								{subs: newSubs, pid: pid}));
+					},
+					_elm_lang$core$Process$spawn(
+						A3(
+							_elm_lang$dom$Dom_LowLevel$onWindow,
+							'resize',
+							_elm_lang$core$Json_Decode$succeed(
+								{ctor: '_Tuple0'}),
+							function (_p5) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									_elm_lang$core$Platform$sendToSelf(router),
+									_elm_lang$window$Window$size);
+							})));
+			}
+		} else {
+			if (_p4._1.ctor === '[]') {
+				return A2(
+					_elm_lang$window$Window_ops['&>'],
+					_elm_lang$core$Process$kill(_p4._0._0.pid),
+					_elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing));
+			} else {
+				return _elm_lang$core$Task$succeed(
+					_elm_lang$core$Maybe$Just(
+						{subs: newSubs, pid: _p4._0._0.pid}));
+			}
+		}
+	});
+var _elm_lang$window$Window$subscription = _elm_lang$core$Native_Platform.leaf('Window');
+var _elm_lang$window$Window$Size = F2(
+	function (a, b) {
+		return {width: a, height: b};
+	});
+var _elm_lang$window$Window$MySub = function (a) {
+	return {ctor: 'MySub', _0: a};
+};
+var _elm_lang$window$Window$resizes = function (tagger) {
+	return _elm_lang$window$Window$subscription(
+		_elm_lang$window$Window$MySub(tagger));
+};
+var _elm_lang$window$Window$subMap = F2(
+	function (func, _p6) {
+		var _p7 = _p6;
+		return _elm_lang$window$Window$MySub(
+			function (_p8) {
+				return func(
+					_p7._0(_p8));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
+
 var _evancz$elm_markdown$Native_Markdown = function() {
 
 
@@ -17606,6 +17728,9 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$combo1 = F2(
 		return A2(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo, key, msg);
 	});
 
+var _joefiorini$flittal$Msg$ResizeWindow = function (a) {
+	return {ctor: 'ResizeWindow', _0: a};
+};
 var _joefiorini$flittal$Msg$ToggleHelp = {ctor: 'ToggleHelp'};
 var _joefiorini$flittal$Msg$KeyCombo = function (a) {
 	return {ctor: 'KeyCombo', _0: a};
@@ -20141,7 +20266,7 @@ var _joefiorini$flittal$Partials_Footer$view = A2(
 	});
 
 var _joefiorini$flittal$Main$container = function (state) {
-	var offsetHeight = 1024 - 52;
+	var offsetHeight = state.windowSize.height - 52;
 	var board = A3(_joefiorini$flittal$Board_Controller$view, _joefiorini$flittal$Msg$BoardUpdate, state.currentBoard, offsetHeight);
 	var sidebar = function (h) {
 		return _joefiorini$flittal$Partials_Sidebar$view(h);
@@ -20320,7 +20445,11 @@ var _joefiorini$flittal$Main$subscriptions = function (model) {
 					_1: {
 						ctor: '::',
 						_0: _scottcorgan$keyboard_combo$Keyboard_Combo$subscriptions(model.keys),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$window$Window$resizes(_joefiorini$flittal$Msg$ResizeWindow),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
@@ -20334,8 +20463,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 196, column: 5},
-				end: {line: 201, column: 26}
+				start: {line: 204, column: 5},
+				end: {line: 209, column: 26}
 			},
 			_p3)(_p3._0);
 	}
@@ -20618,20 +20747,23 @@ var _joefiorini$flittal$Main$keyboardCombos = A2(
 							_joefiorini$flittal$Msg$ToggleHelp),
 						_1: {ctor: '[]'}
 					})))));
-var _joefiorini$flittal$Main$mkState = F2(
-	function (navigationHistory, board) {
+var _joefiorini$flittal$Main$mkState = F3(
+	function (navigationHistory, windowSize, board) {
 		return {
 			currentBoard: board,
 			boardHistory: _elm_community$undo_redo$UndoList$fresh(_joefiorini$flittal$Board_Controller$startingState),
 			currentRoute: _joefiorini$flittal$Routes$Root,
 			navigationHistory: navigationHistory,
-			keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo)
+			keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo),
+			windowSize: windowSize
 		};
 	});
 var _joefiorini$flittal$Main$decodeAppState = A2(
 	_elm_lang$core$Json_Decode$map,
-	_joefiorini$flittal$Main$mkState(
-		{ctor: '[]'}),
+	A2(
+		_joefiorini$flittal$Main$mkState,
+		{ctor: '[]'},
+		{width: 0, height: 0}),
 	A2(_elm_lang$core$Json_Decode$field, 'currentBoard', _joefiorini$flittal$Board_Model$decode));
 var _joefiorini$flittal$Main$parseLocation = function (location) {
 	var _p9 = location.pathname;
@@ -20650,20 +20782,22 @@ var _joefiorini$flittal$Main$parseLocation = function (location) {
 			return _joefiorini$flittal$Routes$Root;
 	}
 };
-var _joefiorini$flittal$Main$startingState = function (location) {
-	var currentRoute = _joefiorini$flittal$Main$parseLocation(location);
-	return A2(
-		_elm_lang$core$Platform_Cmd_ops['!'],
-		A2(
-			_joefiorini$flittal$Main$mkState,
-			{
-				ctor: '::',
-				_0: location,
-				_1: {ctor: '[]'}
-			},
-			_joefiorini$flittal$Board_Controller$startingState),
-		{ctor: '[]'});
-};
+var _joefiorini$flittal$Main$startingState = F2(
+	function (flags, location) {
+		var currentRoute = _joefiorini$flittal$Main$parseLocation(location);
+		return A2(
+			_elm_lang$core$Platform_Cmd_ops['!'],
+			A3(
+				_joefiorini$flittal$Main$mkState,
+				{
+					ctor: '::',
+					_0: location,
+					_1: {ctor: '[]'}
+				},
+				flags.windowSize,
+				_joefiorini$flittal$Board_Controller$startingState),
+			{ctor: '[]'});
+	});
 var _joefiorini$flittal$Main$step = F2(
 	function (update, state) {
 		var _p10 = A2(_elm_lang$core$Debug$log, 'update', update);
@@ -20850,6 +20984,13 @@ var _joefiorini$flittal$Main$step = F2(
 							_1: {ctor: '[]'}
 						});
 				}
+			case 'ResizeWindow':
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						state,
+						{windowSize: _p10._0}),
+					{ctor: '[]'});
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -20858,18 +20999,42 @@ var _joefiorini$flittal$Main$step = F2(
 		}
 	});
 var _joefiorini$flittal$Main$main = A2(
-	_elm_lang$navigation$Navigation$program,
+	_elm_lang$navigation$Navigation$programWithFlags,
 	_joefiorini$flittal$Msg$UrlChange,
-	{init: _joefiorini$flittal$Main$startingState, view: _joefiorini$flittal$Main$container, update: _joefiorini$flittal$Main$step, subscriptions: _joefiorini$flittal$Main$subscriptions})();
-var _joefiorini$flittal$Main$AppState = F5(
-	function (a, b, c, d, e) {
-		return {currentBoard: a, boardHistory: b, navigationHistory: c, currentRoute: d, keys: e};
+	{init: _joefiorini$flittal$Main$startingState, view: _joefiorini$flittal$Main$container, update: _joefiorini$flittal$Main$step, subscriptions: _joefiorini$flittal$Main$subscriptions})(
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (windowSize) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{windowSize: windowSize});
+		},
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'windowSize',
+			A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (height) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (width) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{height: height, width: width});
+						},
+						A2(_elm_lang$core$Json_Decode$field, 'width', _elm_lang$core$Json_Decode$int));
+				},
+				A2(_elm_lang$core$Json_Decode$field, 'height', _elm_lang$core$Json_Decode$int)))));
+var _joefiorini$flittal$Main$Flags = function (a) {
+	return {windowSize: a};
+};
+var _joefiorini$flittal$Main$AppState = F6(
+	function (a, b, c, d, e, f) {
+		return {currentBoard: a, boardHistory: b, navigationHistory: c, currentRoute: d, keys: e, windowSize: f};
 	});
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _joefiorini$flittal$Main$main !== 'undefined') {
-    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Partials.Toolbar.Msg":{"args":[],"tags":{"ShareBoard":[],"ClearBoard":[],"NoOp":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ToolbarUpdate":["Partials.Toolbar.Msg"],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"SerializeState":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"CancelEditingBox":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
+    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Partials.Toolbar.Msg":{"args":[],"tags":{"ShareBoard":[],"ClearBoard":[],"NoOp":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ToolbarUpdate":["Partials.Toolbar.Msg"],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"SerializeState":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"CancelEditingBox":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
