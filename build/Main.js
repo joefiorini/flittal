@@ -17906,10 +17906,10 @@ var _joefiorini$flittal$Box_Controller$labelSelector = function (box) {
 var _joefiorini$flittal$Box_Controller$moveBoxDrag = F2(
 	function (_p3, box) {
 		var _p4 = _p3;
-		var offsetY = _elm_lang$core$Tuple$second(box.position) - _p4.startY;
-		var newY = _p4.endY + offsetY;
-		var offsetX = _elm_lang$core$Tuple$first(box.position) - _p4.startX;
-		var newX = _p4.endX + offsetX;
+		var distanceY = _p4.endY - _p4.startY;
+		var newY = _elm_lang$core$Tuple$second(box.position) + distanceY;
+		var distanceX = _p4.endX - _p4.startX;
+		var newX = _elm_lang$core$Tuple$first(box.position) + distanceX;
 		return _elm_lang$core$Native_Utils.update(
 			box,
 			{

@@ -171,17 +171,17 @@ moveBox amount direction box =
 moveBoxDrag : DragEvent -> Model -> Model
 moveBoxDrag { id, isStart, isEnd, isDrop, startX, startY, endX, endY } box =
     let
-        offsetX =
-            (Tuple.first box.position) - startX
+        distanceX =
+            endX - startX
 
-        offsetY =
-            (Tuple.second box.position) - startY
+        distanceY =
+            endY - startY
 
         newX =
-            endX + offsetX
+            (Tuple.first box.position) + distanceX
 
         newY =
-            endY + offsetY
+            (Tuple.second box.position) + distanceY
     in
         { box | position = ( newX, newY ) }
 
