@@ -16,3 +16,6 @@ port dragstart : (DragEvent -> msg) -> Sub msg
 
 
 port dragend : (DragEvent -> msg) -> Sub msg
+
+
+port selectInputText : String -> Cmd msg

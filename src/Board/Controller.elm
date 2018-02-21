@@ -115,7 +115,7 @@ buildEditingAction id =
 
 toSelector : Int -> String
 toSelector domId =
-    ("#box-" ++ toString id ++ "-label")
+    ("box-" ++ toString domId ++ "-label")
 
 
 moveBoxAction : DragEvent -> Msg

@@ -115,7 +115,9 @@ onKeyDown box =
                     NoOp
             )
     in
-        on "keydown" (Json.map checkKeyCode keyCode)
+        onWithOptions "keydown"
+            { stopPropagation = True, preventDefault = False }
+            (Json.map checkKeyCode keyCode)
 
 
 keyCodeAndValue : Json.Decoder ( Int, String )
@@ -143,7 +145,8 @@ labelField box label =
             [ id <| "box-" ++ toString box.key ++ "-label"
             , type_ "text"
             , value label
-            , onWithOptions "mousedown" { stopPropagation = True, preventDefault = True } (Json.succeed nullHandler)
+            , onKeyDown box
+            , onWithOptions "mousedown" { stopPropagation = True, preventDefault = False } (Json.succeed nullHandler)
             ]
             []
 

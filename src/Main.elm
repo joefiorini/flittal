@@ -13,6 +13,7 @@ import Json.Encode as Encode
 import Task
 import Dom
 import List
+import List.Extra exposing (find)
 import Window
 import Navigation exposing (Location)
 import Partials.About as About
@@ -287,13 +288,38 @@ step update state =
                         _ ->
                             False
 
+                focusBox boxKey =
+                    let
+                        boxDomId =
+                            Board.toSelector boxKey
+
+                        doNothing task =
+                            Task.attempt (\_ -> NoOp) task
+                    in
+                        [ (doNothing <| Dom.focus boxDomId), (Interop.selectInputText boxDomId) ]
+
                 cmd =
                     case u of
+                        BoardMsg.EditingSelectedBox True ->
+                            let
+                                selectedBox =
+                                    find (\b -> b.selectedIndex /= -1) state.currentBoard.boxes
+                            in
+                                case selectedBox of
+                                    Just { key } ->
+                                        focusBox key
+
+                                    Nothing ->
+                                        []
+
                         BoardMsg.EditingBox boxKey toggle ->
-                            Dom.focus (Board.toSelector boxKey) |> (Task.attempt (\_ -> NoOp))
+                            if toggle then
+                                focusBox boxKey
+                            else
+                                []
 
                         _ ->
-                            Cmd.none
+                            []
 
                 newBoard =
                     Board.step u state.currentBoard
@@ -306,7 +332,7 @@ step update state =
                         else
                             state.boardHistory
                 }
-                    ! [ cmd ]
+                    ! cmd
 
         ToolbarUpdate u ->
             let

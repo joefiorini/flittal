@@ -17979,41 +17979,6 @@ var _joefiorini$flittal$Box_Controller$step = F2(
 				return box;
 		}
 	});
-var _joefiorini$flittal$Box_Controller$labelField = F2(
-	function (box, label) {
-		var nullHandler = _joefiorini$flittal$Box_Msg$NoOp;
-		return A2(
-			_elm_lang$html$Html$input,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'box-',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(box.key),
-							'-label'))),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$type_('text'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$value(label),
-						_1: {
-							ctor: '::',
-							_0: A3(
-								_elm_lang$html$Html_Events$onWithOptions,
-								'mousedown',
-								{stopPropagation: true, preventDefault: true},
-								_elm_lang$core$Json_Decode$succeed(nullHandler)),
-							_1: {ctor: '[]'}
-						}
-					}
-				}
-			},
-			{ctor: '[]'});
-	});
 var _joefiorini$flittal$Box_Controller$extractLabelUpdate = F2(
 	function (box, _p10) {
 		var _p11 = _p10;
@@ -18050,11 +18015,51 @@ var _joefiorini$flittal$Box_Controller$onKeyDown = function (box) {
 				return _joefiorini$flittal$Box_Msg$NoOp;
 		}
 	};
-	return A2(
-		_elm_lang$html$Html_Events$on,
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
 		'keydown',
+		{stopPropagation: true, preventDefault: false},
 		A2(_elm_lang$core$Json_Decode$map, checkKeyCode, _elm_lang$html$Html_Events$keyCode));
 };
+var _joefiorini$flittal$Box_Controller$labelField = F2(
+	function (box, label) {
+		var nullHandler = _joefiorini$flittal$Box_Msg$NoOp;
+		return A2(
+			_elm_lang$html$Html$input,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$id(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'box-',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(box.key),
+							'-label'))),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$type_('text'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$value(label),
+						_1: {
+							ctor: '::',
+							_0: _joefiorini$flittal$Box_Controller$onKeyDown(box),
+							_1: {
+								ctor: '::',
+								_0: A3(
+									_elm_lang$html$Html_Events$onWithOptions,
+									'mousedown',
+									{stopPropagation: true, preventDefault: false},
+									_elm_lang$core$Json_Decode$succeed(nullHandler)),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			},
+			{ctor: '[]'});
+	});
 var _joefiorini$flittal$Box_Controller$entersEditMode = function (update) {
 	var _p13 = update;
 	switch (_p13.ctor) {
@@ -19719,10 +19724,10 @@ var _joefiorini$flittal$Board_Controller$moveBoxAction = function (event) {
 var _joefiorini$flittal$Board_Controller$toSelector = function (domId) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
-		'#box-',
+		'box-',
 		A2(
 			_elm_lang$core$Basics_ops['++'],
-			_elm_lang$core$Basics$toString(_elm_lang$html$Html_Attributes$id),
+			_elm_lang$core$Basics$toString(domId),
 			'-label'));
 };
 var _joefiorini$flittal$Board_Controller$buildEditingAction = function (id) {
@@ -20005,6 +20010,11 @@ var _joefiorini$flittal$Interop$dragend = _elm_lang$core$Native_Platform.incomin
 				A2(_elm_lang$core$Json_Decode$field, 'isStart', _elm_lang$core$Json_Decode$bool));
 		},
 		A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string)));
+var _joefiorini$flittal$Interop$selectInputText = _elm_lang$core$Native_Platform.outgoingPort(
+	'selectInputText',
+	function (v) {
+		return v;
+	});
 
 var _joefiorini$flittal$Partials_About$view = A2(
 	_evancz$elm_markdown$Markdown$toHtml,
@@ -20339,8 +20349,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 204, column: 5},
-				end: {line: 209, column: 26}
+				start: {line: 205, column: 5},
+				end: {line: 210, column: 26}
 			},
 			_p3)(_p3._0);
 	}
@@ -20715,27 +20725,64 @@ var _joefiorini$flittal$Main$step = F2(
 						}),
 					{ctor: '[]'});
 			case 'BoardUpdate':
-				var _p15 = _p10._0;
-				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p15, state.currentBoard);
-				var cmd = function () {
-					var _p12 = _p15;
-					if (_p12.ctor === 'EditingBox') {
+				var _p16 = _p10._0;
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p16, state.currentBoard);
+				var focusBox = function (boxKey) {
+					var doNothing = function (task) {
 						return A2(
 							_elm_lang$core$Task$attempt,
-							function (_p13) {
+							function (_p12) {
 								return _joefiorini$flittal$Msg$NoOp;
 							},
-							_elm_lang$dom$Dom$focus(
-								_joefiorini$flittal$Board_Controller$toSelector(_p12._0)));
-					} else {
-						return _elm_lang$core$Platform_Cmd$none;
-					}
+							task);
+					};
+					var boxDomId = _joefiorini$flittal$Board_Controller$toSelector(boxKey);
+					return {
+						ctor: '::',
+						_0: doNothing(
+							_elm_lang$dom$Dom$focus(boxDomId)),
+						_1: {
+							ctor: '::',
+							_0: _joefiorini$flittal$Interop$selectInputText(boxDomId),
+							_1: {ctor: '[]'}
+						}
+					};
+				};
+				var cmd = function () {
+					var _p13 = _p16;
+					_v6_2:
+					do {
+						switch (_p13.ctor) {
+							case 'EditingSelectedBox':
+								if (_p13._0 === true) {
+									var selectedBox = A2(
+										_elm_community$list_extra$List_Extra$find,
+										function (b) {
+											return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
+										},
+										state.currentBoard.boxes);
+									var _p14 = selectedBox;
+									if (_p14.ctor === 'Just') {
+										return focusBox(_p14._0.key);
+									} else {
+										return {ctor: '[]'};
+									}
+								} else {
+									break _v6_2;
+								}
+							case 'EditingBox':
+								return _p13._1 ? focusBox(_p13._0) : {ctor: '[]'};
+							default:
+								break _v6_2;
+						}
+					} while(false);
+					return {ctor: '[]'};
 				}();
 				var isRecordable = function () {
-					var _p14 = _p15;
-					_v7_7:
+					var _p15 = _p16;
+					_v8_7:
 					do {
-						switch (_p14.ctor) {
+						switch (_p15.ctor) {
 							case 'NewBox':
 								return true;
 							case 'DeleteSelections':
@@ -20749,13 +20796,13 @@ var _joefiorini$flittal$Main$step = F2(
 							case 'ResizeBox':
 								return true;
 							case 'BoxAction':
-								if (_p14._0.ctor === 'EditingBox') {
+								if (_p15._0.ctor === 'EditingBox') {
 									return true;
 								} else {
-									break _v7_7;
+									break _v8_7;
 								}
 							default:
-								break _v7_7;
+								break _v8_7;
 						}
 					} while(false);
 					return false;
@@ -20768,11 +20815,7 @@ var _joefiorini$flittal$Main$step = F2(
 							currentBoard: newBoard,
 							boardHistory: isRecordable ? A2(_elm_community$undo_redo$UndoList$new, newBoard, state.boardHistory) : state.boardHistory
 						}),
-					{
-						ctor: '::',
-						_0: cmd,
-						_1: {ctor: '[]'}
-					});
+					cmd);
 			case 'ToolbarUpdate':
 				var updatedBoard = A2(_joefiorini$flittal$Board_Controller$step, _joefiorini$flittal$Board_Msg$ClearBoard, state.currentBoard);
 				return A2(
@@ -20814,17 +20857,17 @@ var _joefiorini$flittal$Main$step = F2(
 					ctor: '_Tuple2',
 					_0: state,
 					_1: _joefiorini$flittal$Interop$serializeState(
-						function (_p16) {
+						function (_p17) {
 							return A2(
 								_elm_lang$core$Json_Encode$encode,
 								0,
-								_joefiorini$flittal$Main$encodeAppState(_p16));
+								_joefiorini$flittal$Main$encodeAppState(_p17));
 						}(state))
 				};
 			case 'KeyCombo':
-				var _p17 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p10._0, state.keys);
-				var keys = _p17._0;
-				var cmd = _p17._1;
+				var _p18 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p10._0, state.keys);
+				var keys = _p18._0;
+				var cmd = _p18._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -20833,8 +20876,8 @@ var _joefiorini$flittal$Main$step = F2(
 					_1: cmd
 				};
 			case 'ToggleHelp':
-				var _p18 = state.currentRoute;
-				if (_p18.ctor === 'Help') {
+				var _p19 = state.currentRoute;
+				if (_p19.ctor === 'Help') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						state,
