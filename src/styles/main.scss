@@ -1,24 +1,27 @@
 @import url(http://fonts.googleapis.com/css?family=Tienne:400,700|Muli:300,400,400italic);
 
-@import 'normalize';
-@import 'bourbon';
+@import "normalize";
 
-@import 'base/settings';
-@import 'base/base';
-@import 'base/forms';
-@import 'base/links';
-@import 'base/headings';
+@include normalize();
 
-@import 'layout/containers';
+@import "bourbon";
 
-@import 'modules/board';
-@import 'modules/logo';
-@import 'modules/sidebar';
-@import 'modules/cheatsheet';
-@import 'modules/share';
-@import 'modules/buttons';
+@import "base/settings";
+@import "base/base";
+@import "base/forms";
+@import "base/links";
+@import "base/headings";
 
-@import 'themes/default/box';
+@import "layout/containers";
+
+@import "modules/board";
+@import "modules/logo";
+@import "modules/sidebar";
+@import "modules/cheatsheet";
+@import "modules/share";
+@import "modules/buttons";
+
+@import "themes/default/box";
 
 * {
   -webkit-box-sizing: border-box;

@@ -17524,38 +17524,14 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$keyList = function (combo) {
 			};
 	}
 };
-var _scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos = function (combos) {
-	return A2(
-		_elm_lang$core$List$sortWith,
-		F2(
-			function (a, b) {
-				var keyListLength = function (c) {
-					return _elm_lang$core$List$length(
-						_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(c));
-				};
-				var _p4 = A2(
-					_elm_lang$core$Basics$compare,
-					keyListLength(a),
-					keyListLength(b));
-				switch (_p4.ctor) {
-					case 'LT':
-						return _elm_lang$core$Basics$GT;
-					case 'EQ':
-						return _elm_lang$core$Basics$EQ;
-					default:
-						return _elm_lang$core$Basics$LT;
-				}
-			}),
-		combos);
-};
 var _scottcorgan$keyboard_combo$Keyboard_Combo$arePressed = F2(
-	function (keyState, combo) {
+	function (keyTracker, keysPressed) {
 		return A2(
 			_elm_lang$core$List$all,
 			function (key) {
-				return A2(_ohanhi$keyboard_extra$Keyboard_Extra$isPressed, key, keyState);
+				return A2(_ohanhi$keyboard_extra$Keyboard_Extra$isPressed, key, keyTracker);
 			},
-			combo);
+			keysPressed);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$matchesCombo = function (model) {
 	return A2(
@@ -17566,7 +17542,7 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$matchesCombo = function (model) {
 				model.keys,
 				_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(combo));
 		},
-		_scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos(model.combos));
+		model.combos);
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$performComboTask = function (combo) {
 	return A2(
@@ -17603,7 +17579,7 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$updateActiveCombo = function (mod
 		A2(_scottcorgan$keyboard_combo$Keyboard_Combo$getComboCmd, possibleCombo, model));
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$backTick = _ohanhi$keyboard_extra$Keyboard_Extra$BackQuote;
-var _scottcorgan$keyboard_combo$Keyboard_Combo$forwardSlash = _ohanhi$keyboard_extra$Keyboard_Extra$Slash;
+var _scottcorgan$keyboard_combo$Keyboard_Combo$forwardSlash = _ohanhi$keyboard_extra$Keyboard_Extra$Quote;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$backSlash = _ohanhi$keyboard_extra$Keyboard_Extra$BackSlash;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$closeBracket = _ohanhi$keyboard_extra$Keyboard_Extra$CloseBracket;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$openBracket = _ohanhi$keyboard_extra$Keyboard_Extra$OpenBracket;
@@ -17690,27 +17666,27 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4 = F5(
 		return {ctor: 'KeyCombo4', _0: a, _1: b, _2: c, _3: d, _4: e};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo4 = F2(
-	function (_p5, msg) {
-		var _p6 = _p5;
-		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p6._0, _p6._1, _p6._2, _p6._3, msg);
+	function (_p4, msg) {
+		var _p5 = _p4;
+		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p5._0, _p5._1, _p5._2, _p5._3, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3 = F4(
 	function (a, b, c, d) {
 		return {ctor: 'KeyCombo3', _0: a, _1: b, _2: c, _3: d};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo3 = F2(
-	function (_p7, msg) {
-		var _p8 = _p7;
-		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p8._0, _p8._1, _p8._2, msg);
+	function (_p6, msg) {
+		var _p7 = _p6;
+		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p7._0, _p7._1, _p7._2, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2 = F3(
 	function (a, b, c) {
 		return {ctor: 'KeyCombo2', _0: a, _1: b, _2: c};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo2 = F2(
-	function (_p9, msg) {
-		var _p10 = _p9;
-		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p10._0, _p10._1, msg);
+	function (_p8, msg) {
+		var _p9 = _p8;
+		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p9._0, _p9._1, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo = F2(
 	function (a, b) {
