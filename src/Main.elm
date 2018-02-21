@@ -185,7 +185,7 @@ encodeAppState state =
 mkState : List Location -> Window.Size -> Model -> AppState
 mkState navigationHistory windowSize board =
     { currentBoard = board
-    , boardHistory = UndoList.fresh Board.startingState
+    , boardHistory = UndoList.fresh board
     , currentRoute = Routes.Root
     , navigationHistory = navigationHistory
     , keys = Keys.init keyboardCombos KeyCombo
@@ -261,52 +261,50 @@ step update state =
 
         BoardUpdate u ->
             let
-                recordedHistory =
-                    UndoList.mapPresent (Board.step u) state.boardHistory
-
-                history_ =
+                isRecordable =
                     case u of
                         BoardMsg.NewBox ->
-                            recordedHistory
-
-                        BoardMsg.MoveBox _ _ ->
-                            recordedHistory
-
-                        BoardMsg.UpdateBoxColor _ ->
-                            recordedHistory
+                            True
 
                         BoardMsg.DeleteSelections ->
-                            recordedHistory
+                            True
 
                         BoardMsg.ConnectSelections ->
-                            recordedHistory
+                            True
 
                         BoardMsg.DisconnectSelections ->
-                            recordedHistory
+                            True
 
                         BoardMsg.Drop _ _ ->
-                            recordedHistory
+                            True
 
                         BoardMsg.ResizeBox _ ->
-                            recordedHistory
+                            True
 
                         BoardMsg.BoxAction (Box.Msg.EditingBox _ _) ->
-                            recordedHistory
+                            True
 
                         _ ->
-                            state.boardHistory
+                            False
 
                 cmd =
                     case u of
                         BoardMsg.EditingBox boxKey toggle ->
-                            Board.toSelector boxKey |> Dom.focus |> (Task.attempt (\_ -> NoOp))
+                            Dom.focus (Board.toSelector boxKey) |> (Task.attempt (\_ -> NoOp))
 
                         _ ->
                             Cmd.none
+
+                newBoard =
+                    Board.step u state.currentBoard
             in
                 { state
-                    | currentBoard = (Board.step u history_.present)
-                    , boardHistory = history_
+                    | currentBoard = newBoard
+                    , boardHistory =
+                        if isRecordable then
+                            UndoList.new newBoard state.boardHistory
+                        else
+                            state.boardHistory
                 }
                     ! [ cmd ]
 

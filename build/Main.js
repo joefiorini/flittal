@@ -20627,7 +20627,7 @@ var _joefiorini$flittal$Main$mkState = F3(
 	function (navigationHistory, windowSize, board) {
 		return {
 			currentBoard: board,
-			boardHistory: _elm_community$undo_redo$UndoList$fresh(_joefiorini$flittal$Board_Controller$startingState),
+			boardHistory: _elm_community$undo_redo$UndoList$fresh(board),
 			currentRoute: _joefiorini$flittal$Routes$Root,
 			navigationHistory: navigationHistory,
 			keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo),
@@ -20716,6 +20716,7 @@ var _joefiorini$flittal$Main$step = F2(
 					{ctor: '[]'});
 			case 'BoardUpdate':
 				var _p15 = _p10._0;
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p15, state.currentBoard);
 				var cmd = function () {
 					var _p12 = _p15;
 					if (_p12.ctor === 'EditingBox') {
@@ -20730,50 +20731,42 @@ var _joefiorini$flittal$Main$step = F2(
 						return _elm_lang$core$Platform_Cmd$none;
 					}
 				}();
-				var recordedHistory = A2(
-					_elm_community$undo_redo$UndoList$mapPresent,
-					_joefiorini$flittal$Board_Controller$step(_p15),
-					state.boardHistory);
-				var history_ = function () {
+				var isRecordable = function () {
 					var _p14 = _p15;
-					_v7_9:
+					_v7_7:
 					do {
 						switch (_p14.ctor) {
 							case 'NewBox':
-								return recordedHistory;
-							case 'MoveBox':
-								return recordedHistory;
-							case 'UpdateBoxColor':
-								return recordedHistory;
+								return true;
 							case 'DeleteSelections':
-								return recordedHistory;
+								return true;
 							case 'ConnectSelections':
-								return recordedHistory;
+								return true;
 							case 'DisconnectSelections':
-								return recordedHistory;
+								return true;
 							case 'Drop':
-								return recordedHistory;
+								return true;
 							case 'ResizeBox':
-								return recordedHistory;
+								return true;
 							case 'BoxAction':
 								if (_p14._0.ctor === 'EditingBox') {
-									return recordedHistory;
+									return true;
 								} else {
-									break _v7_9;
+									break _v7_7;
 								}
 							default:
-								break _v7_9;
+								break _v7_7;
 						}
 					} while(false);
-					return state.boardHistory;
+					return false;
 				}();
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
 						{
-							currentBoard: A2(_joefiorini$flittal$Board_Controller$step, _p15, history_.present),
-							boardHistory: history_
+							currentBoard: newBoard,
+							boardHistory: isRecordable ? A2(_elm_community$undo_redo$UndoList$new, newBoard, state.boardHistory) : state.boardHistory
 						}),
 					{
 						ctor: '::',
