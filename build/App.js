@@ -1,5 +1,5 @@
 var result = {
-  id: "",
+  id: '',
   isStart: false,
   isDrop: false,
   isEnd: false,
@@ -21,7 +21,7 @@ var result = {
 function StyleWithColor() {
   return {
     adapt: function(obj) {
-      obj.style = { color: "white" };
+      obj.style = { color: 'white' };
       return obj;
     }
   };
@@ -42,18 +42,18 @@ function adapt(state) {
 
 function runApp(board) {
   function sendPort(port, result) {
-    console.log("sending ", port, result);
+    console.log('sending ', port, result);
 
     result.isStart = result.isEnd = result.isDrop = false;
 
     switch (port) {
-      case "dragstart":
+      case 'dragstart':
         result.isStart = true;
         break;
-      case "dragend":
+      case 'dragend':
         result.isEnd = true;
         break;
-      case "drop":
+      case 'drop':
         result.isDrop = true;
         break;
     }
@@ -61,9 +61,9 @@ function runApp(board) {
     board.ports[port].send(result);
   }
 
-  if (window.localStorage.getItem("sawIntro") == null) {
-    window.localStorage.setItem("sawIntro", true);
-    window.location.href = "http://tinyurl.com/luq57yc";
+  if (window.localStorage.getItem('sawIntro') == null) {
+    window.localStorage.setItem('sawIntro', true);
+    window.location.href = 'http://tinyurl.com/luq57yc';
   }
 
   var currentUrl = window.location.href;
@@ -76,17 +76,17 @@ function runApp(board) {
     var adaptedState = adapt(deserializedState);
     console.log(adaptedState);
     board.ports.loadedState.send(adaptedState);
-    window.history.pushState({}, "", "/");
+    window.history.pushState({}, '', '/');
   }
-  board.ports.serializeState.subscribe(function(state) {
-    var encoded = btoa(JSON.stringify(state));
-    var input = document.querySelector(".share__url");
-    var url = urlForState(encoded);
+  // board.ports.serializeState.subscribe(function(state) {
+  //   var encoded = btoa(JSON.stringify(state));
+  //   var input = document.querySelector(".share__url");
+  //   var url = urlForState(encoded);
 
-    input.value = url;
-    input.select();
-    return state;
-  });
+  //   input.value = url;
+  //   input.select();
+  //   return state;
+  // });
 
   board.ports.selectInputText.subscribe(inputId => {
     setTimeout(() => {
@@ -95,10 +95,10 @@ function runApp(board) {
     });
   });
 
-  const container = document.querySelector("main");
+  const container = document.querySelector('main');
 
   container.addEventListener(
-    "dragstart",
+    'dragstart',
     function(e) {
       result.id = e.target.id;
       result.startX = e.clientX;
@@ -110,17 +110,17 @@ function runApp(board) {
         result.isMulti = false;
       }
 
-      e.dataTransfer.setData("text/html", null);
+      e.dataTransfer.setData('text/html', null);
       //e.dataTransfer.effectAllowed = 'move';
       //e.dataTransfer.dropEffect = 'move';
 
-      sendPort("dragstart", result);
+      sendPort('dragstart', result);
     },
     false
   );
 
   container.addEventListener(
-    "dragover",
+    'dragover',
     function(e) {
       e.preventDefault();
       //e.dataTransfer.effectAllowed = 'move';
@@ -130,28 +130,28 @@ function runApp(board) {
   );
 
   container.addEventListener(
-    "dragend",
+    'dragend',
     function(e) {
-      sendPort("dragend", result);
+      sendPort('dragend', result);
     },
     false
   );
 
   container.addEventListener(
-    "drop",
+    'drop',
     function(e) {
       e.stopPropagation();
       e.preventDefault();
       result.endX = e.clientX;
       result.endY = e.clientY;
 
-      sendPort("drop", result);
+      sendPort('drop', result);
     },
     false
   );
 }
 
-var forms = document.querySelectorAll("form");
+var forms = document.querySelectorAll('form');
 
 window.onsubmit = function(e) {
   e.preventDefault();
@@ -161,24 +161,24 @@ function urlForState(state) {
   var encoded = encodeURIComponent(state);
   return (
     window.location.protocol +
-    "//" +
+    '//' +
     window.location.host +
-    "/boards/" +
+    '/boards/' +
     encoded
   );
 }
 
 setTimeout(function() {
-  var navBar = document.querySelector("nav.nav-bar");
-  navBar.classList.add("nav-bar--compressed");
+  var navBar = document.querySelector('nav.nav-bar');
+  navBar.classList.add('nav-bar--compressed');
 }, 5000);
 
 function updateImgPaths(prefix) {
-  const images = document.querySelectorAll("img");
+  const images = document.querySelectorAll('img');
 
   images.forEach(img => {
     console.log(typeof img.src);
-    if (img.src.includes("/images")) {
+    if (img.src.includes('/images')) {
       src = new URL(img.src);
       src.pathname = `${prefix}${src.pathname}`;
       img.src = src.href;

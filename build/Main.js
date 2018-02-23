@@ -7266,6 +7266,126 @@ _elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
 		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
 	});
 
+var _elm_community$result_extra$Result_Extra$merge = function (r) {
+	var _p0 = r;
+	if (_p0.ctor === 'Ok') {
+		return _p0._0;
+	} else {
+		return _p0._0;
+	}
+};
+var _elm_community$result_extra$Result_Extra$orElse = F2(
+	function (ra, rb) {
+		var _p1 = rb;
+		if (_p1.ctor === 'Err') {
+			return ra;
+		} else {
+			return rb;
+		}
+	});
+var _elm_community$result_extra$Result_Extra$orElseLazy = F2(
+	function (fra, rb) {
+		var _p2 = rb;
+		if (_p2.ctor === 'Err') {
+			return fra(
+				{ctor: '_Tuple0'});
+		} else {
+			return rb;
+		}
+	});
+var _elm_community$result_extra$Result_Extra$orLazy = F2(
+	function (ra, frb) {
+		var _p3 = ra;
+		if (_p3.ctor === 'Err') {
+			return frb(
+				{ctor: '_Tuple0'});
+		} else {
+			return ra;
+		}
+	});
+var _elm_community$result_extra$Result_Extra$or = F2(
+	function (ra, rb) {
+		var _p4 = ra;
+		if (_p4.ctor === 'Err') {
+			return rb;
+		} else {
+			return ra;
+		}
+	});
+var _elm_community$result_extra$Result_Extra$andMap = F2(
+	function (ra, rb) {
+		var _p5 = {ctor: '_Tuple2', _0: ra, _1: rb};
+		if (_p5._1.ctor === 'Err') {
+			return _elm_lang$core$Result$Err(_p5._1._0);
+		} else {
+			return A2(_elm_lang$core$Result$map, _p5._1._0, _p5._0);
+		}
+	});
+var _elm_community$result_extra$Result_Extra$singleton = _elm_lang$core$Result$Ok;
+var _elm_community$result_extra$Result_Extra$combine = A2(
+	_elm_lang$core$List$foldr,
+	_elm_lang$core$Result$map2(
+		F2(
+			function (x, y) {
+				return {ctor: '::', _0: x, _1: y};
+			})),
+	_elm_lang$core$Result$Ok(
+		{ctor: '[]'}));
+var _elm_community$result_extra$Result_Extra$mapBoth = F3(
+	function (errFunc, okFunc, result) {
+		var _p6 = result;
+		if (_p6.ctor === 'Ok') {
+			return _elm_lang$core$Result$Ok(
+				okFunc(_p6._0));
+		} else {
+			return _elm_lang$core$Result$Err(
+				errFunc(_p6._0));
+		}
+	});
+var _elm_community$result_extra$Result_Extra$unpack = F3(
+	function (errFunc, okFunc, result) {
+		var _p7 = result;
+		if (_p7.ctor === 'Ok') {
+			return okFunc(_p7._0);
+		} else {
+			return errFunc(_p7._0);
+		}
+	});
+var _elm_community$result_extra$Result_Extra$unwrap = F3(
+	function (defaultValue, okFunc, result) {
+		var _p8 = result;
+		if (_p8.ctor === 'Ok') {
+			return okFunc(_p8._0);
+		} else {
+			return defaultValue;
+		}
+	});
+var _elm_community$result_extra$Result_Extra$extract = F2(
+	function (f, x) {
+		var _p9 = x;
+		if (_p9.ctor === 'Ok') {
+			return _p9._0;
+		} else {
+			return f(_p9._0);
+		}
+	});
+var _elm_community$result_extra$Result_Extra$isErr = function (x) {
+	var _p10 = x;
+	if (_p10.ctor === 'Ok') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var _elm_community$result_extra$Result_Extra$isOk = function (x) {
+	var _p11 = x;
+	if (_p11.ctor === 'Ok') {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 var _elm_community$undo_redo$UndoList$toList = function (_p0) {
 	var _p1 = _p0;
 	return A2(
@@ -8186,9 +8306,168 @@ var _elm_lang$core$Json_Decode$bool = _elm_lang$core$Native_Json.decodePrimitive
 var _elm_lang$core$Json_Decode$string = _elm_lang$core$Native_Json.decodePrimitive('string');
 var _elm_lang$core$Json_Decode$Decoder = {ctor: 'Decoder'};
 
+var _elm_lang$core$Native_Bitwise = function() {
+
+return {
+	and: F2(function and(a, b) { return a & b; }),
+	or: F2(function or(a, b) { return a | b; }),
+	xor: F2(function xor(a, b) { return a ^ b; }),
+	complement: function complement(a) { return ~a; },
+	shiftLeftBy: F2(function(offset, a) { return a << offset; }),
+	shiftRightBy: F2(function(offset, a) { return a >> offset; }),
+	shiftRightZfBy: F2(function(offset, a) { return a >>> offset; })
+};
+
+}();
+
+var _elm_lang$core$Bitwise$shiftRightZfBy = _elm_lang$core$Native_Bitwise.shiftRightZfBy;
+var _elm_lang$core$Bitwise$shiftRightBy = _elm_lang$core$Native_Bitwise.shiftRightBy;
+var _elm_lang$core$Bitwise$shiftLeftBy = _elm_lang$core$Native_Bitwise.shiftLeftBy;
+var _elm_lang$core$Bitwise$complement = _elm_lang$core$Native_Bitwise.complement;
+var _elm_lang$core$Bitwise$xor = _elm_lang$core$Native_Bitwise.xor;
+var _elm_lang$core$Bitwise$or = _elm_lang$core$Native_Bitwise.or;
+var _elm_lang$core$Bitwise$and = _elm_lang$core$Native_Bitwise.and;
+
+//import Maybe, Native.List //
+
+var _elm_lang$core$Native_Regex = function() {
+
+function escape(str)
+{
+	return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+function caseInsensitive(re)
+{
+	return new RegExp(re.source, 'gi');
+}
+function regex(raw)
+{
+	return new RegExp(raw, 'g');
+}
+
+function contains(re, string)
+{
+	return string.match(re) !== null;
+}
+
+function find(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var out = [];
+	var number = 0;
+	var string = str;
+	var lastIndex = re.lastIndex;
+	var prevLastIndex = -1;
+	var result;
+	while (number++ < n && (result = re.exec(string)))
+	{
+		if (prevLastIndex === re.lastIndex) break;
+		var i = result.length - 1;
+		var subs = new Array(i);
+		while (i > 0)
+		{
+			var submatch = result[i];
+			subs[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		out.push({
+			match: result[0],
+			submatches: _elm_lang$core$Native_List.fromArray(subs),
+			index: result.index,
+			number: number
+		});
+		prevLastIndex = re.lastIndex;
+	}
+	re.lastIndex = lastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+function replace(n, re, replacer, string)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	var count = 0;
+	function jsReplacer(match)
+	{
+		if (count++ >= n)
+		{
+			return match;
+		}
+		var i = arguments.length - 3;
+		var submatches = new Array(i);
+		while (i > 0)
+		{
+			var submatch = arguments[i];
+			submatches[--i] = submatch === undefined
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just(submatch);
+		}
+		return replacer({
+			match: match,
+			submatches: _elm_lang$core$Native_List.fromArray(submatches),
+			index: arguments[arguments.length - 2],
+			number: count
+		});
+	}
+	return string.replace(re, jsReplacer);
+}
+
+function split(n, re, str)
+{
+	n = n.ctor === 'All' ? Infinity : n._0;
+	if (n === Infinity)
+	{
+		return _elm_lang$core$Native_List.fromArray(str.split(re));
+	}
+	var string = str;
+	var result;
+	var out = [];
+	var start = re.lastIndex;
+	var restoreLastIndex = re.lastIndex;
+	while (n--)
+	{
+		if (!(result = re.exec(string))) break;
+		out.push(string.slice(start, result.index));
+		start = re.lastIndex;
+	}
+	out.push(string.slice(start));
+	re.lastIndex = restoreLastIndex;
+	return _elm_lang$core$Native_List.fromArray(out);
+}
+
+return {
+	regex: regex,
+	caseInsensitive: caseInsensitive,
+	escape: escape,
+
+	contains: F2(contains),
+	find: F3(find),
+	replace: F4(replace),
+	split: F3(split)
+};
+
+}();
+
 var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
 var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
 var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
+
+var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
+var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
+var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
+var _elm_lang$core$Regex$contains = _elm_lang$core$Native_Regex.contains;
+var _elm_lang$core$Regex$caseInsensitive = _elm_lang$core$Native_Regex.caseInsensitive;
+var _elm_lang$core$Regex$regex = _elm_lang$core$Native_Regex.regex;
+var _elm_lang$core$Regex$escape = _elm_lang$core$Native_Regex.escape;
+var _elm_lang$core$Regex$Match = F4(
+	function (a, b, c, d) {
+		return {match: a, submatches: b, index: c, number: d};
+	});
+var _elm_lang$core$Regex$Regex = {ctor: 'Regex'};
+var _elm_lang$core$Regex$AtMost = function (a) {
+	return {ctor: 'AtMost', _0: a};
+};
+var _elm_lang$core$Regex$All = {ctor: 'All'};
 
 var _elm_lang$dom$Native_Dom = function() {
 
@@ -14844,6 +15123,367 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _elm_lang$http$Native_Http = function() {
+
+
+// ENCODING AND DECODING
+
+function encodeUri(string)
+{
+	return encodeURIComponent(string);
+}
+
+function decodeUri(string)
+{
+	try
+	{
+		return _elm_lang$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch(e)
+	{
+		return _elm_lang$core$Maybe$Nothing;
+	}
+}
+
+
+// SEND REQUEST
+
+function toTask(request, maybeProgress)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var xhr = new XMLHttpRequest();
+
+		configureProgress(xhr, maybeProgress);
+
+		xhr.addEventListener('error', function() {
+			callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'NetworkError' }));
+		});
+		xhr.addEventListener('timeout', function() {
+			callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'Timeout' }));
+		});
+		xhr.addEventListener('load', function() {
+			callback(handleResponse(xhr, request.expect.responseToResult));
+		});
+
+		try
+		{
+			xhr.open(request.method, request.url, true);
+		}
+		catch (e)
+		{
+			return callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'BadUrl', _0: request.url }));
+		}
+
+		configureRequest(xhr, request);
+		send(xhr, request.body);
+
+		return function() { xhr.abort(); };
+	});
+}
+
+function configureProgress(xhr, maybeProgress)
+{
+	if (maybeProgress.ctor === 'Nothing')
+	{
+		return;
+	}
+
+	xhr.addEventListener('progress', function(event) {
+		if (!event.lengthComputable)
+		{
+			return;
+		}
+		_elm_lang$core$Native_Scheduler.rawSpawn(maybeProgress._0({
+			bytes: event.loaded,
+			bytesExpected: event.total
+		}));
+	});
+}
+
+function configureRequest(xhr, request)
+{
+	function setHeader(pair)
+	{
+		xhr.setRequestHeader(pair._0, pair._1);
+	}
+
+	A2(_elm_lang$core$List$map, setHeader, request.headers);
+	xhr.responseType = request.expect.responseType;
+	xhr.withCredentials = request.withCredentials;
+
+	if (request.timeout.ctor === 'Just')
+	{
+		xhr.timeout = request.timeout._0;
+	}
+}
+
+function send(xhr, body)
+{
+	switch (body.ctor)
+	{
+		case 'EmptyBody':
+			xhr.send();
+			return;
+
+		case 'StringBody':
+			xhr.setRequestHeader('Content-Type', body._0);
+			xhr.send(body._1);
+			return;
+
+		case 'FormDataBody':
+			xhr.send(body._0);
+			return;
+	}
+}
+
+
+// RESPONSES
+
+function handleResponse(xhr, responseToResult)
+{
+	var response = toResponse(xhr);
+
+	if (xhr.status < 200 || 300 <= xhr.status)
+	{
+		response.body = xhr.responseText;
+		return _elm_lang$core$Native_Scheduler.fail({
+			ctor: 'BadStatus',
+			_0: response
+		});
+	}
+
+	var result = responseToResult(response);
+
+	if (result.ctor === 'Ok')
+	{
+		return _elm_lang$core$Native_Scheduler.succeed(result._0);
+	}
+	else
+	{
+		response.body = xhr.responseText;
+		return _elm_lang$core$Native_Scheduler.fail({
+			ctor: 'BadPayload',
+			_0: result._0,
+			_1: response
+		});
+	}
+}
+
+function toResponse(xhr)
+{
+	return {
+		status: { code: xhr.status, message: xhr.statusText },
+		headers: parseHeaders(xhr.getAllResponseHeaders()),
+		url: xhr.responseURL,
+		body: xhr.response
+	};
+}
+
+function parseHeaders(rawHeaders)
+{
+	var headers = _elm_lang$core$Dict$empty;
+
+	if (!rawHeaders)
+	{
+		return headers;
+	}
+
+	var headerPairs = rawHeaders.split('\u000d\u000a');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf('\u003a\u0020');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3(_elm_lang$core$Dict$update, key, function(oldValue) {
+				if (oldValue.ctor === 'Just')
+				{
+					return _elm_lang$core$Maybe$Just(value + ', ' + oldValue._0);
+				}
+				return _elm_lang$core$Maybe$Just(value);
+			}, headers);
+		}
+	}
+
+	return headers;
+}
+
+
+// EXPECTORS
+
+function expectStringResponse(responseToResult)
+{
+	return {
+		responseType: 'text',
+		responseToResult: responseToResult
+	};
+}
+
+function mapExpect(func, expect)
+{
+	return {
+		responseType: expect.responseType,
+		responseToResult: function(response) {
+			var convertedResponse = expect.responseToResult(response);
+			return A2(_elm_lang$core$Result$map, func, convertedResponse);
+		}
+	};
+}
+
+
+// BODY
+
+function multipart(parts)
+{
+	var formData = new FormData();
+
+	while (parts.ctor !== '[]')
+	{
+		var part = parts._0;
+		formData.append(part._0, part._1);
+		parts = parts._1;
+	}
+
+	return { ctor: 'FormDataBody', _0: formData };
+}
+
+return {
+	toTask: F2(toTask),
+	expectStringResponse: expectStringResponse,
+	mapExpect: F2(mapExpect),
+	multipart: multipart,
+	encodeUri: encodeUri,
+	decodeUri: decodeUri
+};
+
+}();
+
+var _elm_lang$http$Http_Internal$map = F2(
+	function (func, request) {
+		return _elm_lang$core$Native_Utils.update(
+			request,
+			{
+				expect: A2(_elm_lang$http$Native_Http.mapExpect, func, request.expect)
+			});
+	});
+var _elm_lang$http$Http_Internal$RawRequest = F7(
+	function (a, b, c, d, e, f, g) {
+		return {method: a, headers: b, url: c, body: d, expect: e, timeout: f, withCredentials: g};
+	});
+var _elm_lang$http$Http_Internal$Request = function (a) {
+	return {ctor: 'Request', _0: a};
+};
+var _elm_lang$http$Http_Internal$Expect = {ctor: 'Expect'};
+var _elm_lang$http$Http_Internal$FormDataBody = {ctor: 'FormDataBody'};
+var _elm_lang$http$Http_Internal$StringBody = F2(
+	function (a, b) {
+		return {ctor: 'StringBody', _0: a, _1: b};
+	});
+var _elm_lang$http$Http_Internal$EmptyBody = {ctor: 'EmptyBody'};
+var _elm_lang$http$Http_Internal$Header = F2(
+	function (a, b) {
+		return {ctor: 'Header', _0: a, _1: b};
+	});
+
+var _elm_lang$http$Http$decodeUri = _elm_lang$http$Native_Http.decodeUri;
+var _elm_lang$http$Http$encodeUri = _elm_lang$http$Native_Http.encodeUri;
+var _elm_lang$http$Http$expectStringResponse = _elm_lang$http$Native_Http.expectStringResponse;
+var _elm_lang$http$Http$expectJson = function (decoder) {
+	return _elm_lang$http$Http$expectStringResponse(
+		function (response) {
+			return A2(_elm_lang$core$Json_Decode$decodeString, decoder, response.body);
+		});
+};
+var _elm_lang$http$Http$expectString = _elm_lang$http$Http$expectStringResponse(
+	function (response) {
+		return _elm_lang$core$Result$Ok(response.body);
+	});
+var _elm_lang$http$Http$multipartBody = _elm_lang$http$Native_Http.multipart;
+var _elm_lang$http$Http$stringBody = _elm_lang$http$Http_Internal$StringBody;
+var _elm_lang$http$Http$jsonBody = function (value) {
+	return A2(
+		_elm_lang$http$Http_Internal$StringBody,
+		'application/json',
+		A2(_elm_lang$core$Json_Encode$encode, 0, value));
+};
+var _elm_lang$http$Http$emptyBody = _elm_lang$http$Http_Internal$EmptyBody;
+var _elm_lang$http$Http$header = _elm_lang$http$Http_Internal$Header;
+var _elm_lang$http$Http$request = _elm_lang$http$Http_Internal$Request;
+var _elm_lang$http$Http$post = F3(
+	function (url, body, decoder) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'POST',
+				headers: {ctor: '[]'},
+				url: url,
+				body: body,
+				expect: _elm_lang$http$Http$expectJson(decoder),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
+var _elm_lang$http$Http$get = F2(
+	function (url, decoder) {
+		return _elm_lang$http$Http$request(
+			{
+				method: 'GET',
+				headers: {ctor: '[]'},
+				url: url,
+				body: _elm_lang$http$Http$emptyBody,
+				expect: _elm_lang$http$Http$expectJson(decoder),
+				timeout: _elm_lang$core$Maybe$Nothing,
+				withCredentials: false
+			});
+	});
+var _elm_lang$http$Http$getString = function (url) {
+	return _elm_lang$http$Http$request(
+		{
+			method: 'GET',
+			headers: {ctor: '[]'},
+			url: url,
+			body: _elm_lang$http$Http$emptyBody,
+			expect: _elm_lang$http$Http$expectString,
+			timeout: _elm_lang$core$Maybe$Nothing,
+			withCredentials: false
+		});
+};
+var _elm_lang$http$Http$toTask = function (_p0) {
+	var _p1 = _p0;
+	return A2(_elm_lang$http$Native_Http.toTask, _p1._0, _elm_lang$core$Maybe$Nothing);
+};
+var _elm_lang$http$Http$send = F2(
+	function (resultToMessage, request) {
+		return A2(
+			_elm_lang$core$Task$attempt,
+			resultToMessage,
+			_elm_lang$http$Http$toTask(request));
+	});
+var _elm_lang$http$Http$Response = F4(
+	function (a, b, c, d) {
+		return {url: a, status: b, headers: c, body: d};
+	});
+var _elm_lang$http$Http$BadPayload = F2(
+	function (a, b) {
+		return {ctor: 'BadPayload', _0: a, _1: b};
+	});
+var _elm_lang$http$Http$BadStatus = function (a) {
+	return {ctor: 'BadStatus', _0: a};
+};
+var _elm_lang$http$Http$NetworkError = {ctor: 'NetworkError'};
+var _elm_lang$http$Http$Timeout = {ctor: 'Timeout'};
+var _elm_lang$http$Http$BadUrl = function (a) {
+	return {ctor: 'BadUrl', _0: a};
+};
+var _elm_lang$http$Http$StringPart = F2(
+	function (a, b) {
+		return {ctor: 'StringPart', _0: a, _1: b};
+	});
+var _elm_lang$http$Http$stringPart = _elm_lang$http$Http$StringPart;
+
 var _elm_lang$keyboard$Keyboard$onSelfMsg = F3(
 	function (router, _p0, state) {
 		var _p1 = _p0;
@@ -15677,6 +16317,257 @@ var _evancz$elm_markdown$Markdown$Options = F4(
 		return {githubFlavored: a, defaultHighlighting: b, sanitize: c, smartypants: d};
 	});
 
+var _evancz$url_parser$UrlParser$toKeyValuePair = function (segment) {
+	var _p0 = A2(_elm_lang$core$String$split, '=', segment);
+	if (((_p0.ctor === '::') && (_p0._1.ctor === '::')) && (_p0._1._1.ctor === '[]')) {
+		return A3(
+			_elm_lang$core$Maybe$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			_elm_lang$http$Http$decodeUri(_p0._0),
+			_elm_lang$http$Http$decodeUri(_p0._1._0));
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _evancz$url_parser$UrlParser$parseParams = function (queryString) {
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$filterMap,
+			_evancz$url_parser$UrlParser$toKeyValuePair,
+			A2(
+				_elm_lang$core$String$split,
+				'&',
+				A2(_elm_lang$core$String$dropLeft, 1, queryString))));
+};
+var _evancz$url_parser$UrlParser$splitUrl = function (url) {
+	var _p1 = A2(_elm_lang$core$String$split, '/', url);
+	if ((_p1.ctor === '::') && (_p1._0 === '')) {
+		return _p1._1;
+	} else {
+		return _p1;
+	}
+};
+var _evancz$url_parser$UrlParser$parseHelp = function (states) {
+	parseHelp:
+	while (true) {
+		var _p2 = states;
+		if (_p2.ctor === '[]') {
+			return _elm_lang$core$Maybe$Nothing;
+		} else {
+			var _p4 = _p2._0;
+			var _p3 = _p4.unvisited;
+			if (_p3.ctor === '[]') {
+				return _elm_lang$core$Maybe$Just(_p4.value);
+			} else {
+				if ((_p3._0 === '') && (_p3._1.ctor === '[]')) {
+					return _elm_lang$core$Maybe$Just(_p4.value);
+				} else {
+					var _v4 = _p2._1;
+					states = _v4;
+					continue parseHelp;
+				}
+			}
+		}
+	}
+};
+var _evancz$url_parser$UrlParser$parse = F3(
+	function (_p5, url, params) {
+		var _p6 = _p5;
+		return _evancz$url_parser$UrlParser$parseHelp(
+			_p6._0(
+				{
+					visited: {ctor: '[]'},
+					unvisited: _evancz$url_parser$UrlParser$splitUrl(url),
+					params: params,
+					value: _elm_lang$core$Basics$identity
+				}));
+	});
+var _evancz$url_parser$UrlParser$parseHash = F2(
+	function (parser, location) {
+		return A3(
+			_evancz$url_parser$UrlParser$parse,
+			parser,
+			A2(_elm_lang$core$String$dropLeft, 1, location.hash),
+			_evancz$url_parser$UrlParser$parseParams(location.search));
+	});
+var _evancz$url_parser$UrlParser$parsePath = F2(
+	function (parser, location) {
+		return A3(
+			_evancz$url_parser$UrlParser$parse,
+			parser,
+			location.pathname,
+			_evancz$url_parser$UrlParser$parseParams(location.search));
+	});
+var _evancz$url_parser$UrlParser$intParamHelp = function (maybeValue) {
+	var _p7 = maybeValue;
+	if (_p7.ctor === 'Nothing') {
+		return _elm_lang$core$Maybe$Nothing;
+	} else {
+		return _elm_lang$core$Result$toMaybe(
+			_elm_lang$core$String$toInt(_p7._0));
+	}
+};
+var _evancz$url_parser$UrlParser$mapHelp = F2(
+	function (func, _p8) {
+		var _p9 = _p8;
+		return {
+			visited: _p9.visited,
+			unvisited: _p9.unvisited,
+			params: _p9.params,
+			value: func(_p9.value)
+		};
+	});
+var _evancz$url_parser$UrlParser$State = F4(
+	function (a, b, c, d) {
+		return {visited: a, unvisited: b, params: c, value: d};
+	});
+var _evancz$url_parser$UrlParser$Parser = function (a) {
+	return {ctor: 'Parser', _0: a};
+};
+var _evancz$url_parser$UrlParser$s = function (str) {
+	return _evancz$url_parser$UrlParser$Parser(
+		function (_p10) {
+			var _p11 = _p10;
+			var _p12 = _p11.unvisited;
+			if (_p12.ctor === '[]') {
+				return {ctor: '[]'};
+			} else {
+				var _p13 = _p12._0;
+				return _elm_lang$core$Native_Utils.eq(_p13, str) ? {
+					ctor: '::',
+					_0: A4(
+						_evancz$url_parser$UrlParser$State,
+						{ctor: '::', _0: _p13, _1: _p11.visited},
+						_p12._1,
+						_p11.params,
+						_p11.value),
+					_1: {ctor: '[]'}
+				} : {ctor: '[]'};
+			}
+		});
+};
+var _evancz$url_parser$UrlParser$custom = F2(
+	function (tipe, stringToSomething) {
+		return _evancz$url_parser$UrlParser$Parser(
+			function (_p14) {
+				var _p15 = _p14;
+				var _p16 = _p15.unvisited;
+				if (_p16.ctor === '[]') {
+					return {ctor: '[]'};
+				} else {
+					var _p18 = _p16._0;
+					var _p17 = stringToSomething(_p18);
+					if (_p17.ctor === 'Ok') {
+						return {
+							ctor: '::',
+							_0: A4(
+								_evancz$url_parser$UrlParser$State,
+								{ctor: '::', _0: _p18, _1: _p15.visited},
+								_p16._1,
+								_p15.params,
+								_p15.value(_p17._0)),
+							_1: {ctor: '[]'}
+						};
+					} else {
+						return {ctor: '[]'};
+					}
+				}
+			});
+	});
+var _evancz$url_parser$UrlParser$string = A2(_evancz$url_parser$UrlParser$custom, 'STRING', _elm_lang$core$Result$Ok);
+var _evancz$url_parser$UrlParser$int = A2(_evancz$url_parser$UrlParser$custom, 'NUMBER', _elm_lang$core$String$toInt);
+var _evancz$url_parser$UrlParser_ops = _evancz$url_parser$UrlParser_ops || {};
+_evancz$url_parser$UrlParser_ops['</>'] = F2(
+	function (_p20, _p19) {
+		var _p21 = _p20;
+		var _p22 = _p19;
+		return _evancz$url_parser$UrlParser$Parser(
+			function (state) {
+				return A2(
+					_elm_lang$core$List$concatMap,
+					_p22._0,
+					_p21._0(state));
+			});
+	});
+var _evancz$url_parser$UrlParser$map = F2(
+	function (subValue, _p23) {
+		var _p24 = _p23;
+		return _evancz$url_parser$UrlParser$Parser(
+			function (_p25) {
+				var _p26 = _p25;
+				return A2(
+					_elm_lang$core$List$map,
+					_evancz$url_parser$UrlParser$mapHelp(_p26.value),
+					_p24._0(
+						{visited: _p26.visited, unvisited: _p26.unvisited, params: _p26.params, value: subValue}));
+			});
+	});
+var _evancz$url_parser$UrlParser$oneOf = function (parsers) {
+	return _evancz$url_parser$UrlParser$Parser(
+		function (state) {
+			return A2(
+				_elm_lang$core$List$concatMap,
+				function (_p27) {
+					var _p28 = _p27;
+					return _p28._0(state);
+				},
+				parsers);
+		});
+};
+var _evancz$url_parser$UrlParser$top = _evancz$url_parser$UrlParser$Parser(
+	function (state) {
+		return {
+			ctor: '::',
+			_0: state,
+			_1: {ctor: '[]'}
+		};
+	});
+var _evancz$url_parser$UrlParser_ops = _evancz$url_parser$UrlParser_ops || {};
+_evancz$url_parser$UrlParser_ops['<?>'] = F2(
+	function (_p30, _p29) {
+		var _p31 = _p30;
+		var _p32 = _p29;
+		return _evancz$url_parser$UrlParser$Parser(
+			function (state) {
+				return A2(
+					_elm_lang$core$List$concatMap,
+					_p32._0,
+					_p31._0(state));
+			});
+	});
+var _evancz$url_parser$UrlParser$QueryParser = function (a) {
+	return {ctor: 'QueryParser', _0: a};
+};
+var _evancz$url_parser$UrlParser$customParam = F2(
+	function (key, func) {
+		return _evancz$url_parser$UrlParser$QueryParser(
+			function (_p33) {
+				var _p34 = _p33;
+				var _p35 = _p34.params;
+				return {
+					ctor: '::',
+					_0: A4(
+						_evancz$url_parser$UrlParser$State,
+						_p34.visited,
+						_p34.unvisited,
+						_p35,
+						_p34.value(
+							func(
+								A2(_elm_lang$core$Dict$get, key, _p35)))),
+					_1: {ctor: '[]'}
+				};
+			});
+	});
+var _evancz$url_parser$UrlParser$stringParam = function (name) {
+	return A2(_evancz$url_parser$UrlParser$customParam, name, _elm_lang$core$Basics$identity);
+};
+var _evancz$url_parser$UrlParser$intParam = function (name) {
+	return A2(_evancz$url_parser$UrlParser$customParam, name, _evancz$url_parser$UrlParser$intParamHelp);
+};
+
 var _joefiorini$flittal$Geometry_Types$decodeSize = A3(
 	_elm_lang$core$Json_Decode$map2,
 	F2(
@@ -16289,129 +17180,6 @@ var _joefiorini$flittal$Board_Msg$BoxAction = function (a) {
 	return {ctor: 'BoxAction', _0: a};
 };
 var _joefiorini$flittal$Board_Msg$NoOp = {ctor: 'NoOp'};
-
-var _joefiorini$flittal$Partials_Toolbar$NoOp = {ctor: 'NoOp'};
-var _joefiorini$flittal$Partials_Toolbar$ClearBoard = {ctor: 'ClearBoard'};
-var _joefiorini$flittal$Partials_Toolbar$clearButton = function (tx) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('clear-board'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$button,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						tx(_joefiorini$flittal$Partials_Toolbar$ClearBoard)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$title('Clear the board'),
-						_1: {ctor: '[]'}
-					}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$img,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$src('/images/icon-clear.svg'),
-							_1: {ctor: '[]'}
-						},
-						{ctor: '[]'}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
-var _joefiorini$flittal$Partials_Toolbar$ShareBoard = {ctor: 'ShareBoard'};
-var _joefiorini$flittal$Partials_Toolbar$shareButton = function (tx) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('share'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$input,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('share__url'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$placeholder('Share this board'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(
-								tx(_joefiorini$flittal$Partials_Toolbar$ShareBoard)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$type_('text'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$readonly(true),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				},
-				{ctor: '[]'}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$button,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('button-pseudo'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$img,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$src('/images/icon-share.svg'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$width(25),
-									_1: {ctor: '[]'}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {ctor: '[]'}
-					}),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _joefiorini$flittal$Partials_Toolbar$view = function (tx) {
-	return A2(
-		_elm_lang$html$Html$section,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('l-container'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _joefiorini$flittal$Partials_Toolbar$clearButton(tx),
-			_1: {
-				ctor: '::',
-				_0: _joefiorini$flittal$Partials_Toolbar$shareButton(tx),
-				_1: {ctor: '[]'}
-			}
-		});
-};
 
 var _ohanhi$keyboard_extra$Keyboard_Arrows$boolToInt = function (bool) {
 	return bool ? 1 : 0;
@@ -17524,14 +18292,38 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$keyList = function (combo) {
 			};
 	}
 };
+var _scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos = function (combos) {
+	return A2(
+		_elm_lang$core$List$sortWith,
+		F2(
+			function (a, b) {
+				var keyListLength = function (c) {
+					return _elm_lang$core$List$length(
+						_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(c));
+				};
+				var _p4 = A2(
+					_elm_lang$core$Basics$compare,
+					keyListLength(a),
+					keyListLength(b));
+				switch (_p4.ctor) {
+					case 'LT':
+						return _elm_lang$core$Basics$GT;
+					case 'EQ':
+						return _elm_lang$core$Basics$EQ;
+					default:
+						return _elm_lang$core$Basics$LT;
+				}
+			}),
+		combos);
+};
 var _scottcorgan$keyboard_combo$Keyboard_Combo$arePressed = F2(
-	function (keyTracker, keysPressed) {
+	function (keyState, combo) {
 		return A2(
 			_elm_lang$core$List$all,
 			function (key) {
-				return A2(_ohanhi$keyboard_extra$Keyboard_Extra$isPressed, key, keyTracker);
+				return A2(_ohanhi$keyboard_extra$Keyboard_Extra$isPressed, key, keyState);
 			},
-			keysPressed);
+			combo);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$matchesCombo = function (model) {
 	return A2(
@@ -17542,7 +18334,7 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$matchesCombo = function (model) {
 				model.keys,
 				_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(combo));
 		},
-		model.combos);
+		_scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos(model.combos));
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$performComboTask = function (combo) {
 	return A2(
@@ -17579,7 +18371,7 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$updateActiveCombo = function (mod
 		A2(_scottcorgan$keyboard_combo$Keyboard_Combo$getComboCmd, possibleCombo, model));
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$backTick = _ohanhi$keyboard_extra$Keyboard_Extra$BackQuote;
-var _scottcorgan$keyboard_combo$Keyboard_Combo$forwardSlash = _ohanhi$keyboard_extra$Keyboard_Extra$Quote;
+var _scottcorgan$keyboard_combo$Keyboard_Combo$forwardSlash = _ohanhi$keyboard_extra$Keyboard_Extra$Slash;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$backSlash = _ohanhi$keyboard_extra$Keyboard_Extra$BackSlash;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$closeBracket = _ohanhi$keyboard_extra$Keyboard_Extra$CloseBracket;
 var _scottcorgan$keyboard_combo$Keyboard_Combo$openBracket = _ohanhi$keyboard_extra$Keyboard_Extra$OpenBracket;
@@ -17666,27 +18458,27 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4 = F5(
 		return {ctor: 'KeyCombo4', _0: a, _1: b, _2: c, _3: d, _4: e};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo4 = F2(
-	function (_p4, msg) {
-		var _p5 = _p4;
-		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p5._0, _p5._1, _p5._2, _p5._3, msg);
+	function (_p5, msg) {
+		var _p6 = _p5;
+		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p6._0, _p6._1, _p6._2, _p6._3, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3 = F4(
 	function (a, b, c, d) {
 		return {ctor: 'KeyCombo3', _0: a, _1: b, _2: c, _3: d};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo3 = F2(
-	function (_p6, msg) {
-		var _p7 = _p6;
-		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p7._0, _p7._1, _p7._2, msg);
+	function (_p7, msg) {
+		var _p8 = _p7;
+		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p8._0, _p8._1, _p8._2, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2 = F3(
 	function (a, b, c) {
 		return {ctor: 'KeyCombo2', _0: a, _1: b, _2: c};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo2 = F2(
-	function (_p8, msg) {
-		var _p9 = _p8;
-		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p9._0, _p9._1, msg);
+	function (_p9, msg) {
+		var _p10 = _p9;
+		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p10._0, _p10._1, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo = F2(
 	function (a, b) {
@@ -17697,6 +18489,8 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$combo1 = F2(
 		return A2(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo, key, msg);
 	});
 
+var _joefiorini$flittal$Msg$ClearBoard = {ctor: 'ClearBoard'};
+var _joefiorini$flittal$Msg$ShareBoard = {ctor: 'ShareBoard'};
 var _joefiorini$flittal$Msg$ResizeWindow = function (a) {
 	return {ctor: 'ResizeWindow', _0: a};
 };
@@ -17713,12 +18507,8 @@ var _joefiorini$flittal$Msg$UrlChange = function (a) {
 var _joefiorini$flittal$Msg$LoadedState = function (a) {
 	return {ctor: 'LoadedState', _0: a};
 };
-var _joefiorini$flittal$Msg$SerializeState = {ctor: 'SerializeState'};
 var _joefiorini$flittal$Msg$Redo = {ctor: 'Redo'};
 var _joefiorini$flittal$Msg$Undo = {ctor: 'Undo'};
-var _joefiorini$flittal$Msg$ToolbarUpdate = function (a) {
-	return {ctor: 'ToolbarUpdate', _0: a};
-};
 var _joefiorini$flittal$Msg$BoardUpdate = function (a) {
 	return {ctor: 'BoardUpdate', _0: a};
 };
@@ -19858,11 +20648,6 @@ var _joefiorini$flittal$Board_Controller$view = F3(
 	});
 
 var _joefiorini$flittal$Interop$loadedState = _elm_lang$core$Native_Platform.incomingPort('loadedState', _elm_lang$core$Json_Decode$string);
-var _joefiorini$flittal$Interop$serializeState = _elm_lang$core$Native_Platform.outgoingPort(
-	'serializeState',
-	function (v) {
-		return v;
-	});
 var _joefiorini$flittal$Interop$drop = _elm_lang$core$Native_Platform.incomingPort(
 	'drop',
 	A2(
@@ -20151,15 +20936,718 @@ var _joefiorini$flittal$Partials_Footer$view = A2(
 		_1: {ctor: '[]'}
 	});
 
+var _joefiorini$flittal$Partials_Toolbar$shareUrl = F2(
+	function (location, encodedBoard) {
+		var _p0 = encodedBoard;
+		if (_p0.ctor === 'Just') {
+			var hostAndPath = A2(
+				_elm_lang$core$String$join,
+				'/',
+				{
+					ctor: '::',
+					_0: location.host,
+					_1: {
+						ctor: '::',
+						_0: '#',
+						_1: {
+							ctor: '::',
+							_0: _p0._0,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				location.protocol,
+				A2(_elm_lang$core$Basics_ops['++'], '//', hostAndPath));
+		} else {
+			return '';
+		}
+	});
+var _joefiorini$flittal$Partials_Toolbar$shareButton = F2(
+	function (encodedBoard, location) {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('share'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('share__url'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$id('share-url'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$placeholder('Share this board'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_joefiorini$flittal$Msg$ShareBoard),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$type_('text'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$readonly(true),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$value(
+													A2(_joefiorini$flittal$Partials_Toolbar$shareUrl, location, encodedBoard)),
+												_1: {ctor: '[]'}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('button-pseudo'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$img,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$src('/images/icon-share.svg'),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$width(25),
+										_1: {ctor: '[]'}
+									}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _joefiorini$flittal$Partials_Toolbar$clearButton = A2(
+	_elm_lang$html$Html$div,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('clear-board'),
+		_1: {ctor: '[]'}
+	},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$button,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Events$onClick(_joefiorini$flittal$Msg$ClearBoard),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$title('Clear the board'),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$img,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$src('/images/icon-clear.svg'),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'}),
+				_1: {ctor: '[]'}
+			}),
+		_1: {ctor: '[]'}
+	});
+var _joefiorini$flittal$Partials_Toolbar$view = F2(
+	function (encodedBoard, location) {
+		return A2(
+			_elm_lang$html$Html$section,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('l-container'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _joefiorini$flittal$Partials_Toolbar$clearButton,
+				_1: {
+					ctor: '::',
+					_0: A2(_joefiorini$flittal$Partials_Toolbar$shareButton, encodedBoard, location),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+
+var _truqu$elm_base64$Base64_Decode$charToInt = function ($char) {
+	var _p0 = $char;
+	switch (_p0.valueOf()) {
+		case 'A':
+			return 0;
+		case 'B':
+			return 1;
+		case 'C':
+			return 2;
+		case 'D':
+			return 3;
+		case 'E':
+			return 4;
+		case 'F':
+			return 5;
+		case 'G':
+			return 6;
+		case 'H':
+			return 7;
+		case 'I':
+			return 8;
+		case 'J':
+			return 9;
+		case 'K':
+			return 10;
+		case 'L':
+			return 11;
+		case 'M':
+			return 12;
+		case 'N':
+			return 13;
+		case 'O':
+			return 14;
+		case 'P':
+			return 15;
+		case 'Q':
+			return 16;
+		case 'R':
+			return 17;
+		case 'S':
+			return 18;
+		case 'T':
+			return 19;
+		case 'U':
+			return 20;
+		case 'V':
+			return 21;
+		case 'W':
+			return 22;
+		case 'X':
+			return 23;
+		case 'Y':
+			return 24;
+		case 'Z':
+			return 25;
+		case 'a':
+			return 26;
+		case 'b':
+			return 27;
+		case 'c':
+			return 28;
+		case 'd':
+			return 29;
+		case 'e':
+			return 30;
+		case 'f':
+			return 31;
+		case 'g':
+			return 32;
+		case 'h':
+			return 33;
+		case 'i':
+			return 34;
+		case 'j':
+			return 35;
+		case 'k':
+			return 36;
+		case 'l':
+			return 37;
+		case 'm':
+			return 38;
+		case 'n':
+			return 39;
+		case 'o':
+			return 40;
+		case 'p':
+			return 41;
+		case 'q':
+			return 42;
+		case 'r':
+			return 43;
+		case 's':
+			return 44;
+		case 't':
+			return 45;
+		case 'u':
+			return 46;
+		case 'v':
+			return 47;
+		case 'w':
+			return 48;
+		case 'x':
+			return 49;
+		case 'y':
+			return 50;
+		case 'z':
+			return 51;
+		case '0':
+			return 52;
+		case '1':
+			return 53;
+		case '2':
+			return 54;
+		case '3':
+			return 55;
+		case '4':
+			return 56;
+		case '5':
+			return 57;
+		case '6':
+			return 58;
+		case '7':
+			return 59;
+		case '8':
+			return 60;
+		case '9':
+			return 61;
+		case '+':
+			return 62;
+		case '/':
+			return 63;
+		default:
+			return 0;
+	}
+};
+var _truqu$elm_base64$Base64_Decode$intToString = function ($int) {
+	if (_elm_lang$core$Native_Utils.cmp($int, 65536) < 1) {
+		return _elm_lang$core$String$fromChar(
+			_elm_lang$core$Char$fromCode($int));
+	} else {
+		var c = $int - 65536;
+		return _elm_lang$core$String$fromList(
+			{
+				ctor: '::',
+				_0: _elm_lang$core$Char$fromCode(55296 | (c >>> 10)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$core$Char$fromCode(56320 | (1023 & c)),
+					_1: {ctor: '[]'}
+				}
+			});
+	}
+};
+var _truqu$elm_base64$Base64_Decode$add = F2(
+	function ($char, _p1) {
+		var _p2 = _p1;
+		var _p4 = _p2._2;
+		var _p3 = _p2._1;
+		var shiftAndAdd = function ($int) {
+			return (63 & $int) | (_p2._0 << 6);
+		};
+		return _elm_lang$core$Native_Utils.eq(_p3, 0) ? (_elm_lang$core$Native_Utils.eq(128 & $char, 0) ? {
+			ctor: '_Tuple3',
+			_0: 0,
+			_1: 0,
+			_2: A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p4,
+				_truqu$elm_base64$Base64_Decode$intToString($char))
+		} : (_elm_lang$core$Native_Utils.eq(224 & $char, 192) ? {ctor: '_Tuple3', _0: 31 & $char, _1: 1, _2: _p4} : (_elm_lang$core$Native_Utils.eq(240 & $char, 224) ? {ctor: '_Tuple3', _0: 15 & $char, _1: 2, _2: _p4} : {ctor: '_Tuple3', _0: 7 & $char, _1: 3, _2: _p4}))) : (_elm_lang$core$Native_Utils.eq(_p3, 1) ? {
+			ctor: '_Tuple3',
+			_0: 0,
+			_1: 0,
+			_2: A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p4,
+				_truqu$elm_base64$Base64_Decode$intToString(
+					shiftAndAdd($char)))
+		} : {
+			ctor: '_Tuple3',
+			_0: shiftAndAdd($char),
+			_1: _p3 - 1,
+			_2: _p4
+		});
+	});
+var _truqu$elm_base64$Base64_Decode$toUTF16 = F2(
+	function ($char, acc) {
+		return {
+			ctor: '_Tuple3',
+			_0: 0,
+			_1: 0,
+			_2: A2(
+				_truqu$elm_base64$Base64_Decode$add,
+				255 & ($char >>> 0),
+				A2(
+					_truqu$elm_base64$Base64_Decode$add,
+					255 & ($char >>> 8),
+					A2(_truqu$elm_base64$Base64_Decode$add, 255 & ($char >>> 16), acc)))
+		};
+	});
+var _truqu$elm_base64$Base64_Decode$chomp = F2(
+	function (char_, _p5) {
+		var _p6 = _p5;
+		var _p10 = _p6._2;
+		var _p9 = _p6._0;
+		var _p8 = _p6._1;
+		var $char = _truqu$elm_base64$Base64_Decode$charToInt(char_);
+		var _p7 = _p8;
+		if (_p7 === 3) {
+			return A2(_truqu$elm_base64$Base64_Decode$toUTF16, _p9 | $char, _p10);
+		} else {
+			return {ctor: '_Tuple3', _0: ($char << ((3 - _p8) * 6)) | _p9, _1: _p8 + 1, _2: _p10};
+		}
+	});
+var _truqu$elm_base64$Base64_Decode$initial = {
+	ctor: '_Tuple3',
+	_0: 0,
+	_1: 0,
+	_2: {ctor: '_Tuple3', _0: 0, _1: 0, _2: ''}
+};
+var _truqu$elm_base64$Base64_Decode$wrapUp = function (_p11) {
+	var _p12 = _p11;
+	return (_elm_lang$core$Native_Utils.cmp(_p12._2._1, 0) > 0) ? _elm_lang$core$Result$Err('Invalid UTF-16') : _elm_lang$core$Result$Ok(_p12._2._2);
+};
+var _truqu$elm_base64$Base64_Decode$stripNulls = F2(
+	function (input, output) {
+		return A2(_elm_lang$core$String$endsWith, '==', input) ? A2(_elm_lang$core$String$dropRight, 2, output) : (A2(_elm_lang$core$String$endsWith, '=', input) ? A2(_elm_lang$core$String$dropRight, 1, output) : output);
+	});
+var _truqu$elm_base64$Base64_Decode$validBase64Regex = _elm_lang$core$Regex$regex('^([A-Za-z0-9\\/+]{4})*([A-Za-z0-9\\/+]{2}[A-Za-z0-9\\/+=]{2})?$');
+var _truqu$elm_base64$Base64_Decode$validate = function (input) {
+	return A2(_elm_lang$core$Regex$contains, _truqu$elm_base64$Base64_Decode$validBase64Regex, input) ? _elm_lang$core$Result$Ok(input) : _elm_lang$core$Result$Err('Invalid base64');
+};
+var _truqu$elm_base64$Base64_Decode$pad = function (input) {
+	var _p13 = A2(
+		_elm_lang$core$Basics$rem,
+		_elm_lang$core$String$length(input),
+		4);
+	switch (_p13) {
+		case 3:
+			return A2(_elm_lang$core$Basics_ops['++'], input, '=');
+		case 2:
+			return A2(_elm_lang$core$Basics_ops['++'], input, '==');
+		default:
+			return input;
+	}
+};
+var _truqu$elm_base64$Base64_Decode$validateAndDecode = function (input) {
+	return A2(
+		_elm_lang$core$Result$map,
+		_truqu$elm_base64$Base64_Decode$stripNulls(input),
+		A2(
+			_elm_lang$core$Result$andThen,
+			function (_p14) {
+				return _truqu$elm_base64$Base64_Decode$wrapUp(
+					A3(_elm_lang$core$String$foldl, _truqu$elm_base64$Base64_Decode$chomp, _truqu$elm_base64$Base64_Decode$initial, _p14));
+			},
+			_truqu$elm_base64$Base64_Decode$validate(input)));
+};
+var _truqu$elm_base64$Base64_Decode$decode = function (_p15) {
+	return _truqu$elm_base64$Base64_Decode$validateAndDecode(
+		_truqu$elm_base64$Base64_Decode$pad(_p15));
+};
+
+var _truqu$elm_base64$Base64_Encode$intToBase64 = function (i) {
+	var _p0 = i;
+	switch (_p0) {
+		case 0:
+			return 'A';
+		case 1:
+			return 'B';
+		case 2:
+			return 'C';
+		case 3:
+			return 'D';
+		case 4:
+			return 'E';
+		case 5:
+			return 'F';
+		case 6:
+			return 'G';
+		case 7:
+			return 'H';
+		case 8:
+			return 'I';
+		case 9:
+			return 'J';
+		case 10:
+			return 'K';
+		case 11:
+			return 'L';
+		case 12:
+			return 'M';
+		case 13:
+			return 'N';
+		case 14:
+			return 'O';
+		case 15:
+			return 'P';
+		case 16:
+			return 'Q';
+		case 17:
+			return 'R';
+		case 18:
+			return 'S';
+		case 19:
+			return 'T';
+		case 20:
+			return 'U';
+		case 21:
+			return 'V';
+		case 22:
+			return 'W';
+		case 23:
+			return 'X';
+		case 24:
+			return 'Y';
+		case 25:
+			return 'Z';
+		case 26:
+			return 'a';
+		case 27:
+			return 'b';
+		case 28:
+			return 'c';
+		case 29:
+			return 'd';
+		case 30:
+			return 'e';
+		case 31:
+			return 'f';
+		case 32:
+			return 'g';
+		case 33:
+			return 'h';
+		case 34:
+			return 'i';
+		case 35:
+			return 'j';
+		case 36:
+			return 'k';
+		case 37:
+			return 'l';
+		case 38:
+			return 'm';
+		case 39:
+			return 'n';
+		case 40:
+			return 'o';
+		case 41:
+			return 'p';
+		case 42:
+			return 'q';
+		case 43:
+			return 'r';
+		case 44:
+			return 's';
+		case 45:
+			return 't';
+		case 46:
+			return 'u';
+		case 47:
+			return 'v';
+		case 48:
+			return 'w';
+		case 49:
+			return 'x';
+		case 50:
+			return 'y';
+		case 51:
+			return 'z';
+		case 52:
+			return '0';
+		case 53:
+			return '1';
+		case 54:
+			return '2';
+		case 55:
+			return '3';
+		case 56:
+			return '4';
+		case 57:
+			return '5';
+		case 58:
+			return '6';
+		case 59:
+			return '7';
+		case 60:
+			return '8';
+		case 61:
+			return '9';
+		case 62:
+			return '+';
+		default:
+			return '/';
+	}
+};
+var _truqu$elm_base64$Base64_Encode$toBase64 = function ($int) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_truqu$elm_base64$Base64_Encode$intToBase64(63 & ($int >>> 18)),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			_truqu$elm_base64$Base64_Encode$intToBase64(63 & ($int >>> 12)),
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_truqu$elm_base64$Base64_Encode$intToBase64(63 & ($int >>> 6)),
+				_truqu$elm_base64$Base64_Encode$intToBase64(63 & ($int >>> 0)))));
+};
+var _truqu$elm_base64$Base64_Encode$add = F2(
+	function ($char, _p1) {
+		var _p2 = _p1;
+		var _p5 = _p2._0;
+		var _p4 = _p2._1;
+		var current = (_p2._2 << 8) | $char;
+		var _p3 = _p4;
+		if (_p3 === 2) {
+			return {
+				ctor: '_Tuple3',
+				_0: A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p5,
+					_truqu$elm_base64$Base64_Encode$toBase64(current)),
+				_1: 0,
+				_2: 0
+			};
+		} else {
+			return {ctor: '_Tuple3', _0: _p5, _1: _p4 + 1, _2: current};
+		}
+	});
+var _truqu$elm_base64$Base64_Encode$chomp = F2(
+	function (char_, _p6) {
+		var _p7 = _p6;
+		var _p9 = _p7._1;
+		var $char = _elm_lang$core$Char$toCode(char_);
+		var _p8 = _p7._0;
+		if (_p8.ctor === 'Nothing') {
+			return (_elm_lang$core$Native_Utils.cmp($char, 128) < 0) ? {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Maybe$Nothing,
+				_1: A2(_truqu$elm_base64$Base64_Encode$add, $char, _p9)
+			} : ((_elm_lang$core$Native_Utils.cmp($char, 2048) < 0) ? {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Maybe$Nothing,
+				_1: A2(
+					_truqu$elm_base64$Base64_Encode$add,
+					128 | (63 & $char),
+					A2(_truqu$elm_base64$Base64_Encode$add, 192 | ($char >>> 6), _p9))
+			} : (((_elm_lang$core$Native_Utils.cmp($char, 55296) < 0) || (_elm_lang$core$Native_Utils.cmp($char, 57344) > -1)) ? {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Maybe$Nothing,
+				_1: A2(
+					_truqu$elm_base64$Base64_Encode$add,
+					128 | (63 & $char),
+					A2(
+						_truqu$elm_base64$Base64_Encode$add,
+						128 | (63 & ($char >>> 6)),
+						A2(_truqu$elm_base64$Base64_Encode$add, 224 | ($char >>> 12), _p9)))
+			} : {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Maybe$Just($char),
+				_1: _p9
+			}));
+		} else {
+			var combined = A2(
+				F2(
+					function (x, y) {
+						return x + y;
+					}),
+				65536,
+				(1023 & $char) | ((1023 & _p8._0) << 10));
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Maybe$Nothing,
+				_1: A2(
+					_truqu$elm_base64$Base64_Encode$add,
+					128 | (63 & combined),
+					A2(
+						_truqu$elm_base64$Base64_Encode$add,
+						128 | (63 & (combined >>> 6)),
+						A2(
+							_truqu$elm_base64$Base64_Encode$add,
+							128 | (63 & (combined >>> 12)),
+							A2(_truqu$elm_base64$Base64_Encode$add, 240 | (combined >>> 18), _p9))))
+			};
+		}
+	});
+var _truqu$elm_base64$Base64_Encode$wrapUp = function (_p10) {
+	var _p11 = _p10;
+	var _p14 = _p11._1._0;
+	var _p13 = _p11._1._2;
+	var _p12 = _p11._1._1;
+	switch (_p12) {
+		case 1:
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p14,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_truqu$elm_base64$Base64_Encode$intToBase64(63 & (_p13 >>> 2)),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_truqu$elm_base64$Base64_Encode$intToBase64(63 & (_p13 << 4)),
+						'==')));
+		case 2:
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p14,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_truqu$elm_base64$Base64_Encode$intToBase64(63 & (_p13 >>> 10)),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_truqu$elm_base64$Base64_Encode$intToBase64(63 & (_p13 >>> 4)),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_truqu$elm_base64$Base64_Encode$intToBase64(63 & (_p13 << 2)),
+							'='))));
+		default:
+			return _p14;
+	}
+};
+var _truqu$elm_base64$Base64_Encode$initial = {
+	ctor: '_Tuple2',
+	_0: _elm_lang$core$Maybe$Nothing,
+	_1: {ctor: '_Tuple3', _0: '', _1: 0, _2: 0}
+};
+var _truqu$elm_base64$Base64_Encode$encode = function (input) {
+	return _truqu$elm_base64$Base64_Encode$wrapUp(
+		A3(_elm_lang$core$String$foldl, _truqu$elm_base64$Base64_Encode$chomp, _truqu$elm_base64$Base64_Encode$initial, input));
+};
+
+var _truqu$elm_base64$Base64$decode = _truqu$elm_base64$Base64_Decode$decode;
+var _truqu$elm_base64$Base64$encode = _truqu$elm_base64$Base64_Encode$encode;
+
 var _joefiorini$flittal$Main$container = function (state) {
+	var currentLocation = function () {
+		var _p0 = state.navigationHistory;
+		if (_p0.ctor === '::') {
+			return _p0._0;
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'Main',
+				{
+					start: {line: 459, column: 13},
+					end: {line: 464, column: 57}
+				},
+				_p0)('No navigation history!');
+		}
+	}();
 	var offsetHeight = state.windowSize.height - 52;
 	var board = A3(_joefiorini$flittal$Board_Controller$view, _joefiorini$flittal$Msg$BoardUpdate, state.currentBoard, offsetHeight);
 	var sidebar = function (h) {
 		return _joefiorini$flittal$Partials_Sidebar$view(h);
 	};
-	var _p0 = function () {
-		var _p1 = state.currentRoute;
-		switch (_p1.ctor) {
+	var _p2 = function () {
+		var _p3 = state.currentRoute;
+		switch (_p3.ctor) {
 			case 'About':
 				return {
 					ctor: '_Tuple3',
@@ -20197,9 +21685,9 @@ var _joefiorini$flittal$Main$container = function (state) {
 				};
 		}
 	}();
-	var sidebar_ = _p0._0;
-	var extraClass = _p0._1;
-	var sidebarHeight = _p0._2;
+	var sidebar_ = _p2._0;
+	var extraClass = _p2._1;
+	var sidebarHeight = _p2._2;
 	return A2(
 		_elm_lang$html$Html$section,
 		{ctor: '[]'},
@@ -20208,7 +21696,7 @@ var _joefiorini$flittal$Main$container = function (state) {
 			_0: _joefiorini$flittal$Partials_Header$view,
 			_1: {
 				ctor: '::',
-				_0: _joefiorini$flittal$Partials_Toolbar$view(_joefiorini$flittal$Msg$ToolbarUpdate),
+				_0: A2(_joefiorini$flittal$Partials_Toolbar$view, state.encodedBoard, currentLocation),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -20302,9 +21790,9 @@ var _joefiorini$flittal$Main$initTimeMachine = function (appState) {
 		{boardHistory: history});
 };
 var _joefiorini$flittal$Main$entersEditMode = function (update) {
-	var _p2 = update;
-	if (_p2.ctor === 'BoardUpdate') {
-		return _joefiorini$flittal$Board_Controller$entersEditMode(_p2._0);
+	var _p4 = update;
+	if (_p4.ctor === 'BoardUpdate') {
+		return _joefiorini$flittal$Board_Controller$entersEditMode(_p4._0);
 	} else {
 		return false;
 	}
@@ -20342,30 +21830,34 @@ var _joefiorini$flittal$Main$subscriptions = function (model) {
 		});
 };
 var _joefiorini$flittal$Main$extractAppState = function (result) {
-	var _p3 = result;
-	if (_p3.ctor === 'Ok') {
-		return _p3._0;
+	var _p5 = result;
+	if (_p5.ctor === 'Ok') {
+		return _p5._0;
 	} else {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 205, column: 5},
-				end: {line: 210, column: 26}
+				start: {line: 232, column: 5},
+				end: {line: 237, column: 26}
 			},
-			_p3)(_p3._0);
+			_p5)(_p5._0);
 	}
 };
-var _joefiorini$flittal$Main$encodeAppState = function (state) {
-	return _elm_lang$core$Json_Encode$object(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'currentBoard',
-				_1: _joefiorini$flittal$Board_Model$encode(state.currentBoard)
-			},
-			_1: {ctor: '[]'}
-		});
+var _joefiorini$flittal$Main$decodeAppState = function (s) {
+	return A3(
+		_elm_lang$core$Basics$flip,
+		_elm_lang$core$Json_Decode$decodeString,
+		s,
+		A2(_elm_lang$core$Json_Decode$field, 'currentBoard', _joefiorini$flittal$Board_Model$decode));
+};
+var _joefiorini$flittal$Main$serializeBoardState = function (board) {
+	return A2(
+		_elm_lang$core$Json_Encode$encode,
+		0,
+		_joefiorini$flittal$Board_Model$encode(board));
+};
+var _joefiorini$flittal$Main$getEncodedState = function (location) {
+	return A2(_evancz$url_parser$UrlParser$parseHash, _evancz$url_parser$UrlParser$string, location);
 };
 var _joefiorini$flittal$Main$sizingCombos = function () {
 	var updateSize = function (size) {
@@ -20504,28 +21996,28 @@ var _joefiorini$flittal$Main$movementCombos = function () {
 		});
 	return A2(
 		_elm_lang$core$List$concatMap,
-		function (_p5) {
-			var _p6 = _p5;
-			var _p8 = _p6._0;
-			var _p7 = _p6._1;
+		function (_p7) {
+			var _p8 = _p7;
+			var _p10 = _p8._0;
+			var _p9 = _p8._1;
 			return {
 				ctor: '::',
 				_0: A2(
 					_scottcorgan$keyboard_combo$Keyboard_Combo$combo1,
-					_p8,
-					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p7)),
+					_p10,
+					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p9)),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_scottcorgan$keyboard_combo$Keyboard_Combo$combo2,
-						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p8},
-						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p7)),
+						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p10},
+						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p9)),
 					_1: {
 						ctor: '::',
 						_0: A2(
 							_scottcorgan$keyboard_combo$Keyboard_Combo$combo3,
-							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p8},
-							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p7)),
+							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p10},
+							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p9)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -20634,26 +22126,25 @@ var _joefiorini$flittal$Main$keyboardCombos = A2(
 						_1: {ctor: '[]'}
 					})))));
 var _joefiorini$flittal$Main$mkState = F3(
-	function (navigationHistory, windowSize, board) {
+	function (location, windowSize, board) {
 		return {
 			currentBoard: board,
 			boardHistory: _elm_community$undo_redo$UndoList$fresh(board),
 			currentRoute: _joefiorini$flittal$Routes$Root,
-			navigationHistory: navigationHistory,
+			navigationHistory: {
+				ctor: '::',
+				_0: location,
+				_1: {ctor: '[]'}
+			},
+			currentLocation: location,
 			keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo),
-			windowSize: windowSize
+			windowSize: windowSize,
+			encodedBoard: _elm_lang$core$Maybe$Nothing
 		};
 	});
-var _joefiorini$flittal$Main$decodeAppState = A2(
-	_elm_lang$core$Json_Decode$map,
-	A2(
-		_joefiorini$flittal$Main$mkState,
-		{ctor: '[]'},
-		{width: 0, height: 0}),
-	A2(_elm_lang$core$Json_Decode$field, 'currentBoard', _joefiorini$flittal$Board_Model$decode));
 var _joefiorini$flittal$Main$parseLocation = function (location) {
-	var _p9 = location.pathname;
-	switch (_p9) {
+	var _p11 = location.pathname;
+	switch (_p11) {
 		case '/':
 			return _joefiorini$flittal$Routes$Root;
 		case '/about':
@@ -20670,68 +22161,78 @@ var _joefiorini$flittal$Main$parseLocation = function (location) {
 };
 var _joefiorini$flittal$Main$startingState = F2(
 	function (flags, location) {
+		var boardState = function () {
+			var _p12 = _joefiorini$flittal$Main$getEncodedState(location);
+			if (_p12.ctor === 'Just') {
+				var decoded = function (s) {
+					return A2(
+						_elm_community$result_extra$Result_Extra$orElse,
+						_joefiorini$flittal$Main$decodeAppState(s),
+						A2(_elm_lang$core$Json_Decode$decodeString, _joefiorini$flittal$Board_Model$decode, s));
+				};
+				var decodeBoard = function (s) {
+					return A2(
+						_elm_lang$core$Debug$log,
+						'decoded',
+						A2(
+							_elm_lang$core$Result$andThen,
+							function (s) {
+								return decoded(s);
+							},
+							_truqu$elm_base64$Base64$decode(s)));
+				};
+				return A2(
+					_elm_lang$core$Result$withDefault,
+					_joefiorini$flittal$Board_Controller$startingState,
+					decodeBoard(_p12._0));
+			} else {
+				return _joefiorini$flittal$Board_Controller$startingState;
+			}
+		}();
 		var currentRoute = _joefiorini$flittal$Main$parseLocation(location);
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			A3(
-				_joefiorini$flittal$Main$mkState,
-				{
-					ctor: '::',
-					_0: location,
-					_1: {ctor: '[]'}
-				},
-				flags.windowSize,
-				_joefiorini$flittal$Board_Controller$startingState),
+			A3(_joefiorini$flittal$Main$mkState, location, flags.windowSize, boardState),
 			{ctor: '[]'});
 	});
 var _joefiorini$flittal$Main$step = F2(
 	function (update, state) {
-		var _p10 = update;
-		switch (_p10.ctor) {
+		var _p13 = update;
+		switch (_p13.ctor) {
 			case 'LoadedState':
-				return A3(
-					_elm_lang$core$Basics$flip,
-					F2(
-						function (x, y) {
-							return A2(_elm_lang$core$Platform_Cmd_ops['!'], x, y);
-						}),
-					{
-						ctor: '::',
-						_0: _elm_lang$core$Platform_Cmd$none,
-						_1: {ctor: '[]'}
-					},
-					_joefiorini$flittal$Main$initTimeMachine(
-						_joefiorini$flittal$Main$extractAppState(
-							A2(_elm_lang$core$Json_Decode$decodeString, _joefiorini$flittal$Main$decodeAppState, _p10._0))));
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					state,
+					{ctor: '[]'});
 			case 'NewPage':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					state,
 					{
 						ctor: '::',
-						_0: _elm_lang$navigation$Navigation$newUrl(_p10._0),
+						_0: _elm_lang$navigation$Navigation$newUrl(_p13._0),
 						_1: {ctor: '[]'}
 					});
 			case 'UrlChange':
-				var _p11 = _p10._0;
-				var newRoute = _joefiorini$flittal$Main$parseLocation(_p11);
+				var _p14 = _p13._0;
+				var newRoute = _joefiorini$flittal$Main$parseLocation(_p14);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
 						{
 							currentRoute: newRoute,
-							navigationHistory: {ctor: '::', _0: _p11, _1: state.navigationHistory}
+							navigationHistory: {ctor: '::', _0: _p14, _1: state.navigationHistory}
 						}),
 					{ctor: '[]'});
 			case 'BoardUpdate':
-				var _p16 = _p10._0;
-				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p16, state.currentBoard);
+				var _p19 = _p13._0;
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p19, state.currentBoard);
 				var focusBox = function (boxKey) {
 					var doNothing = function (task) {
 						return A2(
 							_elm_lang$core$Task$attempt,
-							function (_p12) {
+							function (_p15) {
 								return _joefiorini$flittal$Msg$NoOp;
 							},
 							task);
@@ -20749,40 +22250,40 @@ var _joefiorini$flittal$Main$step = F2(
 					};
 				};
 				var cmd = function () {
-					var _p13 = _p16;
-					_v6_2:
+					var _p16 = _p19;
+					_v8_2:
 					do {
-						switch (_p13.ctor) {
+						switch (_p16.ctor) {
 							case 'EditingSelectedBox':
-								if (_p13._0 === true) {
+								if (_p16._0 === true) {
 									var selectedBox = A2(
 										_elm_community$list_extra$List_Extra$find,
 										function (b) {
 											return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
 										},
 										state.currentBoard.boxes);
-									var _p14 = selectedBox;
-									if (_p14.ctor === 'Just') {
-										return focusBox(_p14._0.key);
+									var _p17 = selectedBox;
+									if (_p17.ctor === 'Just') {
+										return focusBox(_p17._0.key);
 									} else {
 										return {ctor: '[]'};
 									}
 								} else {
-									break _v6_2;
+									break _v8_2;
 								}
 							case 'EditingBox':
-								return _p13._1 ? focusBox(_p13._0) : {ctor: '[]'};
+								return _p16._1 ? focusBox(_p16._0) : {ctor: '[]'};
 							default:
-								break _v6_2;
+								break _v8_2;
 						}
 					} while(false);
 					return {ctor: '[]'};
 				}();
 				var isRecordable = function () {
-					var _p15 = _p16;
-					_v8_7:
+					var _p18 = _p19;
+					_v10_7:
 					do {
-						switch (_p15.ctor) {
+						switch (_p18.ctor) {
 							case 'NewBox':
 								return true;
 							case 'DeleteSelections':
@@ -20796,13 +22297,13 @@ var _joefiorini$flittal$Main$step = F2(
 							case 'ResizeBox':
 								return true;
 							case 'BoxAction':
-								if (_p15._0.ctor === 'EditingBox') {
+								if (_p18._0.ctor === 'EditingBox') {
 									return true;
 								} else {
-									break _v8_7;
+									break _v10_7;
 								}
 							default:
-								break _v8_7;
+								break _v10_7;
 						}
 					} while(false);
 					return false;
@@ -20816,7 +22317,7 @@ var _joefiorini$flittal$Main$step = F2(
 							boardHistory: isRecordable ? A2(_elm_community$undo_redo$UndoList$new, newBoard, state.boardHistory) : state.boardHistory
 						}),
 					cmd);
-			case 'ToolbarUpdate':
+			case 'ClearBoard':
 				var updatedBoard = A2(_joefiorini$flittal$Board_Controller$step, _joefiorini$flittal$Board_Msg$ClearBoard, state.currentBoard);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -20824,6 +22325,24 @@ var _joefiorini$flittal$Main$step = F2(
 						state,
 						{currentBoard: updatedBoard}),
 					{ctor: '[]'});
+			case 'ShareBoard':
+				var serializeAndEncodeBoard = function (_p20) {
+					return _truqu$elm_base64$Base64$encode(
+						_joefiorini$flittal$Main$serializeBoardState(_p20));
+				};
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
+						state,
+						{
+							encodedBoard: _elm_lang$core$Maybe$Just(
+								serializeAndEncodeBoard(state.currentBoard))
+						}),
+					{
+						ctor: '::',
+						_0: _joefiorini$flittal$Interop$selectInputText('share-url'),
+						_1: {ctor: '[]'}
+					});
 			case 'Undo':
 				var history = _elm_community$undo_redo$UndoList$undo(state.boardHistory);
 				return A3(
@@ -20852,22 +22371,10 @@ var _joefiorini$flittal$Main$step = F2(
 							state,
 							{currentBoard: board, boardHistory: history});
 					}(history.present));
-			case 'SerializeState':
-				return {
-					ctor: '_Tuple2',
-					_0: state,
-					_1: _joefiorini$flittal$Interop$serializeState(
-						function (_p17) {
-							return A2(
-								_elm_lang$core$Json_Encode$encode,
-								0,
-								_joefiorini$flittal$Main$encodeAppState(_p17));
-						}(state))
-				};
 			case 'KeyCombo':
-				var _p18 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p10._0, state.keys);
-				var keys = _p18._0;
-				var cmd = _p18._1;
+				var _p21 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p13._0, state.keys);
+				var keys = _p21._0;
+				var cmd = _p21._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -20876,8 +22383,8 @@ var _joefiorini$flittal$Main$step = F2(
 					_1: cmd
 				};
 			case 'ToggleHelp':
-				var _p19 = state.currentRoute;
-				if (_p19.ctor === 'Help') {
+				var _p22 = state.currentRoute;
+				if (_p22.ctor === 'Help') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						state,
@@ -20901,7 +22408,7 @@ var _joefiorini$flittal$Main$step = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
-						{windowSize: _p10._0}),
+						{windowSize: _p13._0}),
 					{ctor: '[]'});
 			default:
 				return A2(
@@ -20938,15 +22445,15 @@ var _joefiorini$flittal$Main$main = A2(
 var _joefiorini$flittal$Main$Flags = function (a) {
 	return {windowSize: a};
 };
-var _joefiorini$flittal$Main$AppState = F6(
-	function (a, b, c, d, e, f) {
-		return {currentBoard: a, boardHistory: b, navigationHistory: c, currentRoute: d, keys: e, windowSize: f};
+var _joefiorini$flittal$Main$AppState = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {currentBoard: a, boardHistory: b, navigationHistory: c, currentLocation: d, currentRoute: e, keys: f, windowSize: g, encodedBoard: h};
 	});
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _joefiorini$flittal$Main$main !== 'undefined') {
-    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Partials.Toolbar.Msg":{"args":[],"tags":{"ShareBoard":[],"ClearBoard":[],"NoOp":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ToolbarUpdate":["Partials.Toolbar.Msg"],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"SerializeState":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
+    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ShareBoard":[],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"ClearBoard":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.KeyCode"],"Up":["Keyboard.KeyCode"]}},"Board.Msg.Msg":{"args":[],"tags":{"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Keyboard.KeyCode":{"args":[],"type":"Int"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

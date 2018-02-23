@@ -1,22 +1,18 @@
 module Partials.Toolbar exposing (..)
 
 import Html exposing (input, div, text, section, button, img, Html)
-import Html.Attributes exposing (class, placeholder, src, width, type_, readonly, required, title)
+import Html.Attributes exposing (id, class, placeholder, src, width, type_, readonly, required, title, value)
 import Html.Events exposing (onClick)
+import Msg exposing (Msg(..))
+import Navigation exposing (Location)
 
 
-type Msg
-    = ShareBoard
-    | ClearBoard
-    | NoOp
-
-
-clearButton : (Msg -> msg) -> Html msg
-clearButton tx =
+clearButton : Html Msg
+clearButton =
     div
         [ class "clear-board" ]
         [ button
-            [ onClick <| tx ClearBoard
+            [ onClick ClearBoard
             , title "Clear the board"
             ]
             [ img
@@ -26,16 +22,31 @@ clearButton tx =
         ]
 
 
-shareButton : (Msg -> msg) -> Html msg
-shareButton tx =
+shareUrl location encodedBoard =
+    case encodedBoard of
+        Just str ->
+            let
+                hostAndPath =
+                    String.join "/" [ location.host, "#", str ]
+            in
+                location.protocol ++ "//" ++ hostAndPath
+
+        Nothing ->
+            ""
+
+
+shareButton : Maybe String -> Location -> Html Msg
+shareButton encodedBoard location =
     div
         [ class "share" ]
         [ input
             [ class "share__url"
+            , id "share-url"
             , placeholder "Share this board"
-            , onClick <| tx ShareBoard
+            , onClick ShareBoard
             , type_ "text"
             , readonly True
+            , value <| shareUrl location <| encodedBoard
             ]
             []
         , button
@@ -49,10 +60,10 @@ shareButton tx =
         ]
 
 
-view : (Msg -> msg) -> Html msg
-view tx =
+view : Maybe String -> Location -> Html Msg
+view encodedBoard location =
     section
         [ class "l-container" ]
-        [ clearButton tx
-        , shareButton tx
+        [ clearButton
+        , shareButton encodedBoard location
         ]

@@ -31,6 +31,9 @@ import Msg exposing (Msg(..))
 import UndoList exposing (UndoList)
 import Geometry.Types as Geometry
 import Keyboard.Combo as Keys
+import Base64
+import UrlParser
+import Result.Extra as ResultExtra
 
 
 type alias Flags =
@@ -42,9 +45,11 @@ type alias AppState =
     { currentBoard : Board.Board
     , boardHistory : UndoList Board.Board
     , navigationHistory : List Location
+    , currentLocation : Location
     , currentRoute : Routes.RouteName
     , keys : Keys.Model Msg
     , windowSize : Window.Size
+    , encodedBoard : Maybe String
     }
 
 
@@ -166,38 +171,60 @@ keyboardCombos =
         ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp ]
 
 
+getEncodedState : Location -> Maybe String
+getEncodedState location =
+    UrlParser.parseHash UrlParser.string location
+
+
 startingState : Flags -> Location -> ( AppState, Cmd msg )
 startingState flags location =
     let
         currentRoute =
             parseLocation location
+
+        boardState =
+            case getEncodedState location of
+                Just str ->
+                    let
+                        decoded s =
+                            Decode.decodeString Board.Model.decode s
+                                |> ResultExtra.orElse (decodeAppState s)
+
+                        decodeBoard s =
+                            Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
+                    in
+                        Result.withDefault Board.startingState <| decodeBoard str
+
+                Nothing ->
+                    Board.startingState
     in
-        mkState [ location ] flags.windowSize Board.startingState
+        mkState location flags.windowSize boardState
             ! []
 
 
-encodeAppState : AppState -> Encode.Value
-encodeAppState state =
-    Encode.object
-        [ ( "currentBoard", Board.Model.encode state.currentBoard )
-        ]
+serializeBoardState : Model -> String
+serializeBoardState board =
+    Board.Model.encode board
+        |> Encode.encode 0
 
 
-mkState : List Location -> Window.Size -> Model -> AppState
-mkState navigationHistory windowSize board =
+mkState : Location -> Window.Size -> Model -> AppState
+mkState location windowSize board =
     { currentBoard = board
     , boardHistory = UndoList.fresh board
     , currentRoute = Routes.Root
-    , navigationHistory = navigationHistory
+    , navigationHistory = [ location ]
+    , currentLocation = location
     , keys = Keys.init keyboardCombos KeyCombo
     , windowSize = windowSize
+    , encodedBoard = Nothing
     }
 
 
-decodeAppState : Decoder AppState
-decodeAppState =
-    Decode.map (mkState [] { width = 0, height = 0 })
-        (field "currentBoard" Board.Model.decode)
+decodeAppState : String -> Result String Model
+decodeAppState s =
+    field "currentBoard" Board.Model.decode
+        |> flip Decode.decodeString s
 
 
 extractAppState : Result.Result String AppState -> AppState
@@ -244,12 +271,13 @@ step : Msg -> AppState -> ( AppState, Cmd Msg )
 step update state =
     case update of
         LoadedState deserializedState ->
-            deserializedState
-                |> decodeString decodeAppState
-                |> extractAppState
-                |> initTimeMachine
-                |> flip (!) [ Cmd.none ]
+            state ! []
 
+        -- deserializedState
+        --     |> decodeString decodeAppState
+        --     |> extractAppState
+        --     |> initTimeMachine
+        --     |> flip (!) [ Cmd.none ]
         NewPage path ->
             state ! [ Navigation.newUrl path ]
 
@@ -334,12 +362,19 @@ step update state =
                 }
                     ! cmd
 
-        ToolbarUpdate u ->
+        ClearBoard ->
             let
                 updatedBoard =
                     Board.step BoardMsg.ClearBoard state.currentBoard
             in
                 { state | currentBoard = updatedBoard } ! []
+
+        ShareBoard ->
+            let
+                serializeAndEncodeBoard =
+                    serializeBoardState >> Base64.encode
+            in
+                { state | encodedBoard = Just (serializeAndEncodeBoard state.currentBoard) } ! [ Interop.selectInputText "share-url" ]
 
         Undo ->
             let
@@ -368,14 +403,6 @@ step update state =
                             }
                        )
                     |> flip (!) []
-
-        SerializeState ->
-            ( state
-            , state
-                |> (Encode.encode 0)
-                << encodeAppState
-                |> Interop.serializeState
-            )
 
         KeyCombo combo ->
             let
@@ -427,10 +454,18 @@ container state =
 
                 _ ->
                     ( text "", "", 0 )
+
+        currentLocation =
+            case state.navigationHistory of
+                location :: _ ->
+                    location
+
+                _ ->
+                    Debug.crash "No navigation history!"
     in
         section []
             [ Header.view
-            , Toolbar.view ToolbarUpdate
+            , Toolbar.view state.encodedBoard currentLocation
             , main_
                 [ class "l-container" ]
                 [ section
