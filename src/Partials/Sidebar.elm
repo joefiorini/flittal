@@ -1,17 +1,16 @@
-module Partials.Sidebar where
+module Partials.Sidebar exposing (..)
 
-import Signal
-
-import LocalChannel as LC
-import Html (aside)
-import Html.Attributes (class)
-
-import DomUtils (linkTo)
+import Html exposing (aside, Html)
+import Html.Attributes exposing (class)
+import DomUtils exposing (linkTo)
 import Routes
+import Msg exposing (Msg)
 
-view child channel =
-  aside
-    [ class "sidebar" ]
-    [ linkTo "x" "#" (LC.send channel Routes.Root)
-    , child
-    ]
+
+view : Html Msg -> Html Msg
+view child =
+    aside
+        [ class "sidebar" ]
+        [ linkTo "x" "/"
+        , child
+        ]

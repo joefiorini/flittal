@@ -13,7 +13,7 @@
 }
 
 .l-board {
-  @include transition(width 0.25s ease-in-out);
+  transition: width 0.25s ease-in-out;
   width: 100%;
   display: inline-block;
   &--compressed {

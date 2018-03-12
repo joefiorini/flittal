@@ -1,71 +1,74 @@
-module DomUtils where
+module DomUtils exposing (..)
 
-import Html (..)
-import Html.Attributes (href, class)
-import Html.Events (onClick)
-import Native.Custom.Html
+import Dom.Types exposing (MouseSelectionEvent)
+import Html exposing (..)
+import Html.Events exposing (onWithOptions)
+import Html.Attributes exposing (class, href, property)
+import Html.Events exposing (onClick)
+import Json.Decode as Decode exposing (Decoder, at, bool, field, map5, string)
+import Json.Encode as Json
+import List exposing (head, reverse)
+import Msg exposing (..)
+import Result exposing (andThen, fromMaybe, map)
+import Routes exposing (RouteName)
+import String exposing (join, split, toInt)
 
-import Signal
 
-import Json.Decode as Json
-import Json.Decode (string, Decoder, at, (:=), object5, bool)
-import List (head, reverse)
+styleProperty : String -> String -> ( String, String )
+styleProperty =
+    (,)
 
-import String (split, toInt, join)
 
-type alias DragEvent =
-  { id: String
-  , isStart: Bool
-  , isEnd: Bool
-  , isDrop: Bool
-  , isMulti: Bool
-  , startX: Int
-  , endX: Int
-  , startY: Int
-  , endY: Int
-  }
-
-type alias MouseSelectionEvent =
-  { id: String
-  , metaKey: Bool
-  , altKey: Bool
-  , ctrlKey: Bool
-  , shiftKey: Bool
-  }
-
-styleProperty = (,)
-
-type alias DnDPort = Signal DragEvent
-
-getTargetId : Json.Decoder String
+getTargetId : Decoder String
 getTargetId =
-  at ["target", "id"] string
+    at [ "target", "id" ] string
 
-getMouseSelectionEvent : Json.Decoder MouseSelectionEvent
+
+getMouseSelectionEvent : Decoder MouseSelectionEvent
 getMouseSelectionEvent =
-  object5 MouseSelectionEvent
-    (at ["target", "id"] string)
-    ("metaKey" := bool)
-    ("altKey" := bool)
-    ("ctrlKey" := bool)
-    ("shiftKey" := bool)
+    map5 MouseSelectionEvent
+        (at [ "target", "id" ] string)
+        (field "metaKey" bool)
+        (field "altKey" bool)
+        (field "ctrlKey" bool)
+        (field "shiftKey" bool)
 
-stopPropagation = Native.Custom.Html.stopPropagation
-setFocus = Native.Custom.Html.setFocus
 
-on = Native.Custom.Html.on
+extractBoxId : String -> Maybe Int
+extractBoxId domId =
+    -- toInt << head << reverse <| split "-" id
+    let
+        firstItem =
+            split "-" domId |> reverse |> head
+    in
+        firstItem |> Maybe.andThen (\s -> (toInt s) |> Result.toMaybe)
 
-extractBoxId : String -> Result String Int
-extractBoxId id = toInt << head << reverse <| split "-" id
 
-linkTo : String -> String -> Signal.Message -> Html
-linkTo title url handle =
-  a
-    [ href url
-    , onClick handle
-    ]
-    [ text title ]
+onLinkClick : Msg -> Attribute Msg
+onLinkClick msg =
+    let
+        options =
+            { stopPropagation = False
+            , preventDefault = True
+            }
+    in
+        onWithOptions "click" options (Decode.succeed msg)
 
-class' : List String -> Attribute
-class' names =
-  class <| join " " names
+
+linkTo : String -> String -> Html Msg
+linkTo title url =
+    a
+        [ href url
+        , onLinkClick (NewPage url)
+        ]
+        [ text title ]
+
+
+class_ : List String -> Attribute msg
+class_ names =
+    class <| join " " names
+
+
+boolProperty : String -> Bool -> Attribute msg
+boolProperty key b =
+    property key (Json.bool b)

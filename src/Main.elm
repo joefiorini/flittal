@@ -1,311 +1,489 @@
-module Main where
-import Graphics.Element (Element)
-import Html
-import Html (Html, toElement, div, main', body, text, section, aside)
-import Html.Attributes (class, style)
+module Main exposing (..)
+
 import Board.Controller as Board
-import Board.Controller (checkFocus)
-import Box.Controller as Box
-import DomUtils (DragEvent, class', linkTo, styleProperty)
-import Geometry.Types as Geometry
-import Mousetrap
-import TimeMachine
-import LocalChannel as LC
-import Partials.Header as Header
-import Partials.Footer as Footer
-import Partials.Sidebar as Sidebar
-import Partials.Help as Help
-import Partials.Toolbar as Toolbar
+import Board.Model exposing (Model)
+import Board.Msg as BoardMsg
+import Box.Msg
+import Box.Types as Box
+import Html exposing (Html, aside, body, div, main_, section, text)
+import Html.Attributes exposing (..)
+import Interop
+import Json.Decode as Decode exposing (Decoder, decodeString, field)
+import Json.Encode as Encode
+import Task
+import Dom
+import List
+import List.Extra exposing (find)
+import Window
+import Navigation exposing (Location)
 import Partials.About as About
 import Partials.Colophon as Colophon
+import Partials.Help as Help
 import Partials.Releases as Releases
-import Native.App as App
-import Json.Encode as Encode
-import Json.Decode as Decode
-import Json.Decode ((:=))
-import List
-import Signal
+import Partials.Sidebar as Sidebar
+import Partials.Header as Header
+import Partials.Footer as Footer
+import Partials.Toolbar as Toolbar
 import Result
 import Routes
-import Signal (Signal, (<~), (~))
-import Keyboard
-import Window
-import Debug
-import Style.Color (Color(..))
+import Style.Color exposing (Color(..))
+import Msg exposing (Msg(..))
+import UndoList exposing (UndoList)
+import Geometry.Types as Geometry
+import Keyboard.Combo as Keys
+import Base64
+import UrlParser
+import Result.Extra as ResultExtra
 
-port drop : Signal DragEvent
-port dragstart : Signal DragEvent
-port dragend : Signal DragEvent
 
-port focus : Signal String
-port focus = checkFocus
+type alias Flags =
+    { windowSize : Window.Size
+    }
 
-port globalKeyDown : Signal Int
 
 type alias AppState =
-  { currentBoard             : Board.Board
-  , boardHistory             : TimeMachine.History Board.Board
-  }
-
-main : Signal Element
-main = (\s r (w,h) -> toElement w h  <| container s r h)
-        <~ state
-         ~ routeHandler
-         ~ Window.dimensions
-
-globalKeyboardShortcuts : String -> Update
-globalKeyboardShortcuts keyCommand =
-  case Debug.log "keyCommand" keyCommand of
-    "tab"       -> BoardUpdate Board.SelectNextBox
-    "shift+tab" -> BoardUpdate Board.SelectPreviousBox
-    "a"     -> BoardUpdate Board.NewBox
-    "c"     -> BoardUpdate Board.ConnectSelections
-    "x"     -> BoardUpdate Board.DisconnectSelections
-    "d"     -> BoardUpdate Board.DeleteSelections
-    "1"     -> BoardUpdate <| Board.UpdateBoxColor Dark1
-    "2"     -> BoardUpdate <| Board.UpdateBoxColor Dark2
-    "3"     -> BoardUpdate <| Board.UpdateBoxColor Dark3
-    "4"     -> BoardUpdate <| Board.UpdateBoxColor Dark4
-    "shift+1"     -> BoardUpdate <| Board.UpdateBoxColor Light1
-    "shift+2"     -> BoardUpdate <| Board.UpdateBoxColor Light2
-    "shift+3"     -> BoardUpdate <| Board.UpdateBoxColor Light3
-    "shift+4"     -> BoardUpdate <| Board.UpdateBoxColor Light4
-    "0"     -> BoardUpdate <| Board.UpdateBoxColor Black
-    "shift+0"     -> BoardUpdate <| Board.UpdateBoxColor White
-    "shift+="       -> BoardUpdate <| Board.ResizeBox Box.ResizeUpAll
-    "-"             -> BoardUpdate <| Board.ResizeBox Box.ResizeDownAll
-    "ctrl+shift+="  -> BoardUpdate <| Board.ResizeBox Box.ResizeUpNS
-    "ctrl+-"        -> BoardUpdate <| Board.ResizeBox Box.ResizeDownNS
-    "alt+shift+="   -> BoardUpdate <| Board.ResizeBox Box.ResizeUpEW
-    "alt+-"         -> BoardUpdate <| Board.ResizeBox Box.ResizeDownEW
-    "enter" -> BoardUpdate (Board.EditingSelectedBox True)
-    "h"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Left
-    "j"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Down
-    "k"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Up
-    "l"     -> BoardUpdate <| Board.MoveBox Box.Nudge Box.Right
-    "u"     -> Undo
-    "ctrl+r" -> Redo
-    "shift+h"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Left
-    "shift+j"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Down
-    "shift+k"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Up
-    "shift+l"       -> BoardUpdate <| Board.MoveBox Box.Push Box.Right
-    "alt+shift+h"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Left
-    "alt+shift+j"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Down
-    "alt+shift+k"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Up
-    "alt+shift+l"       -> BoardUpdate <| Board.MoveBox Box.Jump Box.Right
-    _       -> NoOp
+    { currentBoard : Board.Board
+    , boardHistory : UndoList Board.Board
+    , navigationHistory : List Location
+    , currentLocation : Location
+    , currentRoute : Routes.RouteName
+    , keys : Keys.Model Msg
+    , windowSize : Window.Size
+    , encodedBoard : Maybe String
+    }
 
 
-startingState : AppState
-startingState =
-  { currentBoard = Board.startingState
-  , boardHistory = TimeMachine.initialize Board.startingState
-  }
+main : Program Flags AppState Msg
+main =
+    Navigation.programWithFlags UrlChange
+        { init = startingState
+        , view = container
+        , update = step
+        , subscriptions = subscriptions
+        }
 
-routesMap routeName =
-  let url =
-    case routeName of
-      Routes.Root -> "/"
-      Routes.About -> "/about"
-      Routes.Colophon -> "/colophon"
-      Routes.Releases -> "/releases"
-      Routes.Help -> "/help"
-  in
-     (url, routeName)
 
-encodeAppState : AppState -> Encode.Value
-encodeAppState state =
-  Encode.object
-    [ ("currentBoard", Board.encode state.currentBoard)
+parseLocation : Location -> Routes.RouteName
+parseLocation location =
+    case location.pathname of
+        "/" ->
+            Routes.Root
+
+        "/about" ->
+            Routes.About
+
+        "/colophon" ->
+            Routes.Colophon
+
+        "/releases" ->
+            Routes.Releases
+
+        "/help" ->
+            Routes.Help
+
+        _ ->
+            Routes.Root
+
+
+styleCombos : List (Keys.KeyCombo Msg)
+styleCombos =
+    let
+        updateColor color =
+            BoardUpdate <| BoardMsg.UpdateBoxColor color
+    in
+        [ Keys.combo1 Keys.one <| updateColor Dark1
+        , Keys.combo1 Keys.two <| updateColor Dark2
+        , Keys.combo1 Keys.three <| updateColor Dark3
+        , Keys.combo1 Keys.four <| updateColor Dark4
+        , Keys.combo2 ( Keys.one, Keys.shift ) <| updateColor Light1
+        , Keys.combo2 ( Keys.two, Keys.shift ) <| updateColor Light2
+        , Keys.combo2 ( Keys.three, Keys.shift ) <| updateColor Light3
+        , Keys.combo2 ( Keys.four, Keys.shift ) <| updateColor Light4
+        , Keys.combo1 Keys.zero <| updateColor White
+        , Keys.combo2 ( Keys.zero, Keys.shift ) <| updateColor Black
+        ]
+
+
+movementCombos : List (Keys.KeyCombo Msg)
+movementCombos =
+    let
+        moveAction movement direction =
+            BoardUpdate (BoardMsg.MoveBox movement direction)
+
+        movementKeys =
+            [ ( Keys.h, Box.Left )
+            , ( Keys.j, Box.Down )
+            , ( Keys.k, Box.Up )
+            , ( Keys.l, Box.Right )
+            ]
+    in
+        List.concatMap
+            (\( key, direction ) ->
+                [ Keys.combo1 key <| moveAction Box.Nudge direction
+                , Keys.combo2 ( Keys.shift, key ) <| moveAction Box.Push direction
+                , Keys.combo3 ( Keys.shift, Keys.alt, key ) <| moveAction Box.Jump direction
+                ]
+            )
+            movementKeys
+
+
+selectionCombos : List (Keys.KeyCombo Msg)
+selectionCombos =
+    [ Keys.combo1 Keys.tab <| BoardUpdate BoardMsg.SelectNextBox
+    , Keys.combo2 ( Keys.tab, Keys.shift ) <| BoardUpdate BoardMsg.SelectPreviousBox
+    , Keys.combo1 Keys.d <| BoardUpdate BoardMsg.DeleteSelections
+    , Keys.combo1 Keys.c <| BoardUpdate BoardMsg.ConnectSelections
+    , Keys.combo1 Keys.x <| BoardUpdate BoardMsg.DisconnectSelections
     ]
 
-mkState board =
-  { currentBoard = board
-  , boardHistory = TimeMachine.initialize Board.startingState}
 
-decodeAppState : Decode.Decoder AppState
-decodeAppState =
-  Decode.object1 mkState
-    ("currentBoard" := Board.decode)
+boardCombos : List (Keys.KeyCombo Msg)
+boardCombos =
+    [ Keys.combo1 Keys.a <| BoardUpdate BoardMsg.NewBox
+    , Keys.combo1 Keys.enter <| BoardUpdate (BoardMsg.EditingSelectedBox True)
+    , Keys.combo1 Keys.u Undo
+    , Keys.combo2 ( Keys.r, Keys.control ) Redo
+    ]
+
+
+sizingCombos : List (Keys.KeyCombo Msg)
+sizingCombos =
+    let
+        updateSize size =
+            BoardUpdate <| BoardMsg.ResizeBox size
+    in
+        [ Keys.combo2 ( Keys.equals, Keys.shift ) <| updateSize Box.ResizeUpAll
+        , Keys.combo3 ( Keys.equals, Keys.shift, Keys.control ) <| updateSize Box.ResizeUpNS
+        , Keys.combo3 ( Keys.equals, Keys.shift, Keys.alt ) <| updateSize Box.ResizeUpEW
+        , Keys.combo1 Keys.minus <| updateSize Box.ResizeDownAll
+        , Keys.combo2 ( Keys.minus, Keys.control ) <| updateSize Box.ResizeDownNS
+        , Keys.combo2 ( Keys.minus, Keys.alt ) <| updateSize Box.ResizeDownEW
+        ]
+
+
+keyboardCombos : List (Keys.KeyCombo Msg)
+keyboardCombos =
+    movementCombos
+        ++ styleCombos
+        ++ selectionCombos
+        ++ boardCombos
+        ++ sizingCombos
+        ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp
+           , Keys.combo1 Keys.w (NewPage "/")
+           ]
+
+
+getEncodedState : Location -> Maybe String
+getEncodedState location =
+    UrlParser.parseHash UrlParser.string location
+
+
+startingState : Flags -> Location -> ( AppState, Cmd msg )
+startingState flags location =
+    let
+        currentRoute =
+            parseLocation location
+
+        boardState =
+            case getEncodedState location of
+                Just str ->
+                    let
+                        decoded s =
+                            Decode.decodeString Board.Model.decode s
+                                |> ResultExtra.orElse (decodeAppState s)
+
+                        decodeBoard s =
+                            Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
+                    in
+                        Result.withDefault Board.startingState <| decodeBoard str
+
+                Nothing ->
+                    Board.startingState
+    in
+        mkState location flags.windowSize boardState
+            ! []
+
+
+serializeBoardState : Model -> String
+serializeBoardState board =
+    Board.Model.encode board
+        |> Encode.encode 0
+
+
+mkState : Location -> Window.Size -> Model -> AppState
+mkState location windowSize board =
+    { currentBoard = board
+    , boardHistory = UndoList.fresh board
+    , currentRoute = Routes.Root
+    , navigationHistory = [ location ]
+    , currentLocation = location
+    , keys = Keys.init keyboardCombos KeyCombo
+    , windowSize = windowSize
+    , encodedBoard = Nothing
+    }
+
+
+decodeAppState : String -> Result String Model
+decodeAppState s =
+    field "currentBoard" Board.Model.decode
+        |> flip Decode.decodeString s
+
 
 extractAppState : Result.Result String AppState -> AppState
 extractAppState result =
-  case result of
-    Result.Ok state -> state
-    Result.Err s -> Debug.crash s
+    case result of
+        Result.Ok state ->
+            state
 
-deserializedState : Signal Update
-deserializedState =
-  let deserializeAppState = Decode.decodeString decodeAppState
-      loadedState' = Signal.keepIf ((/=) "")
-        (Encode.encode 0 <| encodeAppState startingState) loadedState
-  in
-    (HydrateAppState << extractAppState << deserializeAppState) <~ loadedState'
-
-port loadedState : Signal String
-
-port serializeState : Signal String
-port serializeState =
-  let serializeAppState = (Encode.encode 0) << encodeAppState
-  in
-    Signal.sampleOn
-      (Signal.subscribe shareChannel)
-      ((\a -> serializeAppState a) <~ state)
-
-shareChannel = Signal.channel NoOp
+        Result.Err s ->
+            Debug.crash s
 
 
--- port transitionToRoute : Signal Routes.Url
--- port transitionToRoute =
---   Routes.sendToPort routeHandler
-
-toggleHelp =
-  Signal.map (\k ->
-    case k of
-      "shift+/" -> Routes.Help
-      "w"       -> Routes.Root
-      _ -> Routes.Root
-    ) Mousetrap.keydown
-
-routeHandler =
-  Routes.map routesMap
-    <| Signal.mergeMany
-      [ Signal.subscribe routeChannel
-      , toggleHelp
-      ]
-
-type Update = NoOp
-            | HydrateAppState AppState
-            | BoardUpdate Board.Update
-            | ToolbarUpdate Toolbar.Update
-            | Undo
-            | Redo
-
-updates : Signal.Channel Update
-updates = Signal.channel NoOp
-
-routeChannel : Signal.Channel Routes.RouteName
-routeChannel = Signal.channel Routes.Root
-
-userInput = Signal.mergeMany [drop, dragstart, dragend]
-
-state : Signal.Signal AppState
-state =
-  Signal.foldp step startingState
-    (Signal.mergeMany
-      [ Signal.subscribe updates
-      , deserializedState
-      , Signal.map globalKeyboardShortcuts Mousetrap.keydown
-      , convertDragOperation <~ Signal.mergeMany [drop, dragstart]
-      ])
-
-entersEditMode update =
-  case update of
-    BoardUpdate a ->
-      Board.entersEditMode a
-    otherwise ->
-      False
-
-inEditingMode : Signal Bool
-inEditingMode = Signal.map entersEditMode (Signal.subscribe updates)
-
-convertDragOperation dragE =
-  BoardUpdate <| Board.moveBoxAction dragE
-
-step : Update -> AppState -> AppState
-step update state =
-  case Debug.log "update" update of
-    HydrateAppState state' ->
-      let history' = TimeMachine.initialize state'.currentBoard
-      in
-        { state' | boardHistory <- history' }
-    BoardUpdate u ->
-      let updatedBoard = Board.step u state.currentBoard
-          recordedHistory = TimeMachine.record updatedBoard state.boardHistory
-          history' =
-           case u of
-             Board.NewBox           -> recordedHistory
-             Board.MoveBox _ _      -> recordedHistory
-             Board.UpdateBoxColor _ -> recordedHistory
-             Board.DeleteSelections -> recordedHistory
-             Board.ConnectSelections -> recordedHistory
-             Board.DisconnectSelections -> recordedHistory
-             Board.Drop _ _         -> recordedHistory
-             Board.ResizeBox _      -> recordedHistory
-             Board.BoxAction (Box.EditingBox _ _) ->
-               recordedHistory
-             _ -> state.boardHistory
-      in
-      { state | currentBoard <- updatedBoard
-              , boardHistory <- Debug.log "new history" history' }
-    ToolbarUpdate u ->
-      let updatedBoard = Board.step Board.ClearBoard state.currentBoard
-      in
-         { state | currentBoard <- updatedBoard }
-    Undo ->
-      let history' = TimeMachine.travelBackward state.boardHistory
-      in
-      case history'.current of
-        Just b ->
-          { state | currentBoard <- b
-                  , boardHistory <- history'
-          }
-        Nothing ->
-          state
-    Redo ->
-      let history' = TimeMachine.travelForward state.boardHistory
-      in
-         case history'.current of
-           Just b ->
-            { state | currentBoard <- b
-                    , boardHistory <- history'
-            }
-           Nothing ->
-             state
-    _ -> state
-
-container : AppState -> Routes.Route -> Int -> Html.Html
-container state (url,route) screenHeight =
-  let headerChannel = LC.create identity routeChannel
-      sidebarChannel = LC.create identity routeChannel
-      shareChannel' = LC.create ToolbarUpdate shareChannel
-      toolbarChannel = LC.create ToolbarUpdate updates
-      boardChannel = LC.create BoardUpdate updates
-      sidebar h = Sidebar.view h sidebarChannel
-      offsetHeight = screenHeight - 52
-      board = Board.view boardChannel state.currentBoard offsetHeight
-      (sidebar',extraClass,sidebarHeight) =
-        case route of
-          Routes.About ->
-            ( sidebar <| About.view, "l-board--compressed", offsetHeight )
-          Routes.Colophon ->
-            ( sidebar <| Colophon.view, "l-board--compressed", offsetHeight )
-          Routes.Help ->
-            ( sidebar <| Help.view, "l-board--compressed", offsetHeight )
-          Routes.Releases ->
-            ( sidebar <| Releases.view, "l-board--compressed", offsetHeight )
-          _ -> ( text "" , "", 0)
-
-  in
-    div []
-      [ Header.view headerChannel
-      , Toolbar.view toolbarChannel shareChannel'
-      , main'
-        [class "l-container"]
-        [ section
-          [ class' ["l-board", extraClass]
-          ]
-          [ board ]
-        , section
-            [class "l-content"
-            , style
-              [ styleProperty "height" <| Geometry.toPx sidebarHeight
-              ]
-            ]
-            [ sidebar'
-            ]
+subscriptions : AppState -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
+        , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
+        , Interop.loadedState LoadedState
+        , Keys.subscriptions model.keys
+        , Window.resizes ResizeWindow
         ]
-      , section
-        [ class "l-container" ]
-        [ Footer.view ]
-      ]
+
+
+entersEditMode : Msg -> Bool
+entersEditMode update =
+    case update of
+        BoardUpdate a ->
+            Board.entersEditMode a
+
+        otherwise ->
+            False
+
+
+initTimeMachine : AppState -> AppState
+initTimeMachine appState =
+    let
+        history =
+            UndoList.fresh appState.currentBoard
+    in
+        { appState | boardHistory = history }
+
+
+step : Msg -> AppState -> ( AppState, Cmd Msg )
+step update state =
+    case update of
+        LoadedState deserializedState ->
+            state ! []
+
+        -- deserializedState
+        --     |> decodeString decodeAppState
+        --     |> extractAppState
+        --     |> initTimeMachine
+        --     |> flip (!) [ Cmd.none ]
+        NewPage path ->
+            state ! [ Navigation.newUrl path ]
+
+        UrlChange location ->
+            let
+                newRoute =
+                    parseLocation location
+            in
+                { state | currentRoute = newRoute, navigationHistory = location :: state.navigationHistory } ! []
+
+        BoardUpdate u ->
+            let
+                isRecordable =
+                    case u of
+                        BoardMsg.NewBox ->
+                            True
+
+                        BoardMsg.DeleteSelections ->
+                            True
+
+                        BoardMsg.ConnectSelections ->
+                            True
+
+                        BoardMsg.DisconnectSelections ->
+                            True
+
+                        BoardMsg.Drop _ _ ->
+                            True
+
+                        BoardMsg.ResizeBox _ ->
+                            True
+
+                        BoardMsg.BoxAction (Box.Msg.EditingBox _ _) ->
+                            True
+
+                        _ ->
+                            False
+
+                focusBox boxKey =
+                    let
+                        boxDomId =
+                            Board.toSelector boxKey
+
+                        doNothing task =
+                            Task.attempt (\_ -> NoOp) task
+                    in
+                        [ (doNothing <| Dom.focus boxDomId), (Interop.selectInputText boxDomId) ]
+
+                cmd =
+                    case u of
+                        BoardMsg.EditingSelectedBox True ->
+                            let
+                                selectedBox =
+                                    find (\b -> b.selectedIndex /= -1) state.currentBoard.boxes
+                            in
+                                case selectedBox of
+                                    Just { key } ->
+                                        focusBox key
+
+                                    Nothing ->
+                                        []
+
+                        BoardMsg.EditingBox boxKey toggle ->
+                            if toggle then
+                                focusBox boxKey
+                            else
+                                []
+
+                        _ ->
+                            []
+
+                newBoard =
+                    Board.step u state.currentBoard
+            in
+                { state
+                    | currentBoard = newBoard
+                    , boardHistory =
+                        if isRecordable then
+                            UndoList.new newBoard state.boardHistory
+                        else
+                            state.boardHistory
+                }
+                    ! cmd
+
+        ClearBoard ->
+            let
+                updatedBoard =
+                    Board.step BoardMsg.ClearBoard state.currentBoard
+            in
+                { state | currentBoard = updatedBoard } ! []
+
+        ShareBoard ->
+            let
+                serializeAndEncodeBoard =
+                    serializeBoardState >> Base64.encode
+            in
+                { state | encodedBoard = Just (serializeAndEncodeBoard state.currentBoard) } ! [ Interop.selectInputText "share-url" ]
+
+        Undo ->
+            let
+                history =
+                    UndoList.undo state.boardHistory
+            in
+                history.present
+                    |> (\board ->
+                            { state
+                                | currentBoard = board
+                                , boardHistory = history
+                            }
+                       )
+                    |> flip (!) []
+
+        Redo ->
+            let
+                history =
+                    UndoList.redo state.boardHistory
+            in
+                history.present
+                    |> (\board ->
+                            { state
+                                | currentBoard = board
+                                , boardHistory = history
+                            }
+                       )
+                    |> flip (!) []
+
+        KeyCombo combo ->
+            let
+                ( keys, cmd ) =
+                    Keys.update combo state.keys
+            in
+                ( { state | keys = keys }, cmd )
+
+        ToggleHelp ->
+            case Debug.log "help" state.currentRoute of
+                Routes.Help ->
+                    state ! [ Navigation.newUrl "/" ]
+
+                _ ->
+                    state ! [ Navigation.newUrl "/help" ]
+
+        ResizeWindow size ->
+            { state | windowSize = size } ! []
+
+        NoOp ->
+            state ! []
+
+
+container : AppState -> Html Msg
+container state =
+    let
+        sidebar h =
+            Sidebar.view h
+
+        offsetHeight =
+            state.windowSize.height - 52
+
+        board =
+            Board.view BoardUpdate state.currentBoard offsetHeight
+
+        ( sidebar_, extraClass, sidebarHeight ) =
+            case state.currentRoute of
+                Routes.About ->
+                    ( sidebar <| About.view, "l-board--compressed", offsetHeight )
+
+                Routes.Colophon ->
+                    ( sidebar <| Colophon.view, "l-board--compressed", offsetHeight )
+
+                Routes.Help ->
+                    ( sidebar <| Help.view, "l-board--compressed", offsetHeight )
+
+                Routes.Releases ->
+                    ( sidebar <| Releases.view, "l-board--compressed", offsetHeight )
+
+                _ ->
+                    ( text "", "", 0 )
+
+        currentLocation =
+            case state.navigationHistory of
+                location :: _ ->
+                    location
+
+                _ ->
+                    Debug.crash "No navigation history!"
+    in
+        section []
+            [ Header.view
+            , Toolbar.view state.encodedBoard currentLocation
+            , main_
+                [ class "l-container" ]
+                [ section
+                    [ classList [ ( "l-board", True ), ( extraClass, extraClass /= "" ) ]
+                    ]
+                    [ board ]
+                , section
+                    [ class "l-content"
+                    , style
+                        [ ( "height", (Geometry.toPx sidebarHeight) )
+                        ]
+                    ]
+                    [ sidebar_
+                    ]
+                ]
+            , section
+                [ class "l-container" ]
+                [ Footer.view ]
+            ]

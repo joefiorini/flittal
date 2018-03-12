@@ -1,52 +1,69 @@
-module Partials.Toolbar where
+module Partials.Toolbar exposing (..)
 
-import Html (input, div, text, section, button, img)
-import Html.Attributes (class, placeholder, src, width, type', readonly, required, title)
-import Html.Events (onClick)
-import LocalChannel as LC
+import Html exposing (input, div, text, section, button, img, Html)
+import Html.Attributes exposing (id, class, placeholder, src, width, type_, readonly, required, title, value)
+import Html.Events exposing (onClick)
+import Msg exposing (Msg(..))
+import Navigation exposing (Location)
 
-type Update =
-    ShareBoard
-  | ClearBoard
-  | NoOp
 
-clearButton channel =
-  div
-    [ class "clear-board" ]
-    [ button
-      [ onClick (LC.send channel ClearBoard)
-      , title "Clear the board"
-      ]
-      [ img
-        [ src "/images/icon-clear.svg" ]
-        [ ]
-      ]
-    ]
-
-shareButton channel =
-  div
-    [ class "share" ]
-    [ input
-        [ class "share__url"
-        , placeholder "Share this board"
-        , onClick (LC.send channel ShareBoard)
-        , type' "text"
-        , readonly True
+clearButton : Html Msg
+clearButton =
+    div
+        [ class "clear-board" ]
+        [ button
+            [ onClick ClearBoard
+            , title "Clear the board"
+            ]
+            [ img
+                [ src "/images/icon-clear.svg" ]
+                []
+            ]
         ]
-        [ ]
-    , button
-      [ class "button-pseudo" ]
-      [ img
-        [ src "/images/icon-share.svg"
-        , width 25
-        ]
-        []
-      ]
-    ]
 
-view channel share =
-  section
-    [class "l-container"]
-    [ clearButton channel
-    , shareButton share
-    ]
+
+shareUrl location encodedBoard =
+    case encodedBoard of
+        Just str ->
+            let
+                hostAndPath =
+                    String.join "/" [ location.host, "#", str ]
+            in
+                location.protocol ++ "//" ++ hostAndPath
+
+        Nothing ->
+            ""
+
+
+shareButton : Maybe String -> Location -> Html Msg
+shareButton encodedBoard location =
+    div
+        [ class "share" ]
+        [ input
+            [ class "share__url"
+            , id "share-url"
+            , placeholder "Share this board"
+            , onClick ShareBoard
+            , type_ "text"
+            , readonly True
+            , value <| shareUrl location <| encodedBoard
+            ]
+            []
+        , button
+            [ class "button-pseudo" ]
+            [ img
+                [ src "/images/icon-share.svg"
+                , width 25
+                ]
+                []
+            ]
+        ]
+
+
+view : Maybe String -> Location -> Html Msg
+view encodedBoard location =
+    section
+        [ class "l-container" ]
+        [ clearButton
+        , shareButton encodedBoard location
+        ]

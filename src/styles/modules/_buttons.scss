@@ -5,7 +5,7 @@
 // sits next to a button.
 
 button {
-  @include user-select(none);
+  user-select: none;
   display: inline-block;
   position: relative;
   margin: 0;
@@ -18,7 +18,7 @@ button {
   white-space: nowrap;
   color: $button-text-color;
   background: $button-default;
-  border: 1px solid #5C0A0A;
+  border: 1px solid #5c0a0a;
   border-radius: 3px;
   -webkit-appearance: none;
 
@@ -40,7 +40,6 @@ button {
     display: block;
     width: 100%;
   }
-
 }
 
 .button-pseudo {

@@ -1,37 +1,39 @@
-module Board.Model where
+module Board.Model exposing (..)
 
-import List (head, filter, map)
-
-import Box.Model as Box
-import Json.Encode as Encode
-import Json.Decode as Decode
-import Json.Decode ((:=))
+import Box.Types as Box
+import Box.Model
 import Connection.Model as Connection
+import Json.Decode as Decode exposing (field)
+import Json.Encode as Encode
+import List exposing (filter, head, map)
 
-import Debug
-
-type alias BoxKey = Box.BoxKey
 
 type alias Model =
-  { boxes: List Box.Model
-  , connections: List Connection.Model
-  , nextIdentifier: BoxKey
-  }
+    { boxes : List Box.Model
+    , connections : List Connection.Model
+    , nextIdentifier : Box.BoxKey
+    }
+
 
 encode : Model -> Encode.Value
 encode board =
-  let encodedBoxes = map Box.encode board.boxes
-      encodedConnections = map Connection.encode board.connections
-  in
-    Encode.object
-      [ ("boxes", Encode.list encodedBoxes)
-      , ("connections", Encode.list encodedConnections)
-      , ("nextIdentifier", Encode.int board.nextIdentifier)
-      ]
+    let
+        encodedBoxes =
+            map Box.Model.encode board.boxes
+
+        encodedConnections =
+            map Connection.encode board.connections
+    in
+        Encode.object
+            [ ( "boxes", Encode.list encodedBoxes )
+            , ( "connections", Encode.list encodedConnections )
+            , ( "nextIdentifier", Encode.int board.nextIdentifier )
+            ]
+
 
 decode : Decode.Decoder Model
 decode =
-  Decode.object3 Model
-    ("boxes" := Decode.list Box.decode)
-    ("connections" := Decode.list Connection.decode)
-    ("nextIdentifier" := Decode.int)
+    Decode.map3 Model
+        (Decode.list Box.Model.decode |> field "boxes")
+        (Decode.list Connection.decode |> field "connections")
+        (field "nextIdentifier" Decode.int)

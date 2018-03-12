@@ -1,37 +1,38 @@
-module Partials.Header where
+module Partials.Header exposing (..)
 
-import Html (header, nav, text, a, Html, img, div)
-import Html.Attributes (href, class, src)
-import DomUtils (linkTo)
-import LocalChannel as LC
-import Routes
+import DomUtils exposing (linkTo)
+import Html exposing (Html, a, div, header, img, nav, text)
+import Html.Attributes exposing (class, href, src)
 import List
+import Msg exposing (Msg)
 
-navLinks : LC.LocalChannel Routes.RouteName -> List Html
-navLinks channel =
-  List.concat
-    [ [ div
-          [ class "nav-bar__logo-wrapper" ]
-          [ a
-            [ href "/", class "logo nav-bar__logo" ]
-            [ text " " ]
+
+navLinks : List (Html Msg)
+navLinks =
+    List.concat
+        [ [ div
+                [ class "nav-bar__logo-wrapper" ]
+                [ a
+                    [ href "/", class "logo nav-bar__logo" ]
+                    [ text " " ]
+                ]
           ]
-      ]
-    , [ div
-        [ class "nav-bar__links" ]
-        [
-          linkTo "About" "#" (LC.send channel Routes.About)
-        , linkTo "Colophon" "#" (LC.send channel Routes.Colophon)
-        , linkTo "What's New" "#" (LC.send channel Routes.Releases)
-        , linkTo "Help" "#" (LC.send channel Routes.Help)
+        , [ div
+                [ class "nav-bar__links" ]
+                [ linkTo "About" "/about"
+                , linkTo "Colophon" "/colophon"
+                , linkTo "What's New" "/releases"
+                , linkTo "Help" "/help"
+                ]
+          ]
         ]
-      ]
-    ]
 
-view channel =
-  header
-    [class "l-container"]
-    [ nav
-        [ class "nav-bar header__nav-bar" ]
-        (navLinks channel)
-    ]
+
+view : Html Msg
+view =
+    header
+        [ class "l-container" ]
+        [ nav
+            [ class "nav-bar header__nav-bar" ]
+            navLinks
+        ]

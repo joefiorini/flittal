@@ -1,22 +1,18 @@
-module Routes where
-
-import Debug
-import Signal
-
-type RouteName = Root
-               | About
-               | Colophon
-               | Releases
-               | Help
-               | None
-
-type alias Url = String
-type alias Route = (Url, RouteName)
+module Routes exposing (..)
 
 
-map : (RouteName -> Route) -> Signal RouteName -> Signal Route
-map = Signal.map
+type RouteName
+    = Root
+    | About
+    | Colophon
+    | Releases
+    | Help
+    | None
 
-sendToPort : Signal Route -> Signal Url
-sendToPort routeSignal =
-  Signal.map fst routeSignal
+
+type alias Url =
+    String
+
+
+type alias Route =
+    ( Url, RouteName )

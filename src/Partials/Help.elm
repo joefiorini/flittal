@@ -1,8 +1,10 @@
-module Partials.Help where
+module Partials.Help exposing (..)
 
 import Markdown
 
-view = Markdown.toHtml """
+
+view =
+    Markdown.toHtml [] """
 
 # Keyboard Commands
 
