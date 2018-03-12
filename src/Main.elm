@@ -168,7 +168,9 @@ keyboardCombos =
         ++ selectionCombos
         ++ boardCombos
         ++ sizingCombos
-        ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp ]
+        ++ [ Keys.combo2 ( Keys.shift, Keys.forwardSlash ) ToggleHelp
+           , Keys.combo1 Keys.w (NewPage "/")
+           ]
 
 
 getEncodedState : Location -> Maybe String
@@ -412,7 +414,7 @@ step update state =
                 ( { state | keys = keys }, cmd )
 
         ToggleHelp ->
-            case state.currentRoute of
+            case Debug.log "help" state.currentRoute of
                 Routes.Help ->
                     state ! [ Navigation.newUrl "/" ]
 
