@@ -13222,8 +13222,40 @@ var _joefiorini$flittal$Board_Msg$BoxAction = function (a) {
 };
 var _joefiorini$flittal$Board_Msg$NoOp = {ctor: 'NoOp'};
 
-var _ohanhi$keyboard_extra$Keyboard_Extra$boolToInt = function (bool) {
+var _ohanhi$keyboard_extra$Keyboard_Arrows$boolToInt = function (bool) {
 	return bool ? 1 : 0;
+};
+var _ohanhi$keyboard_extra$Keyboard_Arrows$determineArrows = function (keys) {
+	var toInt = function (key) {
+		return _ohanhi$keyboard_extra$Keyboard_Arrows$boolToInt(
+			A2(_elm_lang$core$List$member, key, keys));
+	};
+	var x = toInt(39) - toInt(37);
+	var y = toInt(38) - toInt(40);
+	return {x: x, y: y};
+};
+var _ohanhi$keyboard_extra$Keyboard_Arrows$determineWasd = function (keys) {
+	var toInt = function (key) {
+		return _ohanhi$keyboard_extra$Keyboard_Arrows$boolToInt(
+			A2(_elm_lang$core$List$member, key, keys));
+	};
+	var x = toInt(68) - toInt(65);
+	var y = toInt(87) - toInt(83);
+	return {x: x, y: y};
+};
+var _ohanhi$keyboard_extra$Keyboard_Arrows$init = {x: 0, y: 0};
+var _ohanhi$keyboard_extra$Keyboard_Arrows$Arrows = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+
+var _ohanhi$keyboard_extra$Keyboard_Extra$wasd = function (_p0) {
+	var _p1 = _p0;
+	return _ohanhi$keyboard_extra$Keyboard_Arrows$determineWasd(_p1._0);
+};
+var _ohanhi$keyboard_extra$Keyboard_Extra$arrows = function (_p2) {
+	var _p3 = _p2;
+	return _ohanhi$keyboard_extra$Keyboard_Arrows$determineArrows(_p3._0);
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$remove = F2(
 	function (code, list) {
@@ -13245,52 +13277,46 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$insert = F2(
 			code,
 			A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, code, list));
 	});
-var _ohanhi$keyboard_extra$Keyboard_Extra$update = F2(
-	function (msg, state) {
-		var _p0 = msg;
-		if (_p0.ctor === 'Down') {
-			return A2(_ohanhi$keyboard_extra$Keyboard_Extra$insert, _p0._0, state);
-		} else {
-			return A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, _p0._0, state);
-		}
-	});
-var _ohanhi$keyboard_extra$Keyboard_Extra$Arrows = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
 var _ohanhi$keyboard_extra$Keyboard_Extra$Up = function (a) {
 	return {ctor: 'Up', _0: a};
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$Down = function (a) {
 	return {ctor: 'Down', _0: a};
 };
+var _ohanhi$keyboard_extra$Keyboard_Extra$subscriptions = _elm_lang$core$Platform_Sub$batch(
+	{
+		ctor: '::',
+		_0: _elm_lang$keyboard$Keyboard$downs(_ohanhi$keyboard_extra$Keyboard_Extra$Down),
+		_1: {
+			ctor: '::',
+			_0: _elm_lang$keyboard$Keyboard$ups(_ohanhi$keyboard_extra$Keyboard_Extra$Up),
+			_1: {ctor: '[]'}
+		}
+	});
+var _ohanhi$keyboard_extra$Keyboard_Extra$State = function (a) {
+	return {ctor: 'State', _0: a};
+};
+var _ohanhi$keyboard_extra$Keyboard_Extra$initialState = _ohanhi$keyboard_extra$Keyboard_Extra$State(
+	{ctor: '[]'});
+var _ohanhi$keyboard_extra$Keyboard_Extra$update = F2(
+	function (msg, _p4) {
+		var _p5 = _p4;
+		var _p7 = _p5._0;
+		var _p6 = msg;
+		if (_p6.ctor === 'Down') {
+			return _ohanhi$keyboard_extra$Keyboard_Extra$State(
+				A2(_ohanhi$keyboard_extra$Keyboard_Extra$insert, _p6._0, _p7));
+		} else {
+			return _ohanhi$keyboard_extra$Keyboard_Extra$State(
+				A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, _p6._0, _p7));
+		}
+	});
 var _ohanhi$keyboard_extra$Keyboard_Extra$KeyUp = function (a) {
 	return {ctor: 'KeyUp', _0: a};
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$KeyDown = function (a) {
 	return {ctor: 'KeyDown', _0: a};
 };
-var _ohanhi$keyboard_extra$Keyboard_Extra$updateWithKeyChange = F2(
-	function (msg, state) {
-		var _p1 = msg;
-		if (_p1.ctor === 'Down') {
-			var _p2 = _p1._0;
-			var nextState = A2(_ohanhi$keyboard_extra$Keyboard_Extra$insert, _p2, state);
-			var change = (!_elm_lang$core$Native_Utils.eq(
-				_elm_lang$core$List$length(nextState),
-				_elm_lang$core$List$length(state))) ? _elm_lang$core$Maybe$Just(
-				_ohanhi$keyboard_extra$Keyboard_Extra$KeyDown(_p2)) : _elm_lang$core$Maybe$Nothing;
-			return {ctor: '_Tuple2', _0: nextState, _1: change};
-		} else {
-			var _p3 = _p1._0;
-			var nextState = A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, _p3, state);
-			var change = (!_elm_lang$core$Native_Utils.eq(
-				_elm_lang$core$List$length(nextState),
-				_elm_lang$core$List$length(state))) ? _elm_lang$core$Maybe$Just(
-				_ohanhi$keyboard_extra$Keyboard_Extra$KeyUp(_p3)) : _elm_lang$core$Maybe$Nothing;
-			return {ctor: '_Tuple2', _0: nextState, _1: change};
-		}
-	});
 var _ohanhi$keyboard_extra$Keyboard_Extra$NoDirection = {ctor: 'NoDirection'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$NorthWest = {ctor: 'NorthWest'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$West = {ctor: 'West'};
@@ -13300,15 +13326,15 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$SouthEast = {ctor: 'SouthEast'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$East = {ctor: 'East'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$NorthEast = {ctor: 'NorthEast'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$North = {ctor: 'North'};
-var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir = function (_p4) {
-	var _p5 = _p4;
-	var _p6 = {ctor: '_Tuple2', _0: _p5.x, _1: _p5.y};
-	_v3_8:
+var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir = function (_p8) {
+	var _p9 = _p8;
+	var _p10 = {ctor: '_Tuple2', _0: _p9.x, _1: _p9.y};
+	_v5_8:
 	do {
-		if (_p6.ctor === '_Tuple2') {
-			switch (_p6._0) {
+		if (_p10.ctor === '_Tuple2') {
+			switch (_p10._0) {
 				case 1:
-					switch (_p6._1) {
+					switch (_p10._1) {
 						case 1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$NorthEast;
 						case 0:
@@ -13316,19 +13342,19 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir = function (_p4) {
 						case -1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$SouthEast;
 						default:
-							break _v3_8;
+							break _v5_8;
 					}
 				case 0:
-					switch (_p6._1) {
+					switch (_p10._1) {
 						case 1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$North;
 						case -1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$South;
 						default:
-							break _v3_8;
+							break _v5_8;
 					}
 				case -1:
-					switch (_p6._1) {
+					switch (_p10._1) {
 						case -1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$SouthWest;
 						case 0:
@@ -13336,16 +13362,24 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir = function (_p4) {
 						case 1:
 							return _ohanhi$keyboard_extra$Keyboard_Extra$NorthWest;
 						default:
-							break _v3_8;
+							break _v5_8;
 					}
 				default:
-					break _v3_8;
+					break _v5_8;
 			}
 		} else {
-			break _v3_8;
+			break _v5_8;
 		}
 	} while(false);
 	return _ohanhi$keyboard_extra$Keyboard_Extra$NoDirection;
+};
+var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsDirection = function (_p11) {
+	return _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir(
+		_ohanhi$keyboard_extra$Keyboard_Extra$arrows(_p11));
+};
+var _ohanhi$keyboard_extra$Keyboard_Extra$wasdDirection = function (_p12) {
+	return _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir(
+		_ohanhi$keyboard_extra$Keyboard_Extra$wasd(_p12));
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$Other = {ctor: 'Other'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$Altgr = {ctor: 'Altgr'};
@@ -13450,19 +13484,6 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$CharD = {ctor: 'CharD'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$CharC = {ctor: 'CharC'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$CharB = {ctor: 'CharB'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$CharA = {ctor: 'CharA'};
-var _ohanhi$keyboard_extra$Keyboard_Extra$wasd = function (keys) {
-	var toInt = function (key) {
-		return _ohanhi$keyboard_extra$Keyboard_Extra$boolToInt(
-			A2(_elm_lang$core$List$member, key, keys));
-	};
-	var x = toInt(_ohanhi$keyboard_extra$Keyboard_Extra$CharD) - toInt(_ohanhi$keyboard_extra$Keyboard_Extra$CharA);
-	var y = toInt(_ohanhi$keyboard_extra$Keyboard_Extra$CharW) - toInt(_ohanhi$keyboard_extra$Keyboard_Extra$CharS);
-	return {x: x, y: y};
-};
-var _ohanhi$keyboard_extra$Keyboard_Extra$wasdDirection = function (_p7) {
-	return _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir(
-		_ohanhi$keyboard_extra$Keyboard_Extra$wasd(_p7));
-};
 var _ohanhi$keyboard_extra$Keyboard_Extra$At = {ctor: 'At'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$QuestionMark = {ctor: 'QuestionMark'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$GreaterThan = {ctor: 'GreaterThan'};
@@ -13490,19 +13511,6 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$ArrowDown = {ctor: 'ArrowDown'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$ArrowRight = {ctor: 'ArrowRight'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$ArrowUp = {ctor: 'ArrowUp'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$ArrowLeft = {ctor: 'ArrowLeft'};
-var _ohanhi$keyboard_extra$Keyboard_Extra$arrows = function (keys) {
-	var toInt = function (key) {
-		return _ohanhi$keyboard_extra$Keyboard_Extra$boolToInt(
-			A2(_elm_lang$core$List$member, key, keys));
-	};
-	var x = toInt(_ohanhi$keyboard_extra$Keyboard_Extra$ArrowRight) - toInt(_ohanhi$keyboard_extra$Keyboard_Extra$ArrowLeft);
-	var y = toInt(_ohanhi$keyboard_extra$Keyboard_Extra$ArrowUp) - toInt(_ohanhi$keyboard_extra$Keyboard_Extra$ArrowDown);
-	return {x: x, y: y};
-};
-var _ohanhi$keyboard_extra$Keyboard_Extra$arrowsDirection = function (_p8) {
-	return _ohanhi$keyboard_extra$Keyboard_Extra$arrowsToDir(
-		_ohanhi$keyboard_extra$Keyboard_Extra$arrows(_p8));
-};
 var _ohanhi$keyboard_extra$Keyboard_Extra$Home = {ctor: 'Home'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$End = {ctor: 'End'};
 var _ohanhi$keyboard_extra$Keyboard_Extra$PageDown = {ctor: 'PageDown'};
@@ -14143,17 +14151,38 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$toCode = function (key) {
 				_elm_lang$core$Tuple$first,
 				A2(
 					_elm_lang$core$List$filter,
-					function (_p9) {
+					function (_p13) {
 						return A2(
 							F2(
 								function (x, y) {
 									return _elm_lang$core$Native_Utils.eq(x, y);
 								}),
 							key,
-							_elm_lang$core$Tuple$second(_p9));
+							_elm_lang$core$Tuple$second(_p13));
 					},
 					_ohanhi$keyboard_extra$Keyboard_Extra$codeBook))));
 };
+var _ohanhi$keyboard_extra$Keyboard_Extra$forceRelease = F2(
+	function (keyList, _p14) {
+		var _p15 = _p14;
+		return _ohanhi$keyboard_extra$Keyboard_Extra$State(
+			A3(
+				_elm_lang$core$List$foldl,
+				F2(
+					function (toRemove, pressed) {
+						return A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, toRemove, pressed);
+					}),
+				_p15._0,
+				A2(_elm_lang$core$List$map, _ohanhi$keyboard_extra$Keyboard_Extra$toCode, keyList)));
+	});
+var _ohanhi$keyboard_extra$Keyboard_Extra$isPressed = F2(
+	function (key, _p16) {
+		var _p17 = _p16;
+		return A2(
+			_elm_lang$core$List$member,
+			_ohanhi$keyboard_extra$Keyboard_Extra$toCode(key),
+			_p17._0);
+	});
 var _ohanhi$keyboard_extra$Keyboard_Extra$codeDict = _elm_lang$core$Dict$fromList(_ohanhi$keyboard_extra$Keyboard_Extra$codeBook);
 var _ohanhi$keyboard_extra$Keyboard_Extra$fromCode = function (code) {
 	return A2(
@@ -14163,36 +14192,55 @@ var _ohanhi$keyboard_extra$Keyboard_Extra$fromCode = function (code) {
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$downs = function (toMsg) {
 	return _elm_lang$keyboard$Keyboard$downs(
-		function (_p10) {
+		function (_p18) {
 			return toMsg(
-				_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p10));
+				_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p18));
 		});
 };
 var _ohanhi$keyboard_extra$Keyboard_Extra$ups = function (toMsg) {
 	return _elm_lang$keyboard$Keyboard$ups(
-		function (_p11) {
+		function (_p19) {
 			return toMsg(
-				_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p11));
+				_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p19));
 		});
 };
-var _ohanhi$keyboard_extra$Keyboard_Extra$subscriptions = _elm_lang$core$Platform_Sub$batch(
-	{
-		ctor: '::',
-		_0: _elm_lang$keyboard$Keyboard$downs(
-			function (_p12) {
-				return _ohanhi$keyboard_extra$Keyboard_Extra$Down(
-					_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p12));
-			}),
-		_1: {
-			ctor: '::',
-			_0: _elm_lang$keyboard$Keyboard$ups(
-				function (_p13) {
-					return _ohanhi$keyboard_extra$Keyboard_Extra$Up(
-						_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p13));
-				}),
-			_1: {ctor: '[]'}
+var _ohanhi$keyboard_extra$Keyboard_Extra$updateWithKeyChange = F2(
+	function (msg, _p20) {
+		var _p21 = _p20;
+		var _p25 = _p21._0;
+		var _p22 = msg;
+		if (_p22.ctor === 'Down') {
+			var _p23 = _p22._0;
+			var nextState = A2(_ohanhi$keyboard_extra$Keyboard_Extra$insert, _p23, _p25);
+			var change = (!_elm_lang$core$Native_Utils.eq(
+				_elm_lang$core$List$length(nextState),
+				_elm_lang$core$List$length(_p25))) ? _elm_lang$core$Maybe$Just(
+				_ohanhi$keyboard_extra$Keyboard_Extra$KeyDown(
+					_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p23))) : _elm_lang$core$Maybe$Nothing;
+			return {
+				ctor: '_Tuple2',
+				_0: _ohanhi$keyboard_extra$Keyboard_Extra$State(nextState),
+				_1: change
+			};
+		} else {
+			var _p24 = _p22._0;
+			var nextState = A2(_ohanhi$keyboard_extra$Keyboard_Extra$remove, _p24, _p25);
+			var change = (!_elm_lang$core$Native_Utils.eq(
+				_elm_lang$core$List$length(nextState),
+				_elm_lang$core$List$length(_p25))) ? _elm_lang$core$Maybe$Just(
+				_ohanhi$keyboard_extra$Keyboard_Extra$KeyUp(
+					_ohanhi$keyboard_extra$Keyboard_Extra$fromCode(_p24))) : _elm_lang$core$Maybe$Nothing;
+			return {
+				ctor: '_Tuple2',
+				_0: _ohanhi$keyboard_extra$Keyboard_Extra$State(nextState),
+				_1: change
+			};
 		}
 	});
+var _ohanhi$keyboard_extra$Keyboard_Extra$pressedDown = function (_p26) {
+	var _p27 = _p26;
+	return A2(_elm_lang$core$List$map, _ohanhi$keyboard_extra$Keyboard_Extra$fromCode, _p27._0);
+};
 var _ohanhi$keyboard_extra$Keyboard_Extra$targetKey = A2(
 	_elm_lang$core$Json_Decode$map,
 	_ohanhi$keyboard_extra$Keyboard_Extra$fromCode,
@@ -14233,35 +14281,34 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$getComboMsg = function (combo) {
 	}
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$keyList = function (combo) {
-	var toCode = _ohanhi$keyboard_extra$Keyboard_Extra$toCode;
 	var _p3 = combo;
 	switch (_p3.ctor) {
 		case 'KeyCombo':
 			return {
 				ctor: '::',
-				_0: toCode(_p3._0),
+				_0: _p3._0,
 				_1: {ctor: '[]'}
 			};
 		case 'KeyCombo2':
 			return {
 				ctor: '::',
-				_0: toCode(_p3._0),
+				_0: _p3._0,
 				_1: {
 					ctor: '::',
-					_0: toCode(_p3._1),
+					_0: _p3._1,
 					_1: {ctor: '[]'}
 				}
 			};
 		case 'KeyCombo3':
 			return {
 				ctor: '::',
-				_0: toCode(_p3._0),
+				_0: _p3._0,
 				_1: {
 					ctor: '::',
-					_0: toCode(_p3._1),
+					_0: _p3._1,
 					_1: {
 						ctor: '::',
-						_0: toCode(_p3._2),
+						_0: _p3._2,
 						_1: {ctor: '[]'}
 					}
 				}
@@ -14269,16 +14316,16 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$keyList = function (combo) {
 		default:
 			return {
 				ctor: '::',
-				_0: toCode(_p3._0),
+				_0: _p3._0,
 				_1: {
 					ctor: '::',
-					_0: toCode(_p3._1),
+					_0: _p3._1,
 					_1: {
 						ctor: '::',
-						_0: toCode(_p3._2),
+						_0: _p3._2,
 						_1: {
 							ctor: '::',
-							_0: toCode(_p3._3),
+							_0: _p3._3,
 							_1: {ctor: '[]'}
 						}
 					}
@@ -14286,22 +14333,49 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$keyList = function (combo) {
 			};
 	}
 };
+var _scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos = function (combos) {
+	return A2(
+		_elm_lang$core$List$sortWith,
+		F2(
+			function (a, b) {
+				var keyListLength = function (c) {
+					return _elm_lang$core$List$length(
+						_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(c));
+				};
+				var _p4 = A2(
+					_elm_lang$core$Basics$compare,
+					keyListLength(a),
+					keyListLength(b));
+				switch (_p4.ctor) {
+					case 'LT':
+						return _elm_lang$core$Basics$GT;
+					case 'EQ':
+						return _elm_lang$core$Basics$EQ;
+					default:
+						return _elm_lang$core$Basics$LT;
+				}
+			}),
+		combos);
+};
+var _scottcorgan$keyboard_combo$Keyboard_Combo$arePressed = F2(
+	function (keyState, combo) {
+		return A2(
+			_elm_lang$core$List$all,
+			function (key) {
+				return A2(_ohanhi$keyboard_extra$Keyboard_Extra$isPressed, key, keyState);
+			},
+			combo);
+	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$matchesCombo = function (model) {
-	var keys = A2(
-		_elm_lang$core$List$map,
-		function (k) {
-			return _ohanhi$keyboard_extra$Keyboard_Extra$toCode(k);
-		},
-		model.keys);
 	return A2(
 		_scottcorgan$keyboard_combo$Keyboard_Combo$find,
 		function (combo) {
-			return _elm_lang$core$Native_Utils.eq(
-				_elm_lang$core$Set$fromList(
-					_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(combo)),
-				_elm_lang$core$Set$fromList(keys));
+			return A2(
+				_scottcorgan$keyboard_combo$Keyboard_Combo$arePressed,
+				model.keys,
+				_scottcorgan$keyboard_combo$Keyboard_Combo$keyList(combo));
 		},
-		model.combos);
+		_scottcorgan$keyboard_combo$Keyboard_Combo$prioritizeCombos(model.combos));
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$performComboTask = function (combo) {
 	return A2(
@@ -14414,12 +14488,7 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$subscriptions = function (model) 
 };
 var _scottcorgan$keyboard_combo$Keyboard_Combo$init = F2(
 	function (combos, toMsg) {
-		return {
-			keys: {ctor: '[]'},
-			combos: combos,
-			toMsg: toMsg,
-			activeCombo: _elm_lang$core$Maybe$Nothing
-		};
+		return {keys: _ohanhi$keyboard_extra$Keyboard_Extra$initialState, combos: combos, toMsg: toMsg, activeCombo: _elm_lang$core$Maybe$Nothing};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$Model = F4(
 	function (a, b, c, d) {
@@ -14430,27 +14499,27 @@ var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4 = F5(
 		return {ctor: 'KeyCombo4', _0: a, _1: b, _2: c, _3: d, _4: e};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo4 = F2(
-	function (_p4, msg) {
-		var _p5 = _p4;
-		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p5._0, _p5._1, _p5._2, _p5._3, msg);
+	function (_p5, msg) {
+		var _p6 = _p5;
+		return A5(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo4, _p6._0, _p6._1, _p6._2, _p6._3, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3 = F4(
 	function (a, b, c, d) {
 		return {ctor: 'KeyCombo3', _0: a, _1: b, _2: c, _3: d};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo3 = F2(
-	function (_p6, msg) {
-		var _p7 = _p6;
-		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p7._0, _p7._1, _p7._2, msg);
+	function (_p7, msg) {
+		var _p8 = _p7;
+		return A4(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo3, _p8._0, _p8._1, _p8._2, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2 = F3(
 	function (a, b, c) {
 		return {ctor: 'KeyCombo2', _0: a, _1: b, _2: c};
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$combo2 = F2(
-	function (_p8, msg) {
-		var _p9 = _p8;
-		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p9._0, _p9._1, msg);
+	function (_p9, msg) {
+		var _p10 = _p9;
+		return A3(_scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo2, _p10._0, _p10._1, msg);
 	});
 var _scottcorgan$keyboard_combo$Keyboard_Combo$KeyCombo = F2(
 	function (a, b) {
