@@ -63,7 +63,7 @@ function runApp(board) {
 
   if (window.localStorage.getItem('sawIntro') == null) {
     window.localStorage.setItem('sawIntro', true);
-    window.location.href = 'http://tinyurl.com/flittal';
+    window.location.href = 'https://tinyurl.com/flittal-alpha';
   }
 
   var currentUrl = window.location.href;
