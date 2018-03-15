@@ -21535,8 +21535,8 @@ var _joefiorini$flittal$Main$view = function (state) {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Main',
 				{
-					start: {line: 433, column: 13},
-					end: {line: 438, column: 57}
+					start: {line: 428, column: 13},
+					end: {line: 433, column: 57}
 				},
 				_p0)('No navigation history!');
 		}
@@ -21720,8 +21720,8 @@ var _joefiorini$flittal$Main$extractAppState = function (result) {
 		return _elm_lang$core$Native_Utils.crashCase(
 			'Main',
 			{
-				start: {line: 234, column: 5},
-				end: {line: 239, column: 26}
+				start: {line: 229, column: 5},
+				end: {line: 234, column: 26}
 			},
 			_p4)(_p4._0);
 	}
@@ -22015,23 +22015,6 @@ var _joefiorini$flittal$Main$keyboardCombos = A2(
 							_1: {ctor: '[]'}
 						}
 					})))));
-var _joefiorini$flittal$Main$mkState = F3(
-	function (location, windowSize, board) {
-		return {
-			currentBoard: board,
-			boardHistory: _elm_community$undo_redo$UndoList$fresh(board),
-			currentRoute: _joefiorini$flittal$Routes$Root,
-			navigationHistory: {
-				ctor: '::',
-				_0: location,
-				_1: {ctor: '[]'}
-			},
-			currentLocation: location,
-			keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo),
-			windowSize: windowSize,
-			encodedBoard: _elm_lang$core$Maybe$Nothing
-		};
-	});
 var _joefiorini$flittal$Main$parseLocation = function (location) {
 	var _p10 = location.pathname;
 	switch (_p10) {
@@ -22051,73 +22034,87 @@ var _joefiorini$flittal$Main$parseLocation = function (location) {
 };
 var _joefiorini$flittal$Main$init = F2(
 	function (flags, location) {
-		var boardState = function () {
-			var _p11 = _joefiorini$flittal$Main$getEncodedState(location);
-			if (_p11.ctor === 'Just') {
-				var decoded = function (s) {
+		var boardState = A2(
+			_elm_lang$core$Maybe$withDefault,
+			_joefiorini$flittal$Board_Controller$init,
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (str) {
+					var decoded = function (s) {
+						return A2(
+							_elm_community$result_extra$Result_Extra$orElse,
+							_joefiorini$flittal$Main$decodeAppState(s),
+							A2(_elm_lang$core$Json_Decode$decodeString, _joefiorini$flittal$Board_Model$decode, s));
+					};
+					var decodeBoard = function (s) {
+						return A2(
+							_elm_lang$core$Debug$log,
+							'decoded',
+							A2(
+								_elm_lang$core$Result$andThen,
+								function (s) {
+									return decoded(s);
+								},
+								_truqu$elm_base64$Base64$decode(s)));
+					};
 					return A2(
-						_elm_community$result_extra$Result_Extra$orElse,
-						_joefiorini$flittal$Main$decodeAppState(s),
-						A2(_elm_lang$core$Json_Decode$decodeString, _joefiorini$flittal$Board_Model$decode, s));
-				};
-				var decodeBoard = function (s) {
-					return A2(
-						_elm_lang$core$Debug$log,
-						'decoded',
-						A2(
-							_elm_lang$core$Result$andThen,
-							function (s) {
-								return decoded(s);
-							},
-							_truqu$elm_base64$Base64$decode(s)));
-				};
-				return A2(
-					_elm_lang$core$Result$withDefault,
-					_joefiorini$flittal$Board_Controller$init,
-					decodeBoard(_p11._0));
-			} else {
-				return _joefiorini$flittal$Board_Controller$init;
-			}
-		}();
+						_elm_lang$core$Result$withDefault,
+						_joefiorini$flittal$Board_Controller$init,
+						decodeBoard(str));
+				},
+				_joefiorini$flittal$Main$getEncodedState(location)));
 		var currentRoute = _joefiorini$flittal$Main$parseLocation(location);
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			A3(_joefiorini$flittal$Main$mkState, location, flags.windowSize, boardState),
+			{
+				currentBoard: boardState,
+				boardHistory: _elm_community$undo_redo$UndoList$fresh(boardState),
+				currentRoute: _joefiorini$flittal$Routes$Root,
+				navigationHistory: {
+					ctor: '::',
+					_0: location,
+					_1: {ctor: '[]'}
+				},
+				currentLocation: location,
+				keys: A2(_scottcorgan$keyboard_combo$Keyboard_Combo$init, _joefiorini$flittal$Main$keyboardCombos, _joefiorini$flittal$Msg$KeyCombo),
+				windowSize: flags.windowSize,
+				encodedBoard: _elm_lang$core$Maybe$Nothing
+			},
 			{ctor: '[]'});
 	});
 var _joefiorini$flittal$Main$update = F2(
 	function (update, state) {
-		var _p12 = update;
-		switch (_p12.ctor) {
+		var _p11 = update;
+		switch (_p11.ctor) {
 			case 'NewPage':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					state,
 					{
 						ctor: '::',
-						_0: _elm_lang$navigation$Navigation$newUrl(_p12._0),
+						_0: _elm_lang$navigation$Navigation$newUrl(_p11._0),
 						_1: {ctor: '[]'}
 					});
 			case 'UrlChange':
-				var _p13 = _p12._0;
-				var newRoute = _joefiorini$flittal$Main$parseLocation(_p13);
+				var _p12 = _p11._0;
+				var newRoute = _joefiorini$flittal$Main$parseLocation(_p12);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
 						{
 							currentRoute: newRoute,
-							navigationHistory: {ctor: '::', _0: _p13, _1: state.navigationHistory}
+							navigationHistory: {ctor: '::', _0: _p12, _1: state.navigationHistory}
 						}),
 					{ctor: '[]'});
 			case 'BoardUpdate':
-				var _p18 = _p12._0;
-				var newBoard = A2(_joefiorini$flittal$Board_Controller$update, _p18, state.currentBoard);
+				var _p17 = _p11._0;
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$update, _p17, state.currentBoard);
 				var focusBox = function (boxKey) {
 					var doNothing = function (task) {
 						return A2(
 							_elm_lang$core$Task$attempt,
-							function (_p14) {
+							function (_p13) {
 								return _joefiorini$flittal$Msg$NoOp;
 							},
 							task);
@@ -22135,40 +22132,40 @@ var _joefiorini$flittal$Main$update = F2(
 					};
 				};
 				var cmd = function () {
-					var _p15 = _p18;
-					_v7_2:
+					var _p14 = _p17;
+					_v6_2:
 					do {
-						switch (_p15.ctor) {
+						switch (_p14.ctor) {
 							case 'EditingSelectedBox':
-								if (_p15._0 === true) {
+								if (_p14._0 === true) {
 									var selectedBox = A2(
 										_elm_community$list_extra$List_Extra$find,
 										function (b) {
 											return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
 										},
 										state.currentBoard.boxes);
-									var _p16 = selectedBox;
-									if (_p16.ctor === 'Just') {
-										return focusBox(_p16._0.key);
+									var _p15 = selectedBox;
+									if (_p15.ctor === 'Just') {
+										return focusBox(_p15._0.key);
 									} else {
 										return {ctor: '[]'};
 									}
 								} else {
-									break _v7_2;
+									break _v6_2;
 								}
 							case 'EditingBox':
-								return _p15._1 ? focusBox(_p15._0) : {ctor: '[]'};
+								return _p14._1 ? focusBox(_p14._0) : {ctor: '[]'};
 							default:
-								break _v7_2;
+								break _v6_2;
 						}
 					} while(false);
 					return {ctor: '[]'};
 				}();
 				var isRecordable = function () {
-					var _p17 = _p18;
-					_v9_7:
+					var _p16 = _p17;
+					_v8_7:
 					do {
-						switch (_p17.ctor) {
+						switch (_p16.ctor) {
 							case 'NewBox':
 								return true;
 							case 'DeleteSelections':
@@ -22182,13 +22179,13 @@ var _joefiorini$flittal$Main$update = F2(
 							case 'ResizeBox':
 								return true;
 							case 'BoxAction':
-								if (_p17._0.ctor === 'EditingBox') {
+								if (_p16._0.ctor === 'EditingBox') {
 									return true;
 								} else {
-									break _v9_7;
+									break _v8_7;
 								}
 							default:
-								break _v9_7;
+								break _v8_7;
 						}
 					} while(false);
 					return false;
@@ -22211,9 +22208,9 @@ var _joefiorini$flittal$Main$update = F2(
 						{currentBoard: updatedBoard}),
 					{ctor: '[]'});
 			case 'ShareBoard':
-				var serializeAndEncodeBoard = function (_p19) {
+				var serializeAndEncodeBoard = function (_p18) {
 					return _truqu$elm_base64$Base64$encode(
-						_joefiorini$flittal$Main$serializeBoardState(_p19));
+						_joefiorini$flittal$Main$serializeBoardState(_p18));
 				};
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -22257,9 +22254,9 @@ var _joefiorini$flittal$Main$update = F2(
 							{currentBoard: board, boardHistory: history});
 					}(history.present));
 			case 'KeyCombo':
-				var _p20 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p12._0, state.keys);
-				var keys = _p20._0;
-				var cmd = _p20._1;
+				var _p19 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p11._0, state.keys);
+				var keys = _p19._0;
+				var cmd = _p19._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -22268,8 +22265,8 @@ var _joefiorini$flittal$Main$update = F2(
 					_1: cmd
 				};
 			case 'ToggleHelp':
-				var _p21 = A2(_elm_lang$core$Debug$log, 'help', state.currentRoute);
-				if (_p21.ctor === 'Help') {
+				var _p20 = A2(_elm_lang$core$Debug$log, 'help', state.currentRoute);
+				if (_p20.ctor === 'Help') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						state,
@@ -22293,7 +22290,7 @@ var _joefiorini$flittal$Main$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
-						{windowSize: _p12._0}),
+						{windowSize: _p11._0}),
 					{ctor: '[]'});
 			default:
 				return A2(

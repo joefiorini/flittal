@@ -185,22 +185,30 @@ init flags location =
             parseLocation location
 
         boardState =
-            case getEncodedState location of
-                Just str ->
-                    let
-                        decoded s =
-                            Decode.decodeString Board.Model.decode s
-                                |> ResultExtra.orElse (decodeAppState s)
+            getEncodedState location
+                |> Maybe.map
+                    (\str ->
+                        let
+                            decoded s =
+                                Decode.decodeString Board.Model.decode s
+                                    |> ResultExtra.orElse (decodeAppState s)
 
-                        decodeBoard s =
-                            Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
-                    in
-                        Result.withDefault Board.init <| decodeBoard str
-
-                Nothing ->
-                    Board.init
+                            decodeBoard s =
+                                Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
+                        in
+                            Result.withDefault Board.init <| decodeBoard str
+                    )
+                |> Maybe.withDefault Board.init
     in
-        mkState location flags.windowSize boardState
+        { currentBoard = boardState
+        , boardHistory = UndoList.fresh boardState
+        , currentRoute = Routes.Root
+        , navigationHistory = [ location ]
+        , currentLocation = location
+        , keys = Keys.init keyboardCombos KeyCombo
+        , windowSize = flags.windowSize
+        , encodedBoard = Nothing
+        }
             ! []
 
 
@@ -208,19 +216,6 @@ serializeBoardState : Model -> String
 serializeBoardState board =
     Board.Model.encode board
         |> Encode.encode 0
-
-
-mkState : Location -> Window.Size -> Model -> AppState
-mkState location windowSize board =
-    { currentBoard = board
-    , boardHistory = UndoList.fresh board
-    , currentRoute = Routes.Root
-    , navigationHistory = [ location ]
-    , currentLocation = location
-    , keys = Keys.init keyboardCombos KeyCombo
-    , windowSize = windowSize
-    , encodedBoard = Nothing
-    }
 
 
 decodeAppState : String -> Result String Model
