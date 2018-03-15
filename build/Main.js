@@ -16815,7 +16815,7 @@ var _joefiorini$flittal$Box_Model$encode = function (box) {
 };
 var _joefiorini$flittal$Box_Model$mkBox = F5(
 	function (position, size, label, key, style) {
-		return {position: position, size: size, label: label, originalLabel: '', key: key, isEditing: false, isDragging: false, selectedIndex: 0, style: style};
+		return {position: position, size: size, label: label, originalLabel: label, key: key, isEditing: false, isDragging: false, selectedIndex: 0, style: style};
 	});
 var _joefiorini$flittal$Box_Model$decode = A6(
 	_elm_lang$core$Json_Decode$map5,
