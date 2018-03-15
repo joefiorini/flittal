@@ -83,22 +83,6 @@ boxClasses box =
     ]
 
 
-entersEditMode : Msg -> Bool
-entersEditMode update =
-    case update of
-        EditingBox _ toggle ->
-            toggle
-
-        CancelEditingBox _ ->
-            False
-
-        CancelEditing ->
-            False
-
-        otherwise ->
-            False
-
-
 onKeyDown : Model -> Attribute Msg
 onKeyDown box =
     let
@@ -265,8 +249,8 @@ resize mode box =
                     )
 
 
-step : Msg -> Model -> Model
-step update box =
+update : Msg -> Model -> Model
+update update box =
     case update of
         Drop event ->
             moveBoxDrag event box

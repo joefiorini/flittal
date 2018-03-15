@@ -5,7 +5,6 @@
   "license": "Commercial",
   "source-directories": ["src"],
   "exposed-modules": [],
-  "native-modules": true,
   "dependencies": {
     "elm-community/list-extra": "7.0.1 <= v < 8.0.0",
     "elm-community/maybe-extra": "4.0.0 <= v < 5.0.0",
