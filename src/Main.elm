@@ -34,6 +34,7 @@ import Keyboard.Combo as Keys
 import Base64
 import UrlParser
 import Result.Extra as ResultExtra
+import Maybe.Extra exposing (isJust)
 
 
 type alias Flags =
@@ -209,7 +210,11 @@ init flags location =
         , windowSize = flags.windowSize
         , encodedBoard = Nothing
         }
-            ! []
+            ! [ if isJust (getEncodedState location) then
+                    Navigation.newUrl "/"
+                else
+                    Cmd.none
+              ]
 
 
 serializeBoardState : Board.Model -> String

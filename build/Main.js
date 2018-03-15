@@ -21535,8 +21535,8 @@ var _joefiorini$flittal$Main$view = function (model) {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Main',
 				{
-					start: {line: 418, column: 13},
-					end: {line: 423, column: 57}
+					start: {line: 423, column: 13},
+					end: {line: 428, column: 57}
 				},
 				_p0)('No navigation history!');
 		}
@@ -22066,7 +22066,12 @@ var _joefiorini$flittal$Main$init = F2(
 				windowSize: flags.windowSize,
 				encodedBoard: _elm_lang$core$Maybe$Nothing
 			},
-			{ctor: '[]'});
+			{
+				ctor: '::',
+				_0: _elm_community$maybe_extra$Maybe_Extra$isJust(
+					_joefiorini$flittal$Main$getEncodedState(location)) ? _elm_lang$navigation$Navigation$newUrl('/') : _elm_lang$core$Platform_Cmd$none,
+				_1: {ctor: '[]'}
+			});
 	});
 var _joefiorini$flittal$Main$update = F2(
 	function (update, model) {
