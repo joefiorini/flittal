@@ -83,22 +83,6 @@ boxClasses box =
     ]
 
 
-entersEditMode : Msg -> Bool
-entersEditMode update =
-    case update of
-        EditingBox _ toggle ->
-            toggle
-
-        CancelEditingBox _ ->
-            False
-
-        CancelEditing ->
-            False
-
-        otherwise ->
-            False
-
-
 onKeyDown : Model -> Attribute Msg
 onKeyDown box =
     let

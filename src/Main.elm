@@ -249,25 +249,6 @@ subscriptions model =
         ]
 
 
-entersEditMode : Msg -> Bool
-entersEditMode update =
-    case update of
-        BoardUpdate a ->
-            Board.entersEditMode a
-
-        otherwise ->
-            False
-
-
-initTimeMachine : AppState -> AppState
-initTimeMachine appState =
-    let
-        history =
-            UndoList.fresh appState.currentBoard
-    in
-        { appState | boardHistory = history }
-
-
 step : Msg -> AppState -> ( AppState, Cmd Msg )
 step update state =
     case update of

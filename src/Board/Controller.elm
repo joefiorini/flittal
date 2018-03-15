@@ -66,22 +66,6 @@ targetDecoder =
     Decode.at [ "target", "id" ] Decode.string
 
 
-entersEditMode : Msg -> Bool
-entersEditMode update =
-    case update of
-        EditingBox _ toggle ->
-            toggle
-
-        EditingSelectedBox toggle ->
-            toggle
-
-        BoxAction a ->
-            Box.entersEditMode a
-
-        otherwise ->
-            False
-
-
 buildSelectAction : MouseWithTarget -> Msg
 buildSelectAction event =
     let
