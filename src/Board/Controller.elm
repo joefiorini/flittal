@@ -1,6 +1,6 @@
 module Board.Controller exposing (..)
 
-import Board.Model exposing (Model)
+import Board.Model
 import Board.Msg exposing (..)
 import Box.Controller as Box
 import Box.Types
@@ -23,11 +23,11 @@ import Mouse
 import Json.Decode as Decode exposing (Decoder)
 
 
-type alias Board =
+type alias Model =
     Board.Model.Model
 
 
-view : (Msg -> msg) -> Board -> Int -> Html msg
+view : (Msg -> msg) -> Model -> Int -> Html msg
 view tx model height =
     let
         boxes =
@@ -196,8 +196,8 @@ updateBoxInState boxKey msg box =
         box
 
 
-update : Msg -> Board -> Board
-update msg state =
+update : Msg -> Model -> Model
+update msg model =
     let
         updateSelectedBoxes msg iterator =
             (if iterator.selectedIndex > -1 then
@@ -230,16 +230,16 @@ update msg state =
     in
         case msg of
             NewBox ->
-                if isEditing state.boxes then
-                    state
+                if isEditing model.boxes then
+                    model
                 else
                     let
                         newBox =
-                            makeBox state.nextIdentifier
+                            makeBox model.nextIdentifier
                     in
-                        { state
-                            | boxes = newBox :: (deselectBoxes state.boxes)
-                            , nextIdentifier = state.nextIdentifier + 1
+                        { model
+                            | boxes = newBox :: (deselectBoxes model.boxes)
+                            , nextIdentifier = model.nextIdentifier + 1
                         }
 
             BoxAction (Box.Msg.CancelEditingBox box) ->
@@ -248,9 +248,9 @@ update msg state =
                         Box.update Box.Msg.CancelEditing box
 
                     boxes_ =
-                        replaceBox state.boxes box_
+                        replaceBox model.boxes box_
                 in
-                    { state | boxes = deselectBoxes boxes_ }
+                    { model | boxes = deselectBoxes boxes_ }
 
             DeselectBoxes ->
                 let
@@ -260,22 +260,22 @@ update msg state =
                     updateBoxes =
                         cancelEditing >> deselectBoxes
                 in
-                    { state | boxes = updateBoxes state.boxes }
+                    { model | boxes = updateBoxes model.boxes }
 
             SelectBoxMulti id ->
-                { state
+                { model
                     | boxes =
-                        state.boxes
+                        model.boxes
                             |> List.map
                                 (\box ->
-                                    updateBoxInState id (nextSelectedIndex state.boxes |> Box.Msg.SetSelected) box
+                                    updateBoxInState id (nextSelectedIndex model.boxes |> Box.Msg.SetSelected) box
                                 )
                 }
 
             DraggingBox id ->
                 let
                     box =
-                        boxForKey id state.boxes
+                        boxForKey id model.boxes
 
                     selectedBox boxes =
                         List.map (\box -> updateBoxInState id (Box.Msg.SetSelected <| nextSelectedIndex boxes) box) boxes
@@ -286,7 +286,7 @@ update msg state =
                     updateBoxes =
                         selectedBox >> draggingBox
                 in
-                    { state | boxes = updateBoxes state.boxes }
+                    { model | boxes = updateBoxes model.boxes }
 
             SelectBox id ->
                 let
@@ -296,17 +296,17 @@ update msg state =
                     updateBoxes =
                         deselectBoxes >> selectedBox
                 in
-                    { state | boxes = updateBoxes state.boxes }
+                    { model | boxes = updateBoxes model.boxes }
 
             SelectNextBox ->
                 let
                     selections =
-                        List.filter Box.Model.isSelected <| sortLeftToRight state.boxes
+                        List.filter Box.Model.isSelected <| sortLeftToRight model.boxes
 
                     nextBox =
                         let
                             sortedBoxes =
-                                sortLeftToRight state.boxes
+                                sortLeftToRight model.boxes
                         in
                             case selections of
                                 [] ->
@@ -328,25 +328,25 @@ update msg state =
                         nextBox
                             |> Maybe.map
                                 (\next ->
-                                    { state
+                                    { model
                                         | boxes =
                                             List.map
                                                 (\box -> updateBoxInState next.key (Box.Msg.SetSelected 0) box)
-                                                state.boxes
+                                                model.boxes
                                     }
                                 )
                 in
-                    Maybe.withDefault state newState
+                    Maybe.withDefault model newState
 
             SelectPreviousBox ->
                 let
                     selections =
-                        List.filter Box.Model.isSelected <| sortRightToLeft state.boxes
+                        List.filter Box.Model.isSelected <| sortRightToLeft model.boxes
 
                     nextBox =
                         let
                             sortedBoxes =
-                                sortRightToLeft state.boxes
+                                sortRightToLeft model.boxes
                         in
                             case selections of
                                 [] ->
@@ -368,52 +368,52 @@ update msg state =
                         nextBox
                             |> Maybe.map
                                 (\next ->
-                                    { state
+                                    { model
                                         | boxes =
-                                            deselectBoxes state.boxes
+                                            deselectBoxes model.boxes
                                                 |> List.map
                                                     (\box -> updateBoxInState next.key (Box.Msg.SetSelected 0) box)
                                     }
                                 )
                 in
-                    Maybe.withDefault state newState
+                    Maybe.withDefault model newState
 
             EditingBox boxKey toggle ->
                 let
                     box =
-                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.update (Box.Msg.Editing toggle) box)
+                        boxForKey boxKey model.boxes |> Maybe.map (\box -> Box.update (Box.Msg.Editing toggle) box)
 
                     newState =
-                        Maybe.map (\box -> { state | boxes = replaceBox state.boxes box }) box
+                        Maybe.map (\box -> { model | boxes = replaceBox model.boxes box }) box
                 in
-                    (Maybe.withDefault state newState)
+                    (Maybe.withDefault model newState)
 
             BoxAction (Box.Msg.EditingBox box toggle) ->
                 let
                     box_ =
                         Box.update (Box.Msg.Editing toggle) box
                 in
-                    { state | boxes = replaceBox state.boxes <| box_ }
+                    { model | boxes = replaceBox model.boxes <| box_ }
 
             EditingSelectedBox toggle ->
                 let
                     selectedBox =
-                        List.filter (\b -> b.selectedIndex /= -1) state.boxes |> List.head
+                        List.filter (\b -> b.selectedIndex /= -1) model.boxes |> List.head
 
                     newState =
                         selectedBox
                             |> Maybe.map
                                 (\box ->
-                                    { state
+                                    { model
                                         | boxes =
-                                            Box.update (Box.Msg.Editing toggle) box |> replaceBox state.boxes
+                                            Box.update (Box.Msg.Editing toggle) box |> replaceBox model.boxes
                                     }
                                 )
                 in
-                    Maybe.withDefault state newState
+                    Maybe.withDefault model newState
 
             BoxAction (Box.Msg.UpdateBox box label) ->
-                { state | boxes = replaceBox state.boxes <| Box.update (Box.Msg.Update label) box }
+                { model | boxes = replaceBox model.boxes <| Box.update (Box.Msg.Update label) box }
 
             Drop key event ->
                 let
@@ -428,36 +428,36 @@ update msg state =
                 in
                     update
                         ReconnectSelections
-                        { state | boxes = updateBoxes state.boxes }
+                        { model | boxes = updateBoxes model.boxes }
 
             ReconnectSelections ->
-                { state
+                { model
                     | connections =
                         Connection.boxMap
                             Connection.connectBoxes
-                            state.boxes
-                            state.connections
+                            model.boxes
+                            model.connections
                 }
 
             ConnectSelections ->
-                if List.length (selectedBoxes state.boxes) < 2 then
-                    state
+                if List.length (selectedBoxes model.boxes) < 2 then
+                    model
                 else
-                    { state
+                    { model
                         | connections =
-                            Connection.buildConnections state.connections <|
-                                selectedBoxes state.boxes
+                            Connection.buildConnections model.connections <|
+                                selectedBoxes model.boxes
                     }
 
             DisconnectSelections ->
                 let
                     selectedBoxes =
-                        List.filter Box.Model.isSelected state.boxes
+                        List.filter Box.Model.isSelected model.boxes
 
                     connectionish =
                         case selectedBoxes of
                             [ box1, box2 ] ->
-                                Just <| List.filter (Connection.onBoxes box1 box2) state.connections
+                                Just <| List.filter (Connection.onBoxes box1 box2) model.connections
 
                             _ ->
                                 Nothing
@@ -467,35 +467,35 @@ update msg state =
                             (\c ->
                                 case c of
                                     [] ->
-                                        state.connections
+                                        model.connections
 
                                     connection :: rest ->
-                                        List.filter ((/=) connection) state.connections
+                                        List.filter ((/=) connection) model.connections
                             )
                             connectionish
                 in
                     case filtered of
                         Just f ->
-                            { state | connections = f }
+                            { model | connections = f }
 
                         Nothing ->
-                            state
+                            model
 
             DeleteSelections ->
                 let
                     isSelected boxKey =
-                        List.length (Box.Model.filterKey (not << Box.Model.isSelected) boxKey state.boxes)
+                        List.length (Box.Model.filterKey (not << Box.Model.isSelected) boxKey model.boxes)
                             == 1
                 in
-                    { state
-                        | boxes = List.filter (not << Box.Model.isSelected) state.boxes
+                    { model
+                        | boxes = List.filter (not << Box.Model.isSelected) model.boxes
                         , connections =
                             List.filter
                                 (\c ->
                                     (isSelected c.startBox)
                                         && (isSelected c.endBox)
                                 )
-                                state.connections
+                                model.connections
                     }
 
             ResizeBox mode ->
@@ -503,23 +503,23 @@ update msg state =
                     updateBoxes =
                         List.map (updateSelectedBoxes (Box.Msg.Resize mode))
                 in
-                    update ReconnectSelections { state | boxes = updateBoxes state.boxes }
+                    update ReconnectSelections { model | boxes = updateBoxes model.boxes }
 
             UpdateBoxColor color ->
-                { state | boxes = List.map (updateSelectedBoxes (Box.Msg.UpdateColor color)) state.boxes }
+                { model | boxes = List.map (updateSelectedBoxes (Box.Msg.UpdateColor color)) model.boxes }
 
             MoveBox mode direction ->
                 let
                     updateBoxes =
                         List.map (updateSelectedBoxes (Box.Msg.Move mode direction))
                 in
-                    update ReconnectSelections { state | boxes = updateBoxes state.boxes }
+                    update ReconnectSelections { model | boxes = updateBoxes model.boxes }
 
             ClearBoard ->
                 init
 
             BoxAction _ ->
-                state
+                model
 
             NoOp ->
-                state
+                model

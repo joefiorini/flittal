@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Board.Controller as Board
-import Board.Model exposing (Model)
+import Board.Model as BoardModel
 import Board.Msg as BoardMsg
 import Box.Msg
 import Box.Types as Box
@@ -41,9 +41,9 @@ type alias Flags =
     }
 
 
-type alias AppState =
-    { currentBoard : Board.Board
-    , boardHistory : UndoList Board.Board
+type alias Model =
+    { currentBoard : Board.Model
+    , boardHistory : UndoList Board.Model
     , navigationHistory : List Location
     , currentLocation : Location
     , currentRoute : Routes.RouteName
@@ -53,7 +53,7 @@ type alias AppState =
     }
 
 
-main : Program Flags AppState Msg
+main : Program Flags Model Msg
 main =
     Navigation.programWithFlags UrlChange
         { init = init
@@ -178,7 +178,7 @@ getEncodedState location =
     UrlParser.parseHash UrlParser.string location
 
 
-init : Flags -> Location -> ( AppState, Cmd msg )
+init : Flags -> Location -> ( Model, Cmd msg )
 init flags location =
     let
         currentRoute =
@@ -190,8 +190,8 @@ init flags location =
                     (\str ->
                         let
                             decoded s =
-                                Decode.decodeString Board.Model.decode s
-                                    |> ResultExtra.orElse (decodeAppState s)
+                                Decode.decodeString BoardModel.decode s
+                                    |> ResultExtra.orElse (decodeModel s)
 
                             decodeBoard s =
                                 Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
@@ -212,19 +212,19 @@ init flags location =
             ! []
 
 
-serializeBoardState : Model -> String
+serializeBoardState : Board.Model -> String
 serializeBoardState board =
-    Board.Model.encode board
+    BoardModel.encode board
         |> Encode.encode 0
 
 
-decodeAppState : String -> Result String Model
-decodeAppState s =
-    field "currentBoard" Board.Model.decode
+decodeModel : String -> Result String Board.Model
+decodeModel s =
+    field "currentBoard" BoardModel.decode
         |> flip Decode.decodeString s
 
 
-subscriptions : AppState -> Sub Msg
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
@@ -234,18 +234,18 @@ subscriptions model =
         ]
 
 
-update : Msg -> AppState -> ( AppState, Cmd Msg )
-update update state =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update update model =
     case update of
         NewPage path ->
-            state ! [ Navigation.newUrl path ]
+            model ! [ Navigation.newUrl path ]
 
         UrlChange location ->
             let
                 newRoute =
                     parseLocation location
             in
-                { state | currentRoute = newRoute, navigationHistory = location :: state.navigationHistory } ! []
+                { model | currentRoute = newRoute, navigationHistory = location :: model.navigationHistory } ! []
 
         BoardUpdate u ->
             let
@@ -290,7 +290,7 @@ update update state =
                         BoardMsg.EditingSelectedBox True ->
                             let
                                 selectedBox =
-                                    find (\b -> b.selectedIndex /= -1) state.currentBoard.boxes
+                                    find (\b -> b.selectedIndex /= -1) model.currentBoard.boxes
                             in
                                 case selectedBox of
                                     Just { key } ->
@@ -309,40 +309,40 @@ update update state =
                             []
 
                 newBoard =
-                    Board.update u state.currentBoard
+                    Board.update u model.currentBoard
             in
-                { state
+                { model
                     | currentBoard = newBoard
                     , boardHistory =
                         if isRecordable then
-                            UndoList.new newBoard state.boardHistory
+                            UndoList.new newBoard model.boardHistory
                         else
-                            state.boardHistory
+                            model.boardHistory
                 }
                     ! cmd
 
         ClearBoard ->
             let
                 updatedBoard =
-                    Board.update BoardMsg.ClearBoard state.currentBoard
+                    Board.update BoardMsg.ClearBoard model.currentBoard
             in
-                { state | currentBoard = updatedBoard } ! []
+                { model | currentBoard = updatedBoard } ! []
 
         ShareBoard ->
             let
                 serializeAndEncodeBoard =
                     serializeBoardState >> Base64.encode
             in
-                { state | encodedBoard = Just (serializeAndEncodeBoard state.currentBoard) } ! [ Interop.selectInputText "share-url" ]
+                { model | encodedBoard = Just (serializeAndEncodeBoard model.currentBoard) } ! [ Interop.selectInputText "share-url" ]
 
         Undo ->
             let
                 history =
-                    UndoList.undo state.boardHistory
+                    UndoList.undo model.boardHistory
             in
                 history.present
                     |> (\board ->
-                            { state
+                            { model
                                 | currentBoard = board
                                 , boardHistory = history
                             }
@@ -352,11 +352,11 @@ update update state =
         Redo ->
             let
                 history =
-                    UndoList.redo state.boardHistory
+                    UndoList.redo model.boardHistory
             in
                 history.present
                     |> (\board ->
-                            { state
+                            { model
                                 | currentBoard = board
                                 , boardHistory = history
                             }
@@ -366,39 +366,39 @@ update update state =
         KeyCombo combo ->
             let
                 ( keys, cmd ) =
-                    Keys.update combo state.keys
+                    Keys.update combo model.keys
             in
-                ( { state | keys = keys }, cmd )
+                ( { model | keys = keys }, cmd )
 
         ToggleHelp ->
-            case Debug.log "help" state.currentRoute of
+            case Debug.log "help" model.currentRoute of
                 Routes.Help ->
-                    state ! [ Navigation.newUrl "/" ]
+                    model ! [ Navigation.newUrl "/" ]
 
                 _ ->
-                    state ! [ Navigation.newUrl "/help" ]
+                    model ! [ Navigation.newUrl "/help" ]
 
         ResizeWindow size ->
-            { state | windowSize = size } ! []
+            { model | windowSize = size } ! []
 
         NoOp ->
-            state ! []
+            model ! []
 
 
-view : AppState -> Html Msg
-view state =
+view : Model -> Html Msg
+view model =
     let
         sidebar h =
             Sidebar.view h
 
         offsetHeight =
-            state.windowSize.height - 52
+            model.windowSize.height - 52
 
         board =
-            Board.view BoardUpdate state.currentBoard offsetHeight
+            Board.view BoardUpdate model.currentBoard offsetHeight
 
         ( sidebar_, extraClass, sidebarHeight ) =
-            case state.currentRoute of
+            case model.currentRoute of
                 Routes.About ->
                     ( sidebar <| About.view, "l-board--compressed", offsetHeight )
 
@@ -415,7 +415,7 @@ view state =
                     ( text "", "", 0 )
 
         currentLocation =
-            case state.navigationHistory of
+            case model.navigationHistory of
                 location :: _ ->
                     location
 
@@ -424,7 +424,7 @@ view state =
     in
         section []
             [ Header.view
-            , Toolbar.view state.encodedBoard currentLocation
+            , Toolbar.view model.encodedBoard currentLocation
             , main_
                 [ class "l-container" ]
                 [ section
