@@ -10,14 +10,6 @@ var result = {
   endY: 0
 };
 
-// var board = Elm.Main.fullscreen({
-//   dragstart: result,
-//   dragend: result,
-//   drop: result,
-//   globalKeyDown: 0,
-//   loadedState: ""
-// });
-
 function StyleWithColor() {
   return {
     adapt: function(obj) {
@@ -42,8 +34,6 @@ function adapt(state) {
 
 function runApp(board) {
   function sendPort(port, result) {
-    console.log('sending ', port, result);
-
     result.isStart = result.isEnd = result.isDrop = false;
 
     switch (port) {
@@ -78,15 +68,6 @@ function runApp(board) {
     board.ports.loadedState.send(adaptedState);
     window.history.pushState({}, '', '/');
   }
-  // board.ports.serializeState.subscribe(function(state) {
-  //   var encoded = btoa(JSON.stringify(state));
-  //   var input = document.querySelector(".share__url");
-  //   var url = urlForState(encoded);
-
-  //   input.value = url;
-  //   input.select();
-  //   return state;
-  // });
 
   board.ports.selectInputText.subscribe(inputId => {
     setTimeout(() => {
@@ -111,8 +92,6 @@ function runApp(board) {
       }
 
       e.dataTransfer.setData('text/html', null);
-      //e.dataTransfer.effectAllowed = 'move';
-      //e.dataTransfer.dropEffect = 'move';
 
       sendPort('dragstart', result);
     },
@@ -123,8 +102,6 @@ function runApp(board) {
     'dragover',
     function(e) {
       e.preventDefault();
-      //e.dataTransfer.effectAllowed = 'move';
-      //e.dataTransfer.dropEffect = 'move';
     },
     false
   );
@@ -157,34 +134,10 @@ window.onsubmit = function(e) {
   e.preventDefault();
 };
 
-function urlForState(state) {
-  var encoded = encodeURIComponent(state);
-  return (
-    window.location.protocol +
-    '//' +
-    window.location.host +
-    '/boards/' +
-    encoded
-  );
-}
-
 setTimeout(function() {
   var navBar = document.querySelector('nav.nav-bar');
   navBar.classList.add('nav-bar--compressed');
 }, 5000);
-
-function updateImgPaths(prefix) {
-  const images = document.querySelectorAll('img');
-
-  images.forEach(img => {
-    console.log(typeof img.src);
-    if (img.src.includes('/images')) {
-      src = new URL(img.src);
-      src.pathname = `${prefix}${src.pathname}`;
-      img.src = src.href;
-    }
-  });
-}
 
 function start(flags) {
   var board = Elm.Main.fullscreen(flags);
@@ -195,4 +148,3 @@ function start(flags) {
 }
 
 window.startApp = start;
-// board.ports.dragstart.send
