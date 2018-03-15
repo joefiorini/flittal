@@ -249,8 +249,8 @@ resize mode box =
                     )
 
 
-step : Msg -> Model -> Model
-step update box =
+update : Msg -> Model -> Model
+update update box =
     case update of
         Drop event ->
             moveBoxDrag event box

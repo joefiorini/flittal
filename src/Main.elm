@@ -56,9 +56,9 @@ type alias AppState =
 main : Program Flags AppState Msg
 main =
     Navigation.programWithFlags UrlChange
-        { init = startingState
-        , view = container
-        , update = step
+        { init = init
+        , view = view
+        , update = update
         , subscriptions = subscriptions
         }
 
@@ -178,8 +178,8 @@ getEncodedState location =
     UrlParser.parseHash UrlParser.string location
 
 
-startingState : Flags -> Location -> ( AppState, Cmd msg )
-startingState flags location =
+init : Flags -> Location -> ( AppState, Cmd msg )
+init flags location =
     let
         currentRoute =
             parseLocation location
@@ -195,10 +195,10 @@ startingState flags location =
                         decodeBoard s =
                             Base64.decode s |> Result.andThen (\s -> decoded s) |> Debug.log "decoded"
                     in
-                        Result.withDefault Board.startingState <| decodeBoard str
+                        Result.withDefault Board.init <| decodeBoard str
 
                 Nothing ->
-                    Board.startingState
+                    Board.init
     in
         mkState location flags.windowSize boardState
             ! []
@@ -249,8 +249,8 @@ subscriptions model =
         ]
 
 
-step : Msg -> AppState -> ( AppState, Cmd Msg )
-step update state =
+update : Msg -> AppState -> ( AppState, Cmd Msg )
+update update state =
     case update of
         NewPage path ->
             state ! [ Navigation.newUrl path ]
@@ -324,7 +324,7 @@ step update state =
                             []
 
                 newBoard =
-                    Board.step u state.currentBoard
+                    Board.update u state.currentBoard
             in
                 { state
                     | currentBoard = newBoard
@@ -339,7 +339,7 @@ step update state =
         ClearBoard ->
             let
                 updatedBoard =
-                    Board.step BoardMsg.ClearBoard state.currentBoard
+                    Board.update BoardMsg.ClearBoard state.currentBoard
             in
                 { state | currentBoard = updatedBoard } ! []
 
@@ -400,8 +400,8 @@ step update state =
             state ! []
 
 
-container : AppState -> Html Msg
-container state =
+view : AppState -> Html Msg
+view state =
     let
         sidebar h =
             Sidebar.view h

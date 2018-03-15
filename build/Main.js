@@ -18627,7 +18627,7 @@ var _joefiorini$flittal$Box_Controller$moveBox = F3(
 				return {ctor: '_Tuple2', _0: x + amount, _1: y};
 		}
 	});
-var _joefiorini$flittal$Box_Controller$step = F2(
+var _joefiorini$flittal$Box_Controller$update = F2(
 	function (update, box) {
 		var _p7 = update;
 		switch (_p7.ctor) {
@@ -19871,8 +19871,8 @@ var _mpizenberg$elm_pointer_events$Mouse$onOut = A2(_mpizenberg$elm_pointer_even
 var _mpizenberg$elm_pointer_events$Mouse$onContextMenu = A2(_mpizenberg$elm_pointer_events$Mouse$onWithOptions, 'contextmenu', _mpizenberg$elm_pointer_events$Mouse$stopOptions);
 
 var _joefiorini$flittal$Board_Controller$updateBoxInState = F3(
-	function (boxKey, update, box) {
-		return _elm_lang$core$Native_Utils.eq(box.key, boxKey) ? A2(_joefiorini$flittal$Box_Controller$step, update, box) : box;
+	function (boxKey, msg, box) {
+		return _elm_lang$core$Native_Utils.eq(box.key, boxKey) ? A2(_joefiorini$flittal$Box_Controller$update, msg, box) : box;
 	});
 var _joefiorini$flittal$Board_Controller$replaceBox = F2(
 	function (boxes, withBox) {
@@ -19947,14 +19947,14 @@ var _joefiorini$flittal$Board_Controller$isEditing = _elm_lang$core$List$any(
 	function (_) {
 		return _.isEditing;
 	});
-var _joefiorini$flittal$Board_Controller$startingState = {
+var _joefiorini$flittal$Board_Controller$init = {
 	boxes: {ctor: '[]'},
 	connections: {ctor: '[]'},
 	nextIdentifier: 1
 };
-var _joefiorini$flittal$Board_Controller$step = F2(
-	function (update, state) {
-		step:
+var _joefiorini$flittal$Board_Controller$update = F2(
+	function (msg, state) {
+		update:
 		while (true) {
 			var deselectBoxes = _elm_lang$core$List$map(
 				function (box) {
@@ -19990,14 +19990,14 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 						},
 						boxes));
 			};
-			var performActionOnAllBoxes = function (update) {
-				return _joefiorini$flittal$Box_Controller$step(update);
+			var performActionOnAllBoxes = function (msg) {
+				return _joefiorini$flittal$Box_Controller$update(msg);
 			};
 			var updateSelectedBoxes = F2(
-				function (update, iterator) {
-					return (_elm_lang$core$Native_Utils.cmp(iterator.selectedIndex, -1) > 0) ? A2(_joefiorini$flittal$Box_Controller$step, update, iterator) : iterator;
+				function (msg, iterator) {
+					return (_elm_lang$core$Native_Utils.cmp(iterator.selectedIndex, -1) > 0) ? A2(_joefiorini$flittal$Box_Controller$update, msg, iterator) : iterator;
 				});
-			var _p3 = update;
+			var _p3 = msg;
 			switch (_p3.ctor) {
 				case 'NewBox':
 					if (_joefiorini$flittal$Board_Controller$isEditing(state.boxes)) {
@@ -20017,7 +20017,7 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 					}
 				case 'DeselectBoxes':
 					var cancelEditing = _elm_lang$core$List$map(
-						_joefiorini$flittal$Box_Controller$step(_joefiorini$flittal$Box_Msg$CancelEditing));
+						_joefiorini$flittal$Box_Controller$update(_joefiorini$flittal$Box_Msg$CancelEditing));
 					var updateBoxes = function (_p4) {
 						return deselectBoxes(
 							cancelEditing(_p4));
@@ -20188,7 +20188,7 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 						_elm_lang$core$Maybe$map,
 						function (box) {
 							return A2(
-								_joefiorini$flittal$Box_Controller$step,
+								_joefiorini$flittal$Box_Controller$update,
 								_joefiorini$flittal$Box_Msg$Editing(_p3._1),
 								box);
 						},
@@ -20222,7 +20222,7 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 										_joefiorini$flittal$Board_Controller$replaceBox,
 										state.boxes,
 										A2(
-											_joefiorini$flittal$Box_Controller$step,
+											_joefiorini$flittal$Box_Controller$update,
 											_joefiorini$flittal$Box_Msg$Editing(_p3._0),
 											box))
 								});
@@ -20249,9 +20249,9 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 						{
 							boxes: updateBoxes(state.boxes)
 						});
-					update = _v5;
+					msg = _v5;
 					state = _v6;
-					continue step;
+					continue update;
 				case 'ReconnectSelections':
 					return _elm_lang$core$Native_Utils.update(
 						state,
@@ -20348,9 +20348,9 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 						{
 							boxes: updateBoxes(state.boxes)
 						});
-					update = _v10;
+					msg = _v10;
 					state = _v11;
-					continue step;
+					continue update;
 				case 'UpdateBoxColor':
 					return _elm_lang$core$Native_Utils.update(
 						state,
@@ -20371,15 +20371,15 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 						{
 							boxes: updateBoxes(state.boxes)
 						});
-					update = _v12;
+					msg = _v12;
 					state = _v13;
-					continue step;
+					continue update;
 				case 'ClearBoard':
-					return _joefiorini$flittal$Board_Controller$startingState;
+					return _joefiorini$flittal$Board_Controller$init;
 				case 'BoxAction':
 					switch (_p3._0.ctor) {
 						case 'CancelEditingBox':
-							var box_ = A2(_joefiorini$flittal$Box_Controller$step, _joefiorini$flittal$Box_Msg$CancelEditing, _p3._0._0);
+							var box_ = A2(_joefiorini$flittal$Box_Controller$update, _joefiorini$flittal$Box_Msg$CancelEditing, _p3._0._0);
 							var boxes_ = A2(_joefiorini$flittal$Board_Controller$replaceBox, state.boxes, box_);
 							return _elm_lang$core$Native_Utils.update(
 								state,
@@ -20388,7 +20388,7 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 								});
 						case 'EditingBox':
 							var box_ = A2(
-								_joefiorini$flittal$Box_Controller$step,
+								_joefiorini$flittal$Box_Controller$update,
 								_joefiorini$flittal$Box_Msg$Editing(_p3._0._1),
 								_p3._0._0);
 							return _elm_lang$core$Native_Utils.update(
@@ -20404,7 +20404,7 @@ var _joefiorini$flittal$Board_Controller$step = F2(
 										_joefiorini$flittal$Board_Controller$replaceBox,
 										state.boxes,
 										A2(
-											_joefiorini$flittal$Box_Controller$step,
+											_joefiorini$flittal$Box_Controller$update,
 											_joefiorini$flittal$Box_Msg$Update(_p3._0._1),
 											_p3._0._0))
 								});
@@ -21526,7 +21526,7 @@ var _truqu$elm_base64$Base64_Encode$encode = function (input) {
 var _truqu$elm_base64$Base64$decode = _truqu$elm_base64$Base64_Decode$decode;
 var _truqu$elm_base64$Base64$encode = _truqu$elm_base64$Base64_Encode$encode;
 
-var _joefiorini$flittal$Main$container = function (state) {
+var _joefiorini$flittal$Main$view = function (state) {
 	var currentLocation = function () {
 		var _p0 = state.navigationHistory;
 		if (_p0.ctor === '::') {
@@ -22049,7 +22049,7 @@ var _joefiorini$flittal$Main$parseLocation = function (location) {
 			return _joefiorini$flittal$Routes$Root;
 	}
 };
-var _joefiorini$flittal$Main$startingState = F2(
+var _joefiorini$flittal$Main$init = F2(
 	function (flags, location) {
 		var boardState = function () {
 			var _p11 = _joefiorini$flittal$Main$getEncodedState(location);
@@ -22073,10 +22073,10 @@ var _joefiorini$flittal$Main$startingState = F2(
 				};
 				return A2(
 					_elm_lang$core$Result$withDefault,
-					_joefiorini$flittal$Board_Controller$startingState,
+					_joefiorini$flittal$Board_Controller$init,
 					decodeBoard(_p11._0));
 			} else {
-				return _joefiorini$flittal$Board_Controller$startingState;
+				return _joefiorini$flittal$Board_Controller$init;
 			}
 		}();
 		var currentRoute = _joefiorini$flittal$Main$parseLocation(location);
@@ -22085,7 +22085,7 @@ var _joefiorini$flittal$Main$startingState = F2(
 			A3(_joefiorini$flittal$Main$mkState, location, flags.windowSize, boardState),
 			{ctor: '[]'});
 	});
-var _joefiorini$flittal$Main$step = F2(
+var _joefiorini$flittal$Main$update = F2(
 	function (update, state) {
 		var _p12 = update;
 		switch (_p12.ctor) {
@@ -22112,7 +22112,7 @@ var _joefiorini$flittal$Main$step = F2(
 					{ctor: '[]'});
 			case 'BoardUpdate':
 				var _p18 = _p12._0;
-				var newBoard = A2(_joefiorini$flittal$Board_Controller$step, _p18, state.currentBoard);
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$update, _p18, state.currentBoard);
 				var focusBox = function (boxKey) {
 					var doNothing = function (task) {
 						return A2(
@@ -22203,7 +22203,7 @@ var _joefiorini$flittal$Main$step = F2(
 						}),
 					cmd);
 			case 'ClearBoard':
-				var updatedBoard = A2(_joefiorini$flittal$Board_Controller$step, _joefiorini$flittal$Board_Msg$ClearBoard, state.currentBoard);
+				var updatedBoard = A2(_joefiorini$flittal$Board_Controller$update, _joefiorini$flittal$Board_Msg$ClearBoard, state.currentBoard);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
@@ -22305,7 +22305,7 @@ var _joefiorini$flittal$Main$step = F2(
 var _joefiorini$flittal$Main$main = A2(
 	_elm_lang$navigation$Navigation$programWithFlags,
 	_joefiorini$flittal$Msg$UrlChange,
-	{init: _joefiorini$flittal$Main$startingState, view: _joefiorini$flittal$Main$container, update: _joefiorini$flittal$Main$step, subscriptions: _joefiorini$flittal$Main$subscriptions})(
+	{init: _joefiorini$flittal$Main$init, view: _joefiorini$flittal$Main$view, update: _joefiorini$flittal$Main$update, subscriptions: _joefiorini$flittal$Main$subscriptions})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
 		function (windowSize) {

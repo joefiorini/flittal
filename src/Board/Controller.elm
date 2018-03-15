@@ -119,8 +119,8 @@ moveBoxAction event =
                 NoOp
 
 
-startingState : Model
-startingState =
+init : Model
+init =
     { boxes = []
     , connections = []
     , nextIdentifier = 1
@@ -189,25 +189,25 @@ replaceBox boxes withBox =
 
 
 updateBoxInState : Box.Types.BoxKey -> Box.Msg.Msg -> Box.Types.Model -> Box.Types.Model
-updateBoxInState boxKey update box =
+updateBoxInState boxKey msg box =
     if box.key == boxKey then
-        Box.step update box
+        Box.update msg box
     else
         box
 
 
-step : Msg -> Board -> Board
-step update state =
+update : Msg -> Board -> Board
+update msg state =
     let
-        updateSelectedBoxes update iterator =
+        updateSelectedBoxes msg iterator =
             (if iterator.selectedIndex > -1 then
-                Box.step update iterator
+                Box.update msg iterator
              else
                 iterator
             )
 
-        performActionOnAllBoxes update =
-            (Box.step update)
+        performActionOnAllBoxes msg =
+            (Box.update msg)
 
         nextSelectedIndex boxes =
             List.foldl
@@ -228,7 +228,7 @@ step update state =
         deselectBoxes =
             List.map (\box -> { box | selectedIndex = -1 })
     in
-        case update of
+        case msg of
             NewBox ->
                 if isEditing state.boxes then
                     state
@@ -245,7 +245,7 @@ step update state =
             BoxAction (Box.Msg.CancelEditingBox box) ->
                 let
                     box_ =
-                        Box.step Box.Msg.CancelEditing box
+                        Box.update Box.Msg.CancelEditing box
 
                     boxes_ =
                         replaceBox state.boxes box_
@@ -255,7 +255,7 @@ step update state =
             DeselectBoxes ->
                 let
                     cancelEditing =
-                        List.map (Box.step Box.Msg.CancelEditing)
+                        List.map (Box.update Box.Msg.CancelEditing)
 
                     updateBoxes =
                         cancelEditing >> deselectBoxes
@@ -381,7 +381,7 @@ step update state =
             EditingBox boxKey toggle ->
                 let
                     box =
-                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.step (Box.Msg.Editing toggle) box)
+                        boxForKey boxKey state.boxes |> Maybe.map (\box -> Box.update (Box.Msg.Editing toggle) box)
 
                     newState =
                         Maybe.map (\box -> { state | boxes = replaceBox state.boxes box }) box
@@ -391,7 +391,7 @@ step update state =
             BoxAction (Box.Msg.EditingBox box toggle) ->
                 let
                     box_ =
-                        Box.step (Box.Msg.Editing toggle) box
+                        Box.update (Box.Msg.Editing toggle) box
                 in
                     { state | boxes = replaceBox state.boxes <| box_ }
 
@@ -406,14 +406,14 @@ step update state =
                                 (\box ->
                                     { state
                                         | boxes =
-                                            Box.step (Box.Msg.Editing toggle) box |> replaceBox state.boxes
+                                            Box.update (Box.Msg.Editing toggle) box |> replaceBox state.boxes
                                     }
                                 )
                 in
                     Maybe.withDefault state newState
 
             BoxAction (Box.Msg.UpdateBox box label) ->
-                { state | boxes = replaceBox state.boxes <| Box.step (Box.Msg.Update label) box }
+                { state | boxes = replaceBox state.boxes <| Box.update (Box.Msg.Update label) box }
 
             Drop key event ->
                 let
@@ -426,7 +426,7 @@ step update state =
                     updateBoxes =
                         moveAllSelectedBoxes >> draggingBox
                 in
-                    step
+                    update
                         ReconnectSelections
                         { state | boxes = updateBoxes state.boxes }
 
@@ -503,7 +503,7 @@ step update state =
                     updateBoxes =
                         List.map (updateSelectedBoxes (Box.Msg.Resize mode))
                 in
-                    step ReconnectSelections { state | boxes = updateBoxes state.boxes }
+                    update ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
             UpdateBoxColor color ->
                 { state | boxes = List.map (updateSelectedBoxes (Box.Msg.UpdateColor color)) state.boxes }
@@ -513,10 +513,10 @@ step update state =
                     updateBoxes =
                         List.map (updateSelectedBoxes (Box.Msg.Move mode direction))
                 in
-                    step ReconnectSelections { state | boxes = updateBoxes state.boxes }
+                    update ReconnectSelections { state | boxes = updateBoxes state.boxes }
 
             ClearBoard ->
-                startingState
+                init
 
             BoxAction _ ->
                 state
