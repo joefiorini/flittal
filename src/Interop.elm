@@ -3,9 +3,6 @@ port module Interop exposing (..)
 import Dom.Types exposing (DragEvent)
 
 
-port loadedState : (String -> msg) -> Sub msg
-
-
 port drop : (DragEvent -> msg) -> Sub msg
 
 

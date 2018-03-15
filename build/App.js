@@ -56,19 +56,6 @@ function runApp(board) {
     window.location.href = 'https://tinyurl.com/flittal-alpha';
   }
 
-  var currentUrl = window.location.href;
-  var matches = currentUrl.match(/\/boards\/(.*)$/);
-
-  if (matches && matches.length && matches.length > 0) {
-    var serializedState = matches[1];
-    var decodedState = decodeURIComponent(serializedState);
-    var deserializedState = JSON.parse(atob(decodedState));
-    var adaptedState = adapt(deserializedState);
-    console.log(adaptedState);
-    board.ports.loadedState.send(adaptedState);
-    window.history.pushState({}, '', '/');
-  }
-
   board.ports.selectInputText.subscribe(inputId => {
     setTimeout(() => {
       const input = document.getElementById(inputId);

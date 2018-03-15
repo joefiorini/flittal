@@ -11,7 +11,6 @@ type Msg
     | BoardUpdate Board.Msg.Msg
     | Undo
     | Redo
-    | LoadedState String
     | UrlChange Navigation.Location
     | NewPage String
     | KeyCombo Keyboard.Combo.Msg

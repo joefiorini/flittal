@@ -18435,9 +18435,6 @@ var _joefiorini$flittal$Msg$NewPage = function (a) {
 var _joefiorini$flittal$Msg$UrlChange = function (a) {
 	return {ctor: 'UrlChange', _0: a};
 };
-var _joefiorini$flittal$Msg$LoadedState = function (a) {
-	return {ctor: 'LoadedState', _0: a};
-};
 var _joefiorini$flittal$Msg$Redo = {ctor: 'Redo'};
 var _joefiorini$flittal$Msg$Undo = {ctor: 'Undo'};
 var _joefiorini$flittal$Msg$BoardUpdate = function (a) {
@@ -20578,7 +20575,6 @@ var _joefiorini$flittal$Board_Controller$view = F3(
 				}));
 	});
 
-var _joefiorini$flittal$Interop$loadedState = _elm_lang$core$Native_Platform.incomingPort('loadedState', _elm_lang$core$Json_Decode$string);
 var _joefiorini$flittal$Interop$drop = _elm_lang$core$Native_Platform.incomingPort(
 	'drop',
 	A2(
@@ -21565,8 +21561,8 @@ var _joefiorini$flittal$Main$container = function (state) {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Main',
 				{
-					start: {line: 461, column: 13},
-					end: {line: 466, column: 57}
+					start: {line: 452, column: 13},
+					end: {line: 457, column: 57}
 				},
 				_p0)('No navigation history!');
 		}
@@ -21746,15 +21742,11 @@ var _joefiorini$flittal$Main$subscriptions = function (model) {
 					}),
 				_1: {
 					ctor: '::',
-					_0: _joefiorini$flittal$Interop$loadedState(_joefiorini$flittal$Msg$LoadedState),
+					_0: _scottcorgan$keyboard_combo$Keyboard_Combo$subscriptions(model.keys),
 					_1: {
 						ctor: '::',
-						_0: _scottcorgan$keyboard_combo$Keyboard_Combo$subscriptions(model.keys),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$window$Window$resizes(_joefiorini$flittal$Msg$ResizeWindow),
-							_1: {ctor: '[]'}
-						}
+						_0: _elm_lang$window$Window$resizes(_joefiorini$flittal$Msg$ResizeWindow),
+						_1: {ctor: '[]'}
 					}
 				}
 			}
@@ -22137,11 +22129,6 @@ var _joefiorini$flittal$Main$step = F2(
 	function (update, state) {
 		var _p13 = update;
 		switch (_p13.ctor) {
-			case 'LoadedState':
-				return A2(
-					_elm_lang$core$Platform_Cmd_ops['!'],
-					state,
-					{ctor: '[]'});
 			case 'NewPage':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -22391,7 +22378,7 @@ var _joefiorini$flittal$Main$AppState = F8(
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _joefiorini$flittal$Main$main !== 'undefined') {
-    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Keyboard.Extra.Key":{"args":[],"tags":{"OpenParen":[],"CharD":[],"Number7":[],"CharT":[],"ArrowUp":[],"ContextMenu":[],"Other":[],"OpenBracket":[],"Multiply":[],"Minus":[],"Pipe":[],"F13":[],"Circumflex":[],"Numpad7":[],"Space":[],"CloseCurlyBracket":[],"F1":[],"F18":[],"Home":[],"CharO":[],"F23":[],"Insert":[],"DoubleQuote":[],"Control":[],"BackSpace":[],"Execute":[],"Sleep":[],"F15":[],"Numpad1":[],"CapsLock":[],"CharB":[],"VolumeDown":[],"Number1":[],"CharR":[],"ArrowLeft":[],"Hash":[],"LessThan":[],"OpenCurlyBracket":[],"NumLock":[],"PrintScreen":[],"Separator":[],"Slash":[],"Comma":[],"F12":[],"Numpad6":[],"CharE":[],"Period":[],"Number6":[],"CharU":[],"At":[],"VolumeUp":[],"CharX":[],"Shift":[],"NonConvert":[],"Underscore":[],"Asterisk":[],"Accept":[],"F6":[],"Enter":[],"Dollar":[],"CharH":[],"F24":[],"CharC":[],"Number0":[],"Ampersand":[],"CharS":[],"QuestionMark":[],"ArrowDown":[],"Percent":[],"F14":[],"Numpad0":[],"Numpad5":[],"CharF":[],"Number5":[],"CharV":[],"F8":[],"F11":[],"Print":[],"F7":[],"CharI":[],"Super":[],"Colon":[],"CharY":[],"Clear":[],"VolumeMute":[],"Escape":[],"PageDown":[],"ArrowRight":[],"Add":[],"Help":[],"F2":[],"Subtract":[],"Altgr":[],"CharL":[],"F20":[],"End":[],"Tab":[],"F9":[],"F10":[],"Numpad4":[],"Convert":[],"CharG":[],"Number4":[],"CharW":[],"Equals":[],"CharJ":[],"Number9":[],"CharZ":[],"Plus":[],"F4":[],"Numpad9":[],"Quote":[],"Pause":[],"CharM":[],"F21":[],"ModeChange":[],"Meta":[],"F3":[],"F17":[],"Select":[],"Numpad3":[],"Number3":[],"CharP":[],"Tilde":[],"Divide":[],"F5":[],"Numpad8":[],"Decimal":[],"CharK":[],"Number8":[],"Exclamation":[],"Semicolon":[],"PageUp":[],"Cancel":[],"F19":[],"CloseBracket":[],"CharN":[],"F22":[],"CloseParen":[],"HyphenMinus":[],"BackSlash":[],"ScrollLock":[],"CharQ":[],"Alt":[],"BackQuote":[],"GreaterThan":[],"F16":[],"Delete":[],"Numpad2":[],"CharA":[],"Number2":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ShareBoard":[],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"ClearBoard":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"LoadedState":["String"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.Extra.Key"],"Up":["Keyboard.Extra.Key"]}},"Board.Msg.Msg":{"args":[],"tags":{"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
+    _joefiorini$flittal$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Box.Types.ResizeMode":{"args":[],"tags":{"ResizeUpNS":[],"ResizeDownEW":[],"ResizeDownNS":[],"ResizeUpEW":[],"ResizeUpAll":[],"ResizeDownAll":[]}},"Box.Types.MoveType":{"args":[],"tags":{"Jump":[],"Nudge":[],"Push":[]}},"Style.Color.Color":{"args":[],"tags":{"Light1":[],"White":[],"Dark1":[],"Dark2":[],"Light2":[],"Dark3":[],"Black":[],"Light4":[],"Light3":[],"Dark4":[]}},"Box.Types.MoveDirection":{"args":[],"tags":{"Down":[],"Up":[],"Left":[],"Right":[]}},"Box.Msg.Msg":{"args":[],"tags":{"UpdateBox":["Box.Types.Model","String"],"Editing":["Bool"],"UpdateColor":["Style.Color"],"CancelEditingBox":["Box.Types.Model"],"Dragging":[],"CancelEditing":[],"Resize":["Box.Types.ResizeMode"],"SetSelected":["Int"],"Drop":["Dom.Types.DragEvent"],"EditingBox":["Box.Types.Model","Bool"],"NoOp":[],"Update":["String"],"Move":["Box.Types.MoveType","Box.Types.MoveDirection"]}},"Keyboard.Extra.Key":{"args":[],"tags":{"OpenParen":[],"CharD":[],"Number7":[],"CharT":[],"ArrowUp":[],"ContextMenu":[],"Other":[],"OpenBracket":[],"Multiply":[],"Minus":[],"Pipe":[],"F13":[],"Circumflex":[],"Numpad7":[],"Space":[],"CloseCurlyBracket":[],"F1":[],"F18":[],"Home":[],"CharO":[],"F23":[],"Insert":[],"DoubleQuote":[],"Control":[],"BackSpace":[],"Execute":[],"Sleep":[],"F15":[],"Numpad1":[],"CapsLock":[],"CharB":[],"VolumeDown":[],"Number1":[],"CharR":[],"ArrowLeft":[],"Hash":[],"LessThan":[],"OpenCurlyBracket":[],"NumLock":[],"PrintScreen":[],"Separator":[],"Slash":[],"Comma":[],"F12":[],"Numpad6":[],"CharE":[],"Period":[],"Number6":[],"CharU":[],"At":[],"VolumeUp":[],"CharX":[],"Shift":[],"NonConvert":[],"Underscore":[],"Asterisk":[],"Accept":[],"F6":[],"Enter":[],"Dollar":[],"CharH":[],"F24":[],"CharC":[],"Number0":[],"Ampersand":[],"CharS":[],"QuestionMark":[],"ArrowDown":[],"Percent":[],"F14":[],"Numpad0":[],"Numpad5":[],"CharF":[],"Number5":[],"CharV":[],"F8":[],"F11":[],"Print":[],"F7":[],"CharI":[],"Super":[],"Colon":[],"CharY":[],"Clear":[],"VolumeMute":[],"Escape":[],"PageDown":[],"ArrowRight":[],"Add":[],"Help":[],"F2":[],"Subtract":[],"Altgr":[],"CharL":[],"F20":[],"End":[],"Tab":[],"F9":[],"F10":[],"Numpad4":[],"Convert":[],"CharG":[],"Number4":[],"CharW":[],"Equals":[],"CharJ":[],"Number9":[],"CharZ":[],"Plus":[],"F4":[],"Numpad9":[],"Quote":[],"Pause":[],"CharM":[],"F21":[],"ModeChange":[],"Meta":[],"F3":[],"F17":[],"Select":[],"Numpad3":[],"Number3":[],"CharP":[],"Tilde":[],"Divide":[],"F5":[],"Numpad8":[],"Decimal":[],"CharK":[],"Number8":[],"Exclamation":[],"Semicolon":[],"PageUp":[],"Cancel":[],"F19":[],"CloseBracket":[],"CharN":[],"F22":[],"CloseParen":[],"HyphenMinus":[],"BackSlash":[],"ScrollLock":[],"CharQ":[],"Alt":[],"BackQuote":[],"GreaterThan":[],"F16":[],"Delete":[],"Numpad2":[],"CharA":[],"Number2":[]}},"Msg.Msg":{"args":[],"tags":{"Redo":[],"ShareBoard":[],"ToggleHelp":[],"BoardUpdate":["Board.Msg.Msg"],"ClearBoard":[],"NewPage":["String"],"UrlChange":["Navigation.Location"],"Undo":[],"KeyCombo":["Keyboard.Combo.Msg"],"ResizeWindow":["Window.Size"],"NoOp":[]}},"Keyboard.Extra.Msg":{"args":[],"tags":{"Down":["Keyboard.Extra.Key"],"Up":["Keyboard.Extra.Key"]}},"Board.Msg.Msg":{"args":[],"tags":{"MoveBox":["Box.Types.MoveType","Box.Types.MoveDirection"],"SelectBoxMulti":["Box.Types.BoxKey"],"ResizeBox":["Box.Types.ResizeMode"],"SelectNextBox":[],"ReconnectSelections":[],"ClearBoard":[],"UpdateBoxColor":["Style.Color"],"Drop":["Box.Types.BoxKey","Dom.Types.DragEvent"],"EditingBox":["Box.Types.BoxKey","Bool"],"SelectPreviousBox":[],"DeselectBoxes":[],"DraggingBox":["Box.Types.BoxKey"],"DeleteSelections":[],"ConnectSelections":[],"SelectBox":["Box.Types.BoxKey"],"EditingSelectedBox":["Bool"],"DisconnectSelections":[],"BoxAction":["Box.Msg.Msg"],"NoOp":[],"NewBox":[]}}},"aliases":{"Box.Types.BoxKey":{"args":[],"type":"Int"},"Geometry.Types.Size":{"args":[],"type":"( Int, Int )"},"Geometry.Types.Point":{"args":[],"type":"( Int, Int )"},"Keyboard.Combo.Msg":{"args":[],"type":"Keyboard.Extra.Msg"},"Dom.Types.DragEvent":{"args":[],"type":"{ id : String , isStart : Bool , isEnd : Bool , isDrop : Bool , isMulti : Bool , startX : Int , endX : Int , startY : Int , endY : Int }"},"Style.Color":{"args":[],"type":"Style.Color.Color"},"Window.Size":{"args":[],"type":"{ width : Int, height : Int }"},"Geometry.Types.Geometric":{"args":["a"],"type":"{ a | position : Geometry.Types.Point, size : Geometry.Types.Size }"},"Style.Model":{"args":[],"type":"{ color : Style.Color }"},"Navigation.Location":{"args":[],"type":"{ href : String , host : String , hostname : String , protocol : String , origin : String , port_ : String , pathname : String , search : String , hash : String , username : String , password : String }"},"Box.Types.Model":{"args":[],"type":"Geometry.Types.Geometric { key : Box.Types.BoxKey , label : String , originalLabel : String , isEditing : Bool , isDragging : Bool , selectedIndex : Int , style : Style.Model }"}},"message":"Msg.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

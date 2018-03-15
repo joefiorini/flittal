@@ -244,7 +244,6 @@ subscriptions model =
     Sub.batch
         [ Interop.dragstart (\e -> Board.moveBoxAction e |> BoardUpdate)
         , Interop.drop (\e -> Board.moveBoxAction e |> BoardUpdate)
-        , Interop.loadedState LoadedState
         , Keys.subscriptions model.keys
         , Window.resizes ResizeWindow
         ]
@@ -272,14 +271,6 @@ initTimeMachine appState =
 step : Msg -> AppState -> ( AppState, Cmd Msg )
 step update state =
     case update of
-        LoadedState deserializedState ->
-            state ! []
-
-        -- deserializedState
-        --     |> decodeString decodeAppState
-        --     |> extractAppState
-        --     |> initTimeMachine
-        --     |> flip (!) [ Cmd.none ]
         NewPage path ->
             state ! [ Navigation.newUrl path ]
 
