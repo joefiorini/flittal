@@ -224,16 +224,6 @@ decodeAppState s =
         |> flip Decode.decodeString s
 
 
-extractAppState : Result.Result String AppState -> AppState
-extractAppState result =
-    case result of
-        Result.Ok state ->
-            state
-
-        Result.Err s ->
-            Debug.crash s
-
-
 subscriptions : AppState -> Sub Msg
 subscriptions model =
     Sub.batch

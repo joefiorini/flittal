@@ -21535,8 +21535,8 @@ var _joefiorini$flittal$Main$view = function (state) {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Main',
 				{
-					start: {line: 428, column: 13},
-					end: {line: 433, column: 57}
+					start: {line: 418, column: 13},
+					end: {line: 423, column: 57}
 				},
 				_p0)('No navigation history!');
 		}
@@ -21712,20 +21712,6 @@ var _joefiorini$flittal$Main$subscriptions = function (model) {
 			}
 		});
 };
-var _joefiorini$flittal$Main$extractAppState = function (result) {
-	var _p4 = result;
-	if (_p4.ctor === 'Ok') {
-		return _p4._0;
-	} else {
-		return _elm_lang$core$Native_Utils.crashCase(
-			'Main',
-			{
-				start: {line: 229, column: 5},
-				end: {line: 234, column: 26}
-			},
-			_p4)(_p4._0);
-	}
-};
 var _joefiorini$flittal$Main$decodeAppState = function (s) {
 	return A3(
 		_elm_lang$core$Basics$flip,
@@ -21879,28 +21865,28 @@ var _joefiorini$flittal$Main$movementCombos = function () {
 		});
 	return A2(
 		_elm_lang$core$List$concatMap,
-		function (_p6) {
-			var _p7 = _p6;
-			var _p9 = _p7._0;
-			var _p8 = _p7._1;
+		function (_p4) {
+			var _p5 = _p4;
+			var _p7 = _p5._0;
+			var _p6 = _p5._1;
 			return {
 				ctor: '::',
 				_0: A2(
 					_scottcorgan$keyboard_combo$Keyboard_Combo$combo1,
-					_p9,
-					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p8)),
+					_p7,
+					A2(moveAction, _joefiorini$flittal$Box_Types$Nudge, _p6)),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_scottcorgan$keyboard_combo$Keyboard_Combo$combo2,
-						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p9},
-						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p8)),
+						{ctor: '_Tuple2', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _p7},
+						A2(moveAction, _joefiorini$flittal$Box_Types$Push, _p6)),
 					_1: {
 						ctor: '::',
 						_0: A2(
 							_scottcorgan$keyboard_combo$Keyboard_Combo$combo3,
-							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p9},
-							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p8)),
+							{ctor: '_Tuple3', _0: _scottcorgan$keyboard_combo$Keyboard_Combo$shift, _1: _scottcorgan$keyboard_combo$Keyboard_Combo$alt, _2: _p7},
+							A2(moveAction, _joefiorini$flittal$Box_Types$Jump, _p6)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -22016,8 +22002,8 @@ var _joefiorini$flittal$Main$keyboardCombos = A2(
 						}
 					})))));
 var _joefiorini$flittal$Main$parseLocation = function (location) {
-	var _p10 = location.pathname;
-	switch (_p10) {
+	var _p8 = location.pathname;
+	switch (_p8) {
 		case '/':
 			return _joefiorini$flittal$Routes$Root;
 		case '/about':
@@ -22084,37 +22070,37 @@ var _joefiorini$flittal$Main$init = F2(
 	});
 var _joefiorini$flittal$Main$update = F2(
 	function (update, state) {
-		var _p11 = update;
-		switch (_p11.ctor) {
+		var _p9 = update;
+		switch (_p9.ctor) {
 			case 'NewPage':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					state,
 					{
 						ctor: '::',
-						_0: _elm_lang$navigation$Navigation$newUrl(_p11._0),
+						_0: _elm_lang$navigation$Navigation$newUrl(_p9._0),
 						_1: {ctor: '[]'}
 					});
 			case 'UrlChange':
-				var _p12 = _p11._0;
-				var newRoute = _joefiorini$flittal$Main$parseLocation(_p12);
+				var _p10 = _p9._0;
+				var newRoute = _joefiorini$flittal$Main$parseLocation(_p10);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
 						{
 							currentRoute: newRoute,
-							navigationHistory: {ctor: '::', _0: _p12, _1: state.navigationHistory}
+							navigationHistory: {ctor: '::', _0: _p10, _1: state.navigationHistory}
 						}),
 					{ctor: '[]'});
 			case 'BoardUpdate':
-				var _p17 = _p11._0;
-				var newBoard = A2(_joefiorini$flittal$Board_Controller$update, _p17, state.currentBoard);
+				var _p15 = _p9._0;
+				var newBoard = A2(_joefiorini$flittal$Board_Controller$update, _p15, state.currentBoard);
 				var focusBox = function (boxKey) {
 					var doNothing = function (task) {
 						return A2(
 							_elm_lang$core$Task$attempt,
-							function (_p13) {
+							function (_p11) {
 								return _joefiorini$flittal$Msg$NoOp;
 							},
 							task);
@@ -22132,40 +22118,40 @@ var _joefiorini$flittal$Main$update = F2(
 					};
 				};
 				var cmd = function () {
-					var _p14 = _p17;
-					_v6_2:
+					var _p12 = _p15;
+					_v5_2:
 					do {
-						switch (_p14.ctor) {
+						switch (_p12.ctor) {
 							case 'EditingSelectedBox':
-								if (_p14._0 === true) {
+								if (_p12._0 === true) {
 									var selectedBox = A2(
 										_elm_community$list_extra$List_Extra$find,
 										function (b) {
 											return !_elm_lang$core$Native_Utils.eq(b.selectedIndex, -1);
 										},
 										state.currentBoard.boxes);
-									var _p15 = selectedBox;
-									if (_p15.ctor === 'Just') {
-										return focusBox(_p15._0.key);
+									var _p13 = selectedBox;
+									if (_p13.ctor === 'Just') {
+										return focusBox(_p13._0.key);
 									} else {
 										return {ctor: '[]'};
 									}
 								} else {
-									break _v6_2;
+									break _v5_2;
 								}
 							case 'EditingBox':
-								return _p14._1 ? focusBox(_p14._0) : {ctor: '[]'};
+								return _p12._1 ? focusBox(_p12._0) : {ctor: '[]'};
 							default:
-								break _v6_2;
+								break _v5_2;
 						}
 					} while(false);
 					return {ctor: '[]'};
 				}();
 				var isRecordable = function () {
-					var _p16 = _p17;
-					_v8_7:
+					var _p14 = _p15;
+					_v7_7:
 					do {
-						switch (_p16.ctor) {
+						switch (_p14.ctor) {
 							case 'NewBox':
 								return true;
 							case 'DeleteSelections':
@@ -22179,13 +22165,13 @@ var _joefiorini$flittal$Main$update = F2(
 							case 'ResizeBox':
 								return true;
 							case 'BoxAction':
-								if (_p16._0.ctor === 'EditingBox') {
+								if (_p14._0.ctor === 'EditingBox') {
 									return true;
 								} else {
-									break _v8_7;
+									break _v7_7;
 								}
 							default:
-								break _v8_7;
+								break _v7_7;
 						}
 					} while(false);
 					return false;
@@ -22208,9 +22194,9 @@ var _joefiorini$flittal$Main$update = F2(
 						{currentBoard: updatedBoard}),
 					{ctor: '[]'});
 			case 'ShareBoard':
-				var serializeAndEncodeBoard = function (_p18) {
+				var serializeAndEncodeBoard = function (_p16) {
 					return _truqu$elm_base64$Base64$encode(
-						_joefiorini$flittal$Main$serializeBoardState(_p18));
+						_joefiorini$flittal$Main$serializeBoardState(_p16));
 				};
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -22254,9 +22240,9 @@ var _joefiorini$flittal$Main$update = F2(
 							{currentBoard: board, boardHistory: history});
 					}(history.present));
 			case 'KeyCombo':
-				var _p19 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p11._0, state.keys);
-				var keys = _p19._0;
-				var cmd = _p19._1;
+				var _p17 = A2(_scottcorgan$keyboard_combo$Keyboard_Combo$update, _p9._0, state.keys);
+				var keys = _p17._0;
+				var cmd = _p17._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -22265,8 +22251,8 @@ var _joefiorini$flittal$Main$update = F2(
 					_1: cmd
 				};
 			case 'ToggleHelp':
-				var _p20 = A2(_elm_lang$core$Debug$log, 'help', state.currentRoute);
-				if (_p20.ctor === 'Help') {
+				var _p18 = A2(_elm_lang$core$Debug$log, 'help', state.currentRoute);
+				if (_p18.ctor === 'Help') {
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						state,
@@ -22290,7 +22276,7 @@ var _joefiorini$flittal$Main$update = F2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						state,
-						{windowSize: _p11._0}),
+						{windowSize: _p9._0}),
 					{ctor: '[]'});
 			default:
 				return A2(
